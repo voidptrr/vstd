@@ -44,6 +44,13 @@ enum queue_status queue_push(struct queue *queue, const void *element);
 enum queue_status queue_popleft(struct queue *queue, void *out);
 
 /*
+ * Remove one element from the back into out.
+ * Returns QUEUE_OK, QUEUE_ERR_NULL for invalid pointers,
+ * or QUEUE_ERR_EMPTY when queue has no elements.
+ */
+enum queue_status queue_popback(struct queue *queue, void *out);
+
+/*
  * Release owned storage and reset queue to an empty state.
  * Returns QUEUE_OK, or QUEUE_ERR_NULL when queue is NULL.
  */

@@ -95,6 +95,26 @@ enum queue_status queue_popleft(struct queue *queue, void *out) {
     return QUEUE_OK;
 }
 
+enum queue_status queue_popback(struct queue *queue, void *out) {
+    if (queue == NULL || out == NULL) {
+        return QUEUE_ERR_NULL;
+    }
+
+    if (queue->size == 0) {
+        return QUEUE_ERR_EMPTY;
+    }
+
+    queue->tail = (queue->tail + queue->capacity - 1) % queue->capacity;
+
+    uint8_t *base = (uint8_t *)queue->buffer;
+    void *src = base + (queue->tail * queue->elem_size);
+    memcpy(out, src, queue->elem_size);
+
+    queue->size -= 1;
+
+    return QUEUE_OK;
+}
+
 enum queue_status queue_free(struct queue *queue) {
     if (queue == NULL) {
         return QUEUE_ERR_NULL;
@@ -117,5 +137,3 @@ size_t queue_size(struct queue *queue) {
 
     return queue->size;
 }
-
-enum queue_status queue_popleft(struct queue *queue, void *out);
