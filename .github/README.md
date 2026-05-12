@@ -7,7 +7,7 @@ This repository contains C implementations of core data structures and algorithm
 | Data Structure | Implemented |
 | --- | --- |
 | Vector | Yes |
-| Queue | No |
+| Queue | Yes |
 | Linked List | No |
 | Hash Table | No |
 | Binary Search Tree | No |
