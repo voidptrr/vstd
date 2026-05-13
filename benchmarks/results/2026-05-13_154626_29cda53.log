@@ -1,0 +1,21 @@
+benchmark_run_timestamp=2026-05-13_154626
+benchmark_commit_full=29cda53b696eac3c21e9b52a417640818979c9ca
+benchmark_compiler=gcc 15.2.0
+
+[ 50%] Built target bench-vector-push-pop
+[100%] Built target bench-queue-push-pop
+
+queue benchmark
+ops=10000000 trials=30
+case                     |  min ns/op | median ns/op |  p95 ns/op |      ops/sec
+-------------------------+------------+--------------+------------+-------------
+steady_push_pop          |      2.152 |        2.163 |      3.787 |    462408709
+growth_push_pop          |      3.166 |        3.236 |      3.284 |    309037978
+
+vector benchmark
+ops=10000000 trials=30
+case                     |  min ns/op | median ns/op |  p95 ns/op |      ops/sec
+-------------------------+------------+--------------+------------+-------------
+steady_push_pop          |      2.113 |        2.128 |      3.650 |    469839665
+growth_push_pop          |      2.656 |        2.682 |      2.769 |    372900448
+[100%] Built target bench
