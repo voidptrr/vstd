@@ -26,4 +26,4 @@ Personal C standard-library style workspace for reusable data structures, algori
 
 - Format: `nix develop -c format-check`
 - Hardened compile + tests: `nix develop -c compile-hard`
-- Full tests: `nix develop -c test-all` Data Structures and Algorithms
+- Full tests: `nix develop -c test-all`
