@@ -13,7 +13,7 @@ function(dsa_add_test TARGET_KEY TEST_FILE)
   list(GET TARGET_PARTS 0 TARGET_GROUP)
   list(GET TARGET_PARTS 1 TARGET_NAME_RAW)
 
-  set(SOURCE_FILE "${CMAKE_SOURCE_DIR}/src/${TARGET_NAME_RAW}.c")
+  set(SOURCE_FILE "${CMAKE_SOURCE_DIR}/src/${TARGET_GROUP}/${TARGET_NAME_RAW}.c")
   if(NOT EXISTS "${SOURCE_FILE}")
     message(FATAL_ERROR "Missing source file for ${TARGET_KEY}: ${SOURCE_FILE}")
   endif()
@@ -24,7 +24,7 @@ function(dsa_add_test TARGET_KEY TEST_FILE)
   endif()
 
   add_executable(${EXECUTABLE_NAME} ${SOURCE_FILE} ${TEST_FILE})
-  target_include_directories(${EXECUTABLE_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/src")
+  target_include_directories(${EXECUTABLE_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
 
   set(CTEST_NAME "${EXECUTABLE_NAME}")
   if(DEFINED DSA_TEST_TEST_NAME AND NOT DSA_TEST_TEST_NAME STREQUAL "")

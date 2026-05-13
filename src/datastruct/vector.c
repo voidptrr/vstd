@@ -1,41 +1,39 @@
-#include <stddef.h>
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include "vector.h"
+#include "datastruct/vector.h"
 
-#define DEFAULT_CAPACITY 16
+#define CSTD_VECTOR_DEFAULT_CAPACITY 16
 
-enum vector_status vector_init(struct vector *vector, size_t elem_size) {
+cstd_status cstd_vector_init(cstd_vector *vector, size_t elem_size) {
     if (vector == NULL) {
-        return VECTOR_ERR_NULL;
+        return CSTD_ERR_NULL;
     }
 
-    void *buffer = malloc(elem_size * DEFAULT_CAPACITY);
+    void *buffer = malloc(elem_size * CSTD_VECTOR_DEFAULT_CAPACITY);
     if (buffer == NULL) {
-        return VECTOR_ERR_OOM;
+        return CSTD_ERR_OOM;
     }
 
     vector->buffer = buffer;
     vector->size = 0;
     vector->elem_size = elem_size;
-    vector->capacity = DEFAULT_CAPACITY;
+    vector->capacity = CSTD_VECTOR_DEFAULT_CAPACITY;
 
-    return VECTOR_OK;
+    return CSTD_OK;
 }
 
-enum vector_status vector_push(struct vector *vector, const void *element) {
+cstd_status cstd_vector_push(cstd_vector *vector, const void *element) {
     if (vector == NULL || element == NULL) {
-        return VECTOR_ERR_NULL;
+        return CSTD_ERR_NULL;
     }
 
     if (vector->size == vector->capacity) {
-        size_t new_capacity = vector->capacity *= 2;
+        size_t new_capacity = vector->capacity * 2;
         void *tmp = realloc(vector->buffer, new_capacity * vector->elem_size);
-
         if (tmp == NULL) {
-            return VECTOR_ERR_OOM;
+            return CSTD_ERR_OOM;
         }
 
         vector->buffer = tmp;
@@ -47,16 +45,16 @@ enum vector_status vector_push(struct vector *vector, const void *element) {
     memcpy(dst, element, vector->elem_size);
     vector->size += 1;
 
-    return VECTOR_OK;
+    return CSTD_OK;
 }
 
-enum vector_status vector_pop(struct vector *vector, void *out) {
+cstd_status cstd_vector_pop(cstd_vector *vector, void *out) {
     if (vector == NULL || out == NULL) {
-        return VECTOR_ERR_NULL;
+        return CSTD_ERR_NULL;
     }
 
     if (vector->size == 0) {
-        return VECTOR_ERR_EMPTY;
+        return CSTD_ERR_EMPTY;
     }
 
     vector->size -= 1;
@@ -65,12 +63,12 @@ enum vector_status vector_pop(struct vector *vector, void *out) {
     void *src = base + (vector->size * vector->elem_size);
     memcpy(out, src, vector->elem_size);
 
-    return VECTOR_OK;
+    return CSTD_OK;
 }
 
-enum vector_status vector_free(struct vector *vector) {
+cstd_status cstd_vector_free(cstd_vector *vector) {
     if (vector == NULL) {
-        return VECTOR_ERR_NULL;
+        return CSTD_ERR_NULL;
     }
 
     free(vector->buffer);
@@ -78,10 +76,10 @@ enum vector_status vector_free(struct vector *vector) {
     vector->size = 0;
     vector->capacity = 0;
 
-    return VECTOR_OK;
+    return CSTD_OK;
 }
 
-size_t vector_size(struct vector *vector) {
+size_t cstd_vector_size(const cstd_vector *vector) {
     if (vector == NULL) {
         return 0;
     }

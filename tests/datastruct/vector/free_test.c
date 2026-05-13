@@ -1,14 +1,14 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "vector.h"
+#include "datastruct/vector.h"
 
 static int test_vector_free_null_pointer(void) {
-    enum vector_status status;
+    cstd_status status;
 
-    status = vector_free(NULL);
-    if (status != VECTOR_ERR_NULL) {
-        fprintf(stderr, "vector_free(NULL) should return VECTOR_ERR_NULL\n");
+    status = cstd_vector_free(NULL);
+    if (status != CSTD_ERR_NULL) {
+        fprintf(stderr, "cstd_vector_free(NULL) should return CSTD_ERR_NULL\n");
         return 1;
     }
 
@@ -16,12 +16,12 @@ static int test_vector_free_null_pointer(void) {
 }
 
 static int test_vector_free_null_buffer(void) {
-    enum vector_status status;
-    struct vector v = {0};
+    cstd_status status;
+    cstd_vector v = {0};
 
-    status = vector_free(&v);
-    if (status != VECTOR_OK) {
-        fprintf(stderr, "vector_free(&v) with NULL buffer should return VECTOR_OK\n");
+    status = cstd_vector_free(&v);
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_vector_free(&v) with NULL buffer should return CSTD_OK\n");
         return 1;
     }
 
@@ -29,29 +29,29 @@ static int test_vector_free_null_buffer(void) {
 }
 
 static int test_vector_free_valid_vector(void) {
-    enum vector_status status;
-    struct vector v;
+    cstd_status status;
+    cstd_vector v;
 
-    status = vector_init(&v, sizeof(int));
-    if (status != VECTOR_OK) {
-        fprintf(stderr, "vector_init(&v, ...) should return VECTOR_OK\n");
+    status = cstd_vector_init(&v, sizeof(int));
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_vector_init(&v, ...) should return CSTD_OK\n");
         return 1;
     }
 
-    status = vector_free(&v);
-    if (status != VECTOR_OK) {
-        fprintf(stderr, "vector_free(&v) should return VECTOR_OK\n");
+    status = cstd_vector_free(&v);
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_vector_free(&v) should return CSTD_OK\n");
         return 1;
     }
 
     if (v.buffer != NULL || v.size != 0 || v.capacity != 0) {
-        fprintf(stderr, "vector_free(&v) should reset buffer, size, and capacity\n");
+        fprintf(stderr, "cstd_vector_free(&v) should reset buffer, size, and capacity\n");
         return 1;
     }
 
-    status = vector_free(&v);
-    if (status != VECTOR_OK) {
-        fprintf(stderr, "vector_free(&v) should be idempotent\n");
+    status = cstd_vector_free(&v);
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_vector_free(&v) should be idempotent\n");
         return 1;
     }
 

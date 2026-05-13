@@ -2,22 +2,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "queue.h"
+#include "datastruct/queue.h"
 
 static int test_queue_push_appends_value(void) {
-    enum queue_status status;
-    struct queue q;
+    cstd_status status;
+    cstd_queue q;
     int value = 42;
 
-    status = queue_init(&q, sizeof(int));
-    if (status != QUEUE_OK) {
-        fprintf(stderr, "queue_init(&q, ...) should return QUEUE_OK\n");
+    status = cstd_queue_init(&q, sizeof(int));
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_queue_init(&q, ...) should return CSTD_OK\n");
         return 1;
     }
 
-    status = queue_push(&q, &value);
-    if (status != QUEUE_OK) {
-        fprintf(stderr, "queue_push(&q, &value) should return QUEUE_OK\n");
+    status = cstd_queue_push(&q, &value);
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_queue_push(&q, &value) should return CSTD_OK\n");
         free(q.buffer);
         return 1;
     }
@@ -45,25 +45,25 @@ static int test_queue_push_appends_value(void) {
 }
 
 static int test_queue_push_null_pointers(void) {
-    enum queue_status status;
-    struct queue q;
+    cstd_status status;
+    cstd_queue q;
     int value = 1;
 
-    status = queue_push(NULL, &value);
-    if (status != QUEUE_ERR_NULL) {
-        fprintf(stderr, "queue_push(NULL, &value) should return QUEUE_ERR_NULL\n");
+    status = cstd_queue_push(NULL, &value);
+    if (status != CSTD_ERR_NULL) {
+        fprintf(stderr, "cstd_queue_push(NULL, &value) should return CSTD_ERR_NULL\n");
         return 1;
     }
 
-    status = queue_init(&q, sizeof(int));
-    if (status != QUEUE_OK) {
-        fprintf(stderr, "queue_init(&q, ...) should return QUEUE_OK\n");
+    status = cstd_queue_init(&q, sizeof(int));
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_queue_init(&q, ...) should return CSTD_OK\n");
         return 1;
     }
 
-    status = queue_push(&q, NULL);
-    if (status != QUEUE_ERR_NULL) {
-        fprintf(stderr, "queue_push(&q, NULL) should return QUEUE_ERR_NULL\n");
+    status = cstd_queue_push(&q, NULL);
+    if (status != CSTD_ERR_NULL) {
+        fprintf(stderr, "cstd_queue_push(&q, NULL) should return CSTD_ERR_NULL\n");
         free(q.buffer);
         return 1;
     }
@@ -73,17 +73,17 @@ static int test_queue_push_null_pointers(void) {
 }
 
 static int test_queue_push_wraparound_growth(void) {
-    enum queue_status status;
-    struct queue q;
+    cstd_status status;
+    cstd_queue q;
     int pushed = 99;
     int popped = 0;
     int i;
     size_t initial_capacity;
     size_t pop_count;
 
-    status = queue_init(&q, sizeof(int));
-    if (status != QUEUE_OK) {
-        fprintf(stderr, "queue_init(&q, ...) should return QUEUE_OK\n");
+    status = cstd_queue_init(&q, sizeof(int));
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_queue_init(&q, ...) should return CSTD_OK\n");
         return 1;
     }
 
@@ -92,64 +92,64 @@ static int test_queue_push_wraparound_growth(void) {
 
     for (i = 0; i < (int)initial_capacity; i++) {
         int value = i;
-        status = queue_push(&q, &value);
-        if (status != QUEUE_OK) {
-            fprintf(stderr, "queue_push should fill queue up to capacity\n");
-            queue_free(&q);
+        status = cstd_queue_push(&q, &value);
+        if (status != CSTD_OK) {
+            fprintf(stderr, "cstd_queue_push should fill queue up to capacity\n");
+            cstd_queue_free(&q);
             return 1;
         }
     }
 
     for (i = 0; i < (int)pop_count; i++) {
-        status = queue_popleft(&q, &popped);
-        if (status != QUEUE_OK || popped != i) {
-            fprintf(stderr, "queue_popleft should dequeue initial FIFO values\n");
-            queue_free(&q);
+        status = cstd_queue_popleft(&q, &popped);
+        if (status != CSTD_OK || popped != i) {
+            fprintf(stderr, "cstd_queue_popleft should dequeue initial FIFO values\n");
+            cstd_queue_free(&q);
             return 1;
         }
     }
 
     for (i = (int)initial_capacity; i < (int)(initial_capacity + pop_count); i++) {
         int value = i;
-        status = queue_push(&q, &value);
-        if (status != QUEUE_OK) {
-            fprintf(stderr, "queue_push should wrap and refill queue\n");
-            queue_free(&q);
+        status = cstd_queue_push(&q, &value);
+        if (status != CSTD_OK) {
+            fprintf(stderr, "cstd_queue_push should wrap and refill queue\n");
+            cstd_queue_free(&q);
             return 1;
         }
     }
 
-    status = queue_push(&q, &pushed);
-    if (status != QUEUE_OK) {
-        fprintf(stderr, "queue_push should succeed on wrapped full queue\n");
-        queue_free(&q);
+    status = cstd_queue_push(&q, &pushed);
+    if (status != CSTD_OK) {
+        fprintf(stderr, "cstd_queue_push should succeed on wrapped full queue\n");
+        cstd_queue_free(&q);
         return 1;
     }
 
     if (q.capacity != initial_capacity * 2 || q.size != initial_capacity + 1 || q.head != 0 ||
         q.tail != initial_capacity + 1) {
-        fprintf(stderr, "queue_push should grow and normalize wrapped queue indices\n");
-        queue_free(&q);
+        fprintf(stderr, "cstd_queue_push should grow and normalize wrapped queue indices\n");
+        cstd_queue_free(&q);
         return 1;
     }
 
     for (i = (int)pop_count; i < (int)(initial_capacity + pop_count); i++) {
-        status = queue_popleft(&q, &popped);
-        if (status != QUEUE_OK || popped != i) {
-            fprintf(stderr, "queue should preserve FIFO order after wrapped growth\n");
-            queue_free(&q);
+        status = cstd_queue_popleft(&q, &popped);
+        if (status != CSTD_OK || popped != i) {
+            fprintf(stderr, "cstd_queue should preserve FIFO order after wrapped growth\n");
+            cstd_queue_free(&q);
             return 1;
         }
     }
 
-    status = queue_popleft(&q, &popped);
-    if (status != QUEUE_OK || popped != pushed) {
-        fprintf(stderr, "queue should keep newly pushed element after growth\n");
-        queue_free(&q);
+    status = cstd_queue_popleft(&q, &popped);
+    if (status != CSTD_OK || popped != pushed) {
+        fprintf(stderr, "cstd_queue should keep newly pushed element after growth\n");
+        cstd_queue_free(&q);
         return 1;
     }
 
-    queue_free(&q);
+    cstd_queue_free(&q);
     return 0;
 }
 
