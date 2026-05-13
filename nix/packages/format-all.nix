@@ -11,6 +11,6 @@ pkgs.writeShellApplication {
 
     alejandra .
 
-    find src tests -type f \( -name '*.c' -o -name '*.h' \) -print0 | xargs -0 --no-run-if-empty clang-format -i
+    find src tests include -type f \( -name '*.c' -o -name '*.h' \) -print0 | xargs -0 --no-run-if-empty clang-format -i
   '';
 }

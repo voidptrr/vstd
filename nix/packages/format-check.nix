@@ -12,7 +12,7 @@ pkgs.writeShellApplication {
 
     alejandra --check .
 
-    files="$(find src tests -type f \( -name '*.c' -o -name '*.h' \) | sort)"
+    files="$(find src tests include -type f \( -name '*.c' -o -name '*.h' \) | sort)"
     if [ -z "$files" ]; then
       exit 0
     fi
