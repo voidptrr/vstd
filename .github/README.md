@@ -1,4 +1,4 @@
-# cstd 
+# cstd
 
 Personal C standard-library style workspace for reusable data structures, algorithms, and utilities.
 
