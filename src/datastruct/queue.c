@@ -6,6 +6,42 @@
 
 #define CSTD_QUEUE_DEFAULT_CAPACITY 16
 
+static enum cstd_status cstd_queue_grow(struct cstd_queue *queue) {
+    size_t old_capacity = queue->capacity;
+    size_t new_capacity = old_capacity * 2;
+    uint8_t *old_buffer = (uint8_t *)queue->buffer;
+    uint8_t *new_buffer = malloc(new_capacity * queue->elem_size);
+
+    if (new_buffer == NULL) {
+        return CSTD_ERR_OOM;
+    }
+
+    if (queue->size > 0) {
+        if (queue->head < queue->tail) {
+            memcpy(new_buffer, old_buffer + (queue->head * queue->elem_size),
+                   queue->size * queue->elem_size);
+        } else {
+            size_t first_count = old_capacity - queue->head;
+            size_t second_count = queue->tail;
+
+            memcpy(new_buffer, old_buffer + (queue->head * queue->elem_size),
+                   first_count * queue->elem_size);
+            if (second_count > 0) {
+                memcpy(new_buffer + (first_count * queue->elem_size), old_buffer,
+                       second_count * queue->elem_size);
+            }
+        }
+    }
+
+    free(queue->buffer);
+    queue->buffer = new_buffer;
+    queue->capacity = new_capacity;
+    queue->head = 0;
+    queue->tail = queue->size;
+
+    return CSTD_OK;
+}
+
 enum cstd_status cstd_queue_init(struct cstd_queue *queue, size_t elem_size) {
     if (queue == NULL) {
         return CSTD_ERR_NULL;
@@ -32,37 +68,10 @@ enum cstd_status cstd_queue_push(struct cstd_queue *queue, const void *element) 
     }
 
     if (queue->size == queue->capacity) {
-        size_t old_capacity = queue->capacity;
-        size_t new_capacity = old_capacity * 2;
-        uint8_t *old_buffer = (uint8_t *)queue->buffer;
-        uint8_t *new_buffer = malloc(new_capacity * queue->elem_size);
-
-        if (new_buffer == NULL) {
-            return CSTD_ERR_OOM;
+        enum cstd_status status = cstd_queue_grow(queue);
+        if (status != CSTD_OK) {
+            return status;
         }
-
-        if (queue->size > 0) {
-            if (queue->head < queue->tail) {
-                memcpy(new_buffer, old_buffer + (queue->head * queue->elem_size),
-                       queue->size * queue->elem_size);
-            } else {
-                size_t first_count = old_capacity - queue->head;
-                size_t second_count = queue->tail;
-
-                memcpy(new_buffer, old_buffer + (queue->head * queue->elem_size),
-                       first_count * queue->elem_size);
-                if (second_count > 0) {
-                    memcpy(new_buffer + (first_count * queue->elem_size), old_buffer,
-                           second_count * queue->elem_size);
-                }
-            }
-        }
-
-        free(queue->buffer);
-        queue->buffer = new_buffer;
-        queue->capacity = new_capacity;
-        queue->head = 0;
-        queue->tail = queue->size;
     }
 
     uint8_t *base = (uint8_t *)queue->buffer;
@@ -70,6 +79,28 @@ enum cstd_status cstd_queue_push(struct cstd_queue *queue, const void *element) 
     memcpy(dst, element, queue->elem_size);
     queue->size += 1;
     queue->tail = (queue->tail + 1) % queue->capacity;
+
+    return CSTD_OK;
+}
+
+enum cstd_status cstd_queue_pushfront(struct cstd_queue *queue, const void *element) {
+    if (queue == NULL || element == NULL) {
+        return CSTD_ERR_NULL;
+    }
+
+    if (queue->size == queue->capacity) {
+        enum cstd_status status = cstd_queue_grow(queue);
+        if (status != CSTD_OK) {
+            return status;
+        }
+    }
+
+    queue->head = (queue->head + queue->capacity - 1) % queue->capacity;
+
+    uint8_t *base = (uint8_t *)queue->buffer;
+    void *dst = base + (queue->head * queue->elem_size);
+    memcpy(dst, element, queue->elem_size);
+    queue->size += 1;
 
     return CSTD_OK;
 }

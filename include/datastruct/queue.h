@@ -28,6 +28,9 @@ enum cstd_status cstd_queue_init(struct cstd_queue *queue, size_t elem_size);
 /* Enqueue one element by copying elem_size bytes from element. */
 enum cstd_status cstd_queue_push(struct cstd_queue *queue, const void *element);
 
+/* Enqueue one element at the front by copying elem_size bytes from element. */
+enum cstd_status cstd_queue_pushfront(struct cstd_queue *queue, const void *element);
+
 /* Dequeue one element from the front into out. */
 enum cstd_status cstd_queue_popleft(struct cstd_queue *queue, void *out);
 
