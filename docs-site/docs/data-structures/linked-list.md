@@ -25,7 +25,7 @@ cstd_status cstd_linked_list_push(cstd_linked_list *list, const void *element);
 
 - Parameters: `list`, `element`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `list` or `element` is `NULL`; CSTD_ERR_OOM on allocation failure.
+- Errors: CSTD_ERR_NULL if `list` or `element` is `NULL`.
 
 ### cstd_linked_list_pushfront
 
@@ -35,7 +35,7 @@ cstd_status cstd_linked_list_pushfront(cstd_linked_list *list, const void *eleme
 
 - Parameters: `list`, `element`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `list` or `element` is `NULL`; CSTD_ERR_OOM on allocation failure.
+- Errors: CSTD_ERR_NULL if `list` or `element` is `NULL`.
 
 ### cstd_linked_list_popleft
 

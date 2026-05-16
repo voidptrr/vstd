@@ -13,10 +13,6 @@ static cstd_status cstd_queue_grow(cstd_queue *queue) {
     uint8_t *old_buffer = (uint8_t *)queue->buffer;
     uint8_t *new_buffer = cstd_malloc(new_capacity * queue->elem_size);
 
-    if (new_buffer == NULL) {
-        return CSTD_ERR_OOM;
-    }
-
     if (queue->size > 0) {
         if (queue->head < queue->tail) {
             memcpy(new_buffer, old_buffer + (queue->head * queue->elem_size),
@@ -53,9 +49,6 @@ cstd_status cstd_queue_init(cstd_queue *queue, size_t elem_size) {
     }
 
     void *buffer = cstd_malloc(elem_size * CSTD_QUEUE_DEFAULT_CAPACITY);
-    if (buffer == NULL) {
-        return CSTD_ERR_OOM;
-    }
 
     queue->size = 0;
     queue->elem_size = elem_size;

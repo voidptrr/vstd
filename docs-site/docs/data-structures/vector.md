@@ -15,7 +15,7 @@ cstd_status cstd_vector_init(cstd_vector *vector, size_t elem_size);
 
 - Parameters: `vector`, `elem_size`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `vector` is `NULL`; CSTD_ERR_RANGE if `elem_size == 0`; CSTD_ERR_OOM on allocation failure.
+- Errors: CSTD_ERR_NULL if `vector` is `NULL`; CSTD_ERR_RANGE if `elem_size == 0`.
 
 ### cstd_vector_push
 
@@ -25,7 +25,7 @@ cstd_status cstd_vector_push(cstd_vector *vector, const void *element);
 
 - Parameters: `vector`, `element`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `vector` or `element` is `NULL`; CSTD_ERR_OOM on growth allocation failure.
+- Errors: CSTD_ERR_NULL if `vector` or `element` is `NULL`.
 
 ### cstd_vector_pop
 

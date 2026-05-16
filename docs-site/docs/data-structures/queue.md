@@ -15,7 +15,7 @@ cstd_status cstd_queue_init(cstd_queue *queue, size_t elem_size);
 
 - Parameters: `queue`, `elem_size`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `queue` is `NULL`; CSTD_ERR_RANGE if `elem_size == 0`; CSTD_ERR_OOM on allocation failure.
+- Errors: CSTD_ERR_NULL if `queue` is `NULL`; CSTD_ERR_RANGE if `elem_size == 0`.
 
 ### cstd_queue_push
 
@@ -25,7 +25,7 @@ cstd_status cstd_queue_push(cstd_queue *queue, const void *element);
 
 - Parameters: `queue`, `element`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `queue` or `element` is `NULL`; CSTD_ERR_OOM on growth allocation failure.
+- Errors: CSTD_ERR_NULL if `queue` or `element` is `NULL`.
 
 ### cstd_queue_pushfront
 
@@ -35,7 +35,7 @@ cstd_status cstd_queue_pushfront(cstd_queue *queue, const void *element);
 
 - Parameters: `queue`, `element`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `queue` or `element` is `NULL`; CSTD_ERR_OOM on growth allocation failure.
+- Errors: CSTD_ERR_NULL if `queue` or `element` is `NULL`.
 
 ### cstd_queue_popleft
 

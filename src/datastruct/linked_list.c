@@ -27,15 +27,8 @@ cstd_status cstd_linked_list_push(cstd_linked_list *list, const void *element) {
     }
 
     cstd_linked_list_node *new_node = cstd_malloc(sizeof(cstd_linked_list_node));
-    if (new_node == NULL) {
-        return CSTD_ERR_OOM;
-    }
 
     new_node->data = cstd_malloc(list->elem_size);
-    if (new_node->data == NULL) {
-        free(new_node);
-        return CSTD_ERR_OOM;
-    }
 
     memcpy(new_node->data, element, list->elem_size);
     new_node->next = NULL;
@@ -58,15 +51,8 @@ cstd_status cstd_linked_list_pushfront(cstd_linked_list *list, const void *eleme
     }
 
     cstd_linked_list_node *new_node = cstd_malloc(sizeof(cstd_linked_list_node));
-    if (new_node == NULL) {
-        return CSTD_ERR_OOM;
-    }
 
     new_node->data = cstd_malloc(list->elem_size);
-    if (new_node->data == NULL) {
-        free(new_node);
-        return CSTD_ERR_OOM;
-    }
 
     memcpy(new_node->data, element, list->elem_size);
     new_node->next = list->head;

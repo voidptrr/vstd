@@ -15,7 +15,7 @@ cstd_status cstd_binary_heap_init(cstd_binary_heap *heap, size_t elem_size, cstd
 
 - Parameters: `heap`, `elem_size`, `cmp`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `heap` or `cmp` is `NULL`; CSTD_ERR_RANGE if `elem_size == 0`; CSTD_ERR_OOM on allocation failure.
+- Errors: CSTD_ERR_NULL if `heap` or `cmp` is `NULL`; CSTD_ERR_RANGE if `elem_size == 0`.
 
 ### cstd_binary_heap_push
 
@@ -25,7 +25,7 @@ cstd_status cstd_binary_heap_push(cstd_binary_heap *heap, const void *element);
 
 - Parameters: `heap`, `element`
 - Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `heap` or `element` is `NULL`; CSTD_ERR_OOM on growth allocation failure.
+- Errors: CSTD_ERR_NULL if `heap` or `element` is `NULL`.
 
 ### cstd_binary_heap_pop
 

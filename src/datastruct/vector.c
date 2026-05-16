@@ -17,9 +17,6 @@ cstd_status cstd_vector_init(cstd_vector *vector, size_t elem_size) {
     }
 
     void *buffer = cstd_malloc(elem_size * CSTD_VECTOR_DEFAULT_CAPACITY);
-    if (buffer == NULL) {
-        return CSTD_ERR_OOM;
-    }
 
     vector->buffer = buffer;
     vector->size = 0;
@@ -37,9 +34,6 @@ cstd_status cstd_vector_push(cstd_vector *vector, const void *element) {
     if (vector->size == vector->capacity) {
         size_t new_capacity = vector->capacity * 2;
         void *tmp = cstd_realloc(vector->buffer, new_capacity * vector->elem_size);
-        if (tmp == NULL) {
-            return CSTD_ERR_OOM;
-        }
 
         vector->buffer = tmp;
         vector->capacity = new_capacity;
