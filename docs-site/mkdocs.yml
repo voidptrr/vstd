@@ -9,12 +9,29 @@ theme:
   name: material
   palette:
     scheme: slate
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.instant
+    - toc.follow
+  font:
+    text: Inter
+    code: JetBrains Mono
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: false
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences
 extra_css:
   - stylesheets/extra.css
 nav:
-  - Overview: index.md
-  - Getting Started: getting-started.md
-  - Data Structures:
-      - Vector: data-structures/vector.md
-      - Queue: data-structures/queue.md
-      - Linked List: data-structures/linked-list.md
+  - cstd:
+      - Overview: index.md
+      - cstd.status: reference/cstd-status.md
+      - cstd.datastruct:
+          - Overview: reference/cstd-datastruct.md
+          - cstd.datastruct.vector: data-structures/vector.md
+          - cstd.datastruct.queue: data-structures/queue.md
+          - cstd.datastruct.linked_list: data-structures/linked-list.md
+          - cstd.datastruct.benchmarks: benchmarks.md

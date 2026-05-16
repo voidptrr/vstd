@@ -1,22 +1,12 @@
-# Overview
+# cstd
 
-`cstd` is an enhanced standard-library style layer for C: familiar container primitives with consistent APIs, explicit status codes, and benchmark-backed performance.
+`cstd` is an enhanced C standard-library style layer built for reuse across projects.
+It provides common data structures with consistent behavior, predictable error handling,
+and a simple API model that is easy to adopt in low-level C codebases.
 
-## Why cstd
+Core principles:
 
-- Keep the ergonomics of a "standard" container module in plain C.
-- Use one naming scheme and one error model across containers.
-- Make behavior predictable in low-level code and embedded-style workflows.
-- Keep performance visible with repeatable benchmark runs.
-
-## Current containers
-
-- `vector`
-- `queue`
-- `linked_list`
-
-## API style
-
-- Typedef-first public types (for less noisy call sites).
-- `cstd_status` return values instead of hidden failure states.
-- Generic element storage via `elem_size` + copy-based operations.
+- Reusable container primitives for everyday C development.
+- Common behavior contracts across data structures (null handling, empty handling, status returns).
+- Predictable performance characteristics with benchmark visibility.
+- Small, practical API surface focused on clarity and portability.

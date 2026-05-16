@@ -1,18 +1,117 @@
-# Queue
+# cstd.datastruct.queue
 
-## Operations
+## DESCRIPTION
 
-| Operation | API | Complexity | Notes |
-|---|---|---|---|
-| Push back | `cstd_queue_push` | Amortized O(1) | Can trigger growth/realloc |
-| Push front | `cstd_queue_pushfront` | Amortized O(1) | Can trigger growth/realloc |
-| Pop left | `cstd_queue_popleft` | O(1) | Fails on empty queue |
-| Pop back | `cstd_queue_popback` | O(1) | Fails on empty queue |
-| Peek left | `cstd_queue_peekleft` | O(1) | Reads front element without removing |
-| Peek back | `cstd_queue_peekback` | O(1) | Reads back element without removing |
-| Is empty | `cstd_queue_is_empty` | O(1) | Checks whether size is zero |
+The queue module provides a generic circular-buffer deque for fixed-size elements.
+It supports front and back insertion/removal and read-only peeks on both ends.
 
-## API usage
+## FUNCTIONS
+
+### cstd_queue_init
+
+```c
+cstd_status cstd_queue_init(cstd_queue *queue, size_t elem_size);
+```
+
+- Parameters: `queue`, `elem_size`
+- Returns: CSTD_OK on success.
+- Errors: CSTD_ERR_NULL if `queue` is `NULL`; CSTD_ERR_RANGE if `elem_size == 0`; CSTD_ERR_OOM on allocation failure.
+
+### cstd_queue_push
+
+```c
+cstd_status cstd_queue_push(cstd_queue *queue, const void *element);
+```
+
+- Parameters: `queue`, `element`
+- Returns: CSTD_OK on success.
+- Errors: CSTD_ERR_NULL if `queue` or `element` is `NULL`; CSTD_ERR_OOM on growth allocation failure.
+
+### cstd_queue_pushfront
+
+```c
+cstd_status cstd_queue_pushfront(cstd_queue *queue, const void *element);
+```
+
+- Parameters: `queue`, `element`
+- Returns: CSTD_OK on success.
+- Errors: CSTD_ERR_NULL if `queue` or `element` is `NULL`; CSTD_ERR_OOM on growth allocation failure.
+
+### cstd_queue_popleft
+
+```c
+cstd_status cstd_queue_popleft(cstd_queue *queue, void *out);
+```
+
+- Parameters: `queue`, `out`
+- Returns: CSTD_OK on success.
+- Errors: CSTD_ERR_NULL if `queue` or `out` is `NULL`; CSTD_ERR_EMPTY if queue is empty.
+- Notes: output parameter content is unspecified on failure.
+
+### cstd_queue_popback
+
+```c
+cstd_status cstd_queue_popback(cstd_queue *queue, void *out);
+```
+
+- Parameters: `queue`, `out`
+- Returns: CSTD_OK on success.
+- Errors: CSTD_ERR_NULL if `queue` or `out` is `NULL`; CSTD_ERR_EMPTY if queue is empty.
+- Notes: output parameter content is unspecified on failure.
+
+### cstd_queue_peekleft
+
+```c
+cstd_status cstd_queue_peekleft(const cstd_queue *queue, void *out);
+```
+
+- Parameters: `queue`, `out`
+- Returns: CSTD_OK on success.
+- Errors: CSTD_ERR_NULL if `queue` or `out` is `NULL`; CSTD_ERR_EMPTY if queue is empty.
+- Notes: output parameter content is unspecified on failure.
+
+### cstd_queue_peekback
+
+```c
+cstd_status cstd_queue_peekback(const cstd_queue *queue, void *out);
+```
+
+- Parameters: `queue`, `out`
+- Returns: CSTD_OK on success.
+- Errors: CSTD_ERR_NULL if `queue` or `out` is `NULL`; CSTD_ERR_EMPTY if queue is empty.
+- Notes: output parameter content is unspecified on failure.
+
+### cstd_queue_free
+
+```c
+cstd_status cstd_queue_free(cstd_queue *queue);
+```
+
+- Parameters: `queue`
+- Returns: CSTD_OK on success.
+- Errors: CSTD_ERR_NULL if `queue` is `NULL`.
+
+### cstd_queue_size
+
+```c
+size_t cstd_queue_size(const cstd_queue *queue);
+```
+
+- Parameters: `queue`
+- Returns: current element count.
+- Notes: returns `0` when `queue` is `NULL`.
+
+### cstd_queue_is_empty
+
+```c
+bool cstd_queue_is_empty(const cstd_queue *queue);
+```
+
+- Parameters: `queue`
+- Returns: `true` when empty; otherwise `false`.
+- Notes: returns `true` when `queue` is `NULL`.
+
+## EXAMPLE
 
 ```c
 #include <cstd/datastruct/queue.h>
@@ -21,37 +120,23 @@
 
 int main(void) {
     cstd_queue q;
+    uint64_t first = 10;
+    uint64_t second = 20;
+    uint64_t out = 0;
+
     if (cstd_queue_init(&q, sizeof(uint64_t)) != CSTD_OK) {
         return 1;
     }
-
-    uint64_t first = 10;
-    uint64_t second = 20;
-    if (cstd_queue_is_empty(&q)) {
-        /* expected before first push */
-    }
-
     cstd_queue_push(&q, &first);
     cstd_queue_pushfront(&q, &second);
-
-    uint64_t out = 0;
     cstd_queue_peekleft(&q, &out);
-    cstd_queue_peekback(&q, &out);
-    cstd_queue_popleft(&q, &out);
     cstd_queue_popback(&q, &out);
-
     cstd_queue_free(&q);
+
     return 0;
 }
 ```
 
-## Benchmark snapshot
+## SEE ALSO
 
-Current run summary:
-
-| Case | Median (ns/op) | Throughput (ops/sec) |
-|---|---:|---:|
-| `steady_push_pop` | 4.990 | 200,400,702 |
-| `growth_push_pop` | 12.240 | 81,698,228 |
-| `steady_pushfront_popback` | 4.947 | 202,128,643 |
-| `growth_pushfront_popback` | 12.141 | 82,364,056 |
+`cstd.status`, `cstd.datastruct`, `cstd.datastruct.benchmarks`
