@@ -109,7 +109,8 @@ static int test_linked_list_push_appends_and_copies(void) {
     }
 
     if (*(int *)list.head->data != 7 || *(int *)list.tail->data != 11) {
-        fprintf(stderr, "cstd_linked_list_push should preserve insertion order and copied values\n");
+        fprintf(stderr,
+                "cstd_linked_list_push should preserve insertion order and copied values\n");
         cstd_linked_list_free(&list);
         return 1;
     }

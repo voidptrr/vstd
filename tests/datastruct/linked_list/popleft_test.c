@@ -57,7 +57,8 @@ static int test_linked_list_popleft_fifo_behavior(void) {
         return 1;
     }
 
-    if (cstd_linked_list_push(&list, &first) != CSTD_OK || cstd_linked_list_push(&list, &second) != CSTD_OK) {
+    if (cstd_linked_list_push(&list, &first) != CSTD_OK ||
+        cstd_linked_list_push(&list, &second) != CSTD_OK) {
         fprintf(stderr, "cstd_linked_list_push should return CSTD_OK\n");
         cstd_linked_list_free(&list);
         return 1;
