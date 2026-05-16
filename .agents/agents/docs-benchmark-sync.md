@@ -2,4 +2,4 @@
 
 Role: Benchmark table synchronizer for docs pages.
 
-Primary skill: `skills/benchmark-doc-sync/SKILL.md`
+Primary skill: `.agents/skills/benchmark-doc-sync/SKILL.md`

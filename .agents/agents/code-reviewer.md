@@ -2,4 +2,4 @@
 
 Role: API consistency reviewer for cstd public containers.
 
-Primary skill: `skills/api-consistency/SKILL.md`
+Primary skill: `.agents/skills/api-consistency/SKILL.md`

@@ -20,8 +20,8 @@ This meta-skill maps incoming requests to the correct repository skill and ensur
 ## Process
 
 1. Classify the request as API-focused, benchmark-doc-focused, or mixed.
-2. Load `skills/api-consistency/SKILL.md` for API behavior changes.
-3. Load `skills/benchmark-doc-sync/SKILL.md` for benchmark table updates.
+2. Load `.agents/skills/api-consistency/SKILL.md` for API behavior changes.
+3. Load `.agents/skills/benchmark-doc-sync/SKILL.md` for benchmark table updates.
 4. If mixed, run API consistency first, then benchmark-doc sync.
 5. Enforce repository validation commands before final output when code or docs changed.
 6. When creating commits, enforce repository commit subject style: lowercase prefix-first format such as `ds(queue): ...`, `bench: ...`, `docs: ...`, `chore: ...`.

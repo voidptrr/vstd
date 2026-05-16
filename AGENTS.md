@@ -18,7 +18,7 @@ defaults:
       - validation_summary
 skill_pack:
   format: skill-md
-  entrypoint: skills/using-agent-skills/SKILL.md
+  entrypoint: .agents/skills/using-agent-skills/SKILL.md
   required_sections:
     - Overview
     - When to Use
@@ -29,11 +29,11 @@ skill_pack:
 agents:
   - id: code-reviewer
     role: API consistency reviewer
-    skill: skills/api-consistency/SKILL.md
+    skill: .agents/skills/api-consistency/SKILL.md
   - id: docs-benchmark-sync
     role: Benchmark table synchronizer
-    skill: skills/benchmark-doc-sync/SKILL.md
+    skill: .agents/skills/benchmark-doc-sync/SKILL.md
 ---
 
 Machine-consumable agent policy for this repository.
-Skills live under `skills/*/SKILL.md`.
+Skills live under `.agents/skills/*/SKILL.md`.

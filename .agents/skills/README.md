@@ -1,6 +1,6 @@
 # Skills
 
-Each skill is machine-consumable and must live at `skills/<skill-id>/SKILL.md`.
+Each skill is machine-consumable and must live at `.agents/skills/<skill-id>/SKILL.md`.
 
 Required YAML keys in each `SKILL.md` frontmatter:
 
