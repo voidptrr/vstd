@@ -34,7 +34,7 @@ fi
 merge_base="$(git merge-base "$base_sha" "$head_sha")"
 commit_range="$merge_base..$head_sha"
 
-commit_regex='^(ds|algo|nix|ci|docs|bench|chore)(\([a-z0-9][a-z0-9-]*\))?: [a-z0-9].+$'
+commit_regex='^(ds|algo|nix|ci|docs|bench|chore)(\([a-z0-9][a-z0-9_-]*\))?: [a-z0-9].+$'
 
 merge_commit_count="$(git rev-list --count --merges "$commit_range")"
 if [ "$merge_commit_count" -ne 0 ]; then

@@ -24,8 +24,13 @@ function(cstd_discover_tests)
       message(FATAL_ERROR "Missing source file for ${TEST_FILE_REL}: ${SOURCE_FILE}")
     endif()
 
+    set(EXTRA_SOURCES "")
+    if(TARGET_GROUP STREQUAL "datastruct" AND TARGET_NAME STREQUAL "binary_heap")
+      list(APPEND EXTRA_SOURCES "${CMAKE_SOURCE_DIR}/src/datastruct/vector.c")
+    endif()
+
     set(EXECUTABLE_NAME "${TARGET_GROUP}-${TARGET_NAME}-${TEST_VARIANT}")
-    add_executable(${EXECUTABLE_NAME} ${SOURCE_FILE} "${CMAKE_SOURCE_DIR}/${TEST_FILE_REL}")
+    add_executable(${EXECUTABLE_NAME} ${SOURCE_FILE} ${EXTRA_SOURCES} "${CMAKE_SOURCE_DIR}/${TEST_FILE_REL}")
     target_include_directories(${EXECUTABLE_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
 
     set(CTEST_NAME "${TARGET_GROUP}/${TARGET_NAME}/${TEST_VARIANT}")

@@ -31,6 +31,7 @@ nav:
       - cstd.status: reference/cstd-status.md
       - cstd.datastruct:
           - Overview: reference/cstd-datastruct.md
+          - cstd.datastruct.binary_heap: data-structures/binary-heap.md
           - cstd.datastruct.vector: data-structures/vector.md
           - cstd.datastruct.queue: data-structures/queue.md
           - cstd.datastruct.linked_list: data-structures/linked-list.md

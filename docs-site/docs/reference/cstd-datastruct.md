@@ -11,6 +11,7 @@
 
 ## Available modules
 
+- `cstd.datastruct.binary_heap`
 - `cstd.datastruct.vector`
 - `cstd.datastruct.queue`
 - `cstd.datastruct.linked_list`
