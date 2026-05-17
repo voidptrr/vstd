@@ -20,11 +20,11 @@ This skill keeps benchmark documentation accurate by extracting current benchmar
 
 ## Process
 
-1. Run `nix run .#bench-all` and capture stdout values.
+1. Run `nix develop -c bench-all` and capture stdout values.
 2. Extract median `ns/op` and `ops/sec` for each documented case.
 3. Update each data-structure doc table with exact case names and current values.
 4. Remove obsolete cases and add newly introduced cases.
-5. Rebuild docs with `nix run .#docs-build`.
+5. Rebuild docs with `nix develop -c docs-build`.
 
 ## Rationalizations
 
@@ -41,6 +41,6 @@ This skill keeps benchmark documentation accurate by extracting current benchmar
 
 ## Verification
 
-- Run `nix run .#bench-all`.
-- Run `nix run .#docs-build`.
+- Run `nix develop -c bench-all`.
+- Run `nix develop -c docs-build`.
 - Final report includes updated files and the benchmark cases changed.

@@ -5,7 +5,7 @@
 ## Run
 
 ```bash
-nix run .#bench-all
+nix develop -c bench-all
 ```
 
 ## Environment

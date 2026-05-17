@@ -43,6 +43,6 @@ This skill reviews public API contracts for vector, queue, and linked_list to ke
 
 ## Verification
 
-- Run `nix run .#test-all`.
-- Confirm docs build if docs changed: `nix run .#docs-build`.
+- Run `nix develop -c test-all`.
+- Confirm docs build if docs changed: `nix develop -c docs-build`.
 - Final report includes issues found, fixes applied, and files touched.

@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - "docs/**"
       - "src/**"
       - "tests/**"
       - "tooling/**"
@@ -42,3 +43,4 @@ jobs:
 
       - run: nix develop -c format-check
       - run: nix develop -c code-check
+      - run: nix develop -c docs-build

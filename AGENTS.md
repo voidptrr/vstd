@@ -3,9 +3,9 @@ schema_version: 1
 project: cstd
 defaults:
   validation_commands:
-    - nix run .#test-all
-    - nix run .#bench-all
-    - nix run .#docs-build
+    - nix develop -c format-all
+    - nix develop -c test-all
+    - nix develop -c docs-build
   constraints:
     - Use canonical includes under cstd/ (for example cstd/datastruct/queue.h and cstd/status.h).
     - Do not introduce benchmark log artifact files.

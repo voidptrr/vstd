@@ -10,7 +10,7 @@ pkgs.writeShellApplication {
   text = ''
     set -eu
 
-    cd docs-site
+    cd docs
     mkdocs build --strict
   '';
 }

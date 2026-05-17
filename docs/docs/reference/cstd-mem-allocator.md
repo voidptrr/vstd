@@ -24,7 +24,7 @@ void *cstd_realloc(void *ptr, size_t size);
 
 - Parameters: `ptr`, `size`
 - Returns: pointer to resized memory.
-- Behavior: when `size > 0`, prints a fatal message and aborts on out-of-memory.
+- Behavior: prints a fatal message and aborts on allocation failure.
 - Notes: when `size == 0`, behavior follows C library `realloc` semantics.
 
 ## SEE ALSO
