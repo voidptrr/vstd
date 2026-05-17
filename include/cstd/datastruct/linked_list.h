@@ -14,6 +14,7 @@
  * | tail (node *)        |                      |                      |
  * +----------------------+----------------------+----------------------+
  */
+
 typedef struct cstd_linked_list_node {
     struct cstd_linked_list_node *next;
     void *data;

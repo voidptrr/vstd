@@ -7,14 +7,15 @@
 #include "cstd/datastruct/vector.h"
 #include "cstd/status.h"
 
-typedef int (*cstd_heap_cmp_fn)(const void *a, const void *b);
-
 /*
  * Binary heap backed by cstd_vector.
- * +----------------------+----------------------+
+ * +----------------------+------------------------+
  * | root (cstd_vector)   | cmp (cstd_heap_cmp_fn) |
- * +----------------------+----------------------+
+ * +----------------------+------------------------+
  */
+
+typedef int (*cstd_heap_cmp_fn)(const void *a, const void *b);
+
 typedef struct cstd_binary_heap {
     cstd_vector root;
     cstd_heap_cmp_fn cmp;
