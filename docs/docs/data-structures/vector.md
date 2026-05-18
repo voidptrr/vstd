@@ -1,4 +1,4 @@
-# cstd.datastruct.vector
+# datastruct.vector
 
 ## DESCRIPTION
 
@@ -7,96 +7,64 @@ Elements are copied into vector-owned storage on push and copied out on pop.
 
 ## FUNCTIONS
 
-### cstd_vector_init
+### ckit_vector_init
 
 ```c
-cstd_status cstd_vector_init(cstd_vector *vector, size_t elem_size);
+ckit_status ckit_vector_init(ckit_vector *vector, size_t elem_size, ckit_allocator *allocator);
 ```
 
-- Parameters: `vector`, `elem_size`
-- Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `vector` is `NULL`; CSTD_ERR_RANGE if `elem_size == 0`.
+- Parameters: `vector`, `elem_size`, `allocator`
+- Returns: CKIT_OK on success.
+- Errors: CKIT_ERR_NULL if `vector` is `NULL`; CKIT_ERR_RANGE if `elem_size == 0`.
+- Notes: when `allocator` is `NULL`, vector uses default `ckit_malloc`/`ckit_realloc` backing.
 
-### cstd_vector_push
+### ckit_vector_push
 
 ```c
-cstd_status cstd_vector_push(cstd_vector *vector, const void *element);
+ckit_status ckit_vector_push(ckit_vector *vector, const void *element);
 ```
 
 - Parameters: `vector`, `element`
-- Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `vector` or `element` is `NULL`.
+- Returns: CKIT_OK on success.
+- Errors: CKIT_ERR_NULL if `vector` or `element` is `NULL`.
 
-### cstd_vector_pop
+### ckit_vector_pop
 
 ```c
-cstd_status cstd_vector_pop(cstd_vector *vector, void *out);
+ckit_status ckit_vector_pop(ckit_vector *vector, void *out);
 ```
 
 - Parameters: `vector`, `out`
-- Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `vector` or `out` is `NULL`; CSTD_ERR_EMPTY if the vector is empty.
+- Returns: CKIT_OK on success.
+- Errors: CKIT_ERR_NULL if `vector` or `out` is `NULL`; CKIT_ERR_EMPTY if the vector is empty.
 - Notes: output parameter content is unspecified on failure.
 
-### cstd_vector_free
+### ckit_vector_free
 
 ```c
-cstd_status cstd_vector_free(cstd_vector *vector);
+ckit_status ckit_vector_free(ckit_vector *vector);
 ```
 
 - Parameters: `vector`
-- Returns: CSTD_OK on success.
-- Errors: CSTD_ERR_NULL if `vector` is `NULL`.
+- Returns: CKIT_OK on success.
+- Errors: CKIT_ERR_NULL if `vector` is `NULL`.
 
-### cstd_vector_size
+### ckit_vector_size
 
 ```c
-size_t cstd_vector_size(const cstd_vector *vector);
+size_t ckit_vector_size(const ckit_vector *vector);
 ```
 
 - Parameters: `vector`
 - Returns: current element count.
 - Notes: returns `0` when `vector` is `NULL`.
 
-### cstd_vector_is_empty
+### ckit_vector_is_empty
 
 ```c
-bool cstd_vector_is_empty(const cstd_vector *vector);
+bool ckit_vector_is_empty(const ckit_vector *vector);
 ```
 
 - Parameters: `vector`
 - Returns: `true` when empty; otherwise `false`.
 - Notes: returns `true` when `vector` is `NULL`.
-
-## EXAMPLE
-
-```c
-#include <cstd/datastruct/vector.h>
-#include <cstd/status.h>
-#include <stdint.h>
-
-int main(void) {
-    cstd_vector vec;
-    uint64_t value = 42;
-    uint64_t out = 0;
-
-    if (cstd_vector_init(&vec, sizeof(uint64_t)) != CSTD_OK) {
-        return 1;
-    }
-    if (cstd_vector_push(&vec, &value) != CSTD_OK) {
-        cstd_vector_free(&vec);
-        return 1;
-    }
-    if (cstd_vector_pop(&vec, &out) != CSTD_OK) {
-        cstd_vector_free(&vec);
-        return 1;
-    }
-
-    cstd_vector_free(&vec);
-    return 0;
-}
-```
-
-## SEE ALSO
-
-`cstd.status`, `cstd.datastruct`, `cstd.datastruct.benchmarks`

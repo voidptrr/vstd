@@ -1,13 +1,13 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "cstd/datastruct/vector.h"
+#include "ckit/datastruct/vector.h"
 
 static int test_vector_pop_null_vector(void) {
     int out = 0;
 
-    if (cstd_vector_pop(NULL, &out) != CSTD_ERR_NULL) {
-        fprintf(stderr, "cstd_vector_pop(NULL, &out) should return CSTD_ERR_NULL\n");
+    if (ckit_vector_pop(NULL, &out) != CKIT_ERR_NULL) {
+        fprintf(stderr, "ckit_vector_pop(NULL, &out) should return CKIT_ERR_NULL\n");
         return 1;
     }
 
@@ -15,24 +15,24 @@ static int test_vector_pop_null_vector(void) {
 }
 
 static int test_vector_pop_null_out(void) {
-    cstd_status status;
-    cstd_vector v;
+    ckit_status status;
+    ckit_vector v;
 
-    status = cstd_vector_init(&v, sizeof(int));
-    if (status != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_init(&v, ...) should return CSTD_OK\n");
+    status = ckit_vector_init(&v, sizeof(int), NULL);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_init(&v, ..., NULL) should return CKIT_OK\n");
         return 1;
     }
 
-    status = cstd_vector_pop(&v, NULL);
-    if (status != CSTD_ERR_NULL) {
-        fprintf(stderr, "cstd_vector_pop(&v, NULL) should return CSTD_ERR_NULL\n");
-        cstd_vector_free(&v);
+    status = ckit_vector_pop(&v, NULL);
+    if (status != CKIT_ERR_NULL) {
+        fprintf(stderr, "ckit_vector_pop(&v, NULL) should return CKIT_ERR_NULL\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
-    if (cstd_vector_free(&v) != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_free(&v) should return CSTD_OK\n");
+    if (ckit_vector_free(&v) != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_free(&v) should return CKIT_OK\n");
         return 1;
     }
 
@@ -40,32 +40,32 @@ static int test_vector_pop_null_out(void) {
 }
 
 static int test_vector_pop_empty_vector(void) {
-    cstd_status status;
-    cstd_vector v;
+    ckit_status status;
+    ckit_vector v;
 
-    status = cstd_vector_init(&v, sizeof(int));
-    if (status != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_init(&v, ...) should return CSTD_OK\n");
+    status = ckit_vector_init(&v, sizeof(int), NULL);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_init(&v, ..., NULL) should return CKIT_OK\n");
         return 1;
     }
 
     {
         int out = 0;
-        if (cstd_vector_pop(&v, &out) != CSTD_ERR_EMPTY) {
-            fprintf(stderr, "cstd_vector_pop on empty vector should return CSTD_ERR_EMPTY\n");
-            cstd_vector_free(&v);
+        if (ckit_vector_pop(&v, &out) != CKIT_ERR_EMPTY) {
+            fprintf(stderr, "ckit_vector_pop on empty vector should return CKIT_ERR_EMPTY\n");
+            ckit_vector_free(&v);
             return 1;
         }
     }
 
-    if (cstd_vector_size(&v) != 0) {
-        fprintf(stderr, "cstd_vector_pop on empty vector should not change size\n");
-        cstd_vector_free(&v);
+    if (ckit_vector_size(&v) != 0) {
+        fprintf(stderr, "ckit_vector_pop on empty vector should not change size\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
-    if (cstd_vector_free(&v) != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_free(&v) should return CSTD_OK\n");
+    if (ckit_vector_free(&v) != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_free(&v) should return CKIT_OK\n");
         return 1;
     }
 
@@ -73,66 +73,66 @@ static int test_vector_pop_empty_vector(void) {
 }
 
 static int test_vector_pop_returns_last_value(void) {
-    cstd_status status;
-    cstd_vector v;
+    ckit_status status;
+    ckit_vector v;
     int first = 7;
     int second = 11;
     int popped = 0;
 
-    status = cstd_vector_init(&v, sizeof(int));
-    if (status != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_init(&v, ...) should return CSTD_OK\n");
+    status = ckit_vector_init(&v, sizeof(int), NULL);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_init(&v, ..., NULL) should return CKIT_OK\n");
         return 1;
     }
 
-    status = cstd_vector_push(&v, &first);
-    if (status != CSTD_OK) {
-        fprintf(stderr, "first cstd_vector_push should return CSTD_OK\n");
-        cstd_vector_free(&v);
+    status = ckit_vector_push(&v, &first);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "first ckit_vector_push should return CKIT_OK\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
-    status = cstd_vector_push(&v, &second);
-    if (status != CSTD_OK) {
-        fprintf(stderr, "second cstd_vector_push should return CSTD_OK\n");
-        cstd_vector_free(&v);
+    status = ckit_vector_push(&v, &second);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "second ckit_vector_push should return CKIT_OK\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
-    status = cstd_vector_pop(&v, &popped);
-    if (status != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_pop should return CSTD_OK\n");
-        cstd_vector_free(&v);
+    status = ckit_vector_pop(&v, &popped);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_pop should return CKIT_OK\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
     if (popped != second) {
-        fprintf(stderr, "cstd_vector_pop should return last pushed value\n");
-        cstd_vector_free(&v);
+        fprintf(stderr, "ckit_vector_pop should return last pushed value\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
-    if (cstd_vector_size(&v) != 1) {
-        fprintf(stderr, "cstd_vector_pop should decrement vector size\n");
-        cstd_vector_free(&v);
+    if (ckit_vector_size(&v) != 1) {
+        fprintf(stderr, "ckit_vector_pop should decrement vector size\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
-    status = cstd_vector_pop(&v, &popped);
-    if (status != CSTD_OK || popped != first) {
-        fprintf(stderr, "cstd_vector_pop should preserve LIFO order\n");
-        cstd_vector_free(&v);
+    status = ckit_vector_pop(&v, &popped);
+    if (status != CKIT_OK || popped != first) {
+        fprintf(stderr, "ckit_vector_pop should preserve LIFO order\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
-    if (cstd_vector_size(&v) != 0) {
-        fprintf(stderr, "cstd_vector should be empty after popping all elements\n");
-        cstd_vector_free(&v);
+    if (ckit_vector_size(&v) != 0) {
+        fprintf(stderr, "ckit_vector should be empty after popping all elements\n");
+        ckit_vector_free(&v);
         return 1;
     }
 
-    if (cstd_vector_free(&v) != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_free(&v) should return CSTD_OK\n");
+    if (ckit_vector_free(&v) != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_free(&v) should return CKIT_OK\n");
         return 1;
     }
 

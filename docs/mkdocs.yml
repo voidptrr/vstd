@@ -1,43 +1,79 @@
-site_name: cstd
-site_description: Enhanced C standard-style containers
-site_url: https://voidptrr.github.io/cstd/
-repo_url: https://github.com/voidptrr/cstd
-repo_name: voidptrr/cstd
-docs_dir: docs
-site_dir: build
+site_name: ckit
+site_description: "Documentation for ckit"
+site_author: "voidptrr"
+edit_uri: "edit/main/docs/docs/"
+
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: info
+  links:
+    not_found: warn
+    absolute_links: ignore
+    anchors: warn
+    unrecognized_links: info
+
 theme:
   name: material
-  homepage: index.md
-  palette:
-    scheme: slate
   features:
-    - navigation.sections
-    - navigation.expand
+    - content.action.edit
+    - content.code.copy
+    - navigation.path
     - navigation.instant
     - toc.follow
-  font:
-    text: Inter
-    code: JetBrains Mono
+    - toc.integrate
+    - search.highlight
+    - search.suggest
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: "Switch to dark Mode"
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: "Switch to light Mode"
+
+repo_url: https://github.com/voidptrr/ckit
+repo_name: voidptrr/ckit
+
 markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: false
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.superfences
-extra_css:
-  - stylesheets/extra.css
+  - admonition
+  - pymdownx.arithmatex
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - attr_list
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - toc:
+      permalink: ¶
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+
+not_in_nav: |
+  /index.md
+
 nav:
-  - cstd:
-      - Overview: index.md
-      - cstd.status: reference/cstd-status.md
-      - cstd.compare: reference/cstd-compare.md
-      - cstd.mem:
-          - cstd.mem.allocator: reference/cstd-mem-allocator.md
-          - cstd.mem.bytes: reference/cstd-mem-bytes.md
-      - cstd.datastruct:
-          - cstd.datastruct.hashmap: data-structures/hashmap.md
-          - cstd.datastruct.binary_heap: data-structures/binary-heap.md
-          - cstd.datastruct.vector: data-structures/vector.md
-          - cstd.datastruct.queue: data-structures/queue.md
-          - cstd.datastruct.linked_list: data-structures/linked-list.md
-          - cstd.datastruct.benchmarks: benchmarks.md
+  - Overview: index.md
+  - Status: reference/ckit-status.md
+  - Compare: reference/ckit-compare.md
+  - Memory:
+      - Allocators:
+          - Overview: reference/ckit-mem-allocators.md
+          - General heap allocator: reference/ckit-mem-general-heap.md
+      - Bytes: reference/ckit-mem-bytes.md
+  - Data structures:
+      - Hashmap: data-structures/hashmap.md
+      - Binary heap: data-structures/binary-heap.md
+      - Vector: data-structures/vector.md
+      - Deque: data-structures/deque.md
+      - Linked list: data-structures/linked-list.md

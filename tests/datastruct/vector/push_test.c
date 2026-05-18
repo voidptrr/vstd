@@ -2,22 +2,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cstd/datastruct/vector.h"
+#include "ckit/datastruct/vector.h"
 
 static int test_vector_push_appends_value(void) {
-    cstd_status status;
-    cstd_vector v;
+    ckit_status status;
+    ckit_vector v;
     int value = 42;
 
-    status = cstd_vector_init(&v, sizeof(int));
-    if (status != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_init(&v, ...) should return CSTD_OK\n");
+    status = ckit_vector_init(&v, sizeof(int), NULL);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_init(&v, ..., NULL) should return CKIT_OK\n");
         return 1;
     }
 
-    status = cstd_vector_push(&v, &value);
-    if (status != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_push(&v, &value) should return CSTD_OK\n");
+    status = ckit_vector_push(&v, &value);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_push(&v, &value) should return CKIT_OK\n");
         free(v.buffer);
         return 1;
     }
@@ -39,14 +39,14 @@ static int test_vector_push_appends_value(void) {
 }
 
 static int test_vector_push_grows_capacity(void) {
-    cstd_status status;
-    cstd_vector v;
+    ckit_status status;
+    ckit_vector v;
     size_t initial_capacity;
     size_t i;
 
-    status = cstd_vector_init(&v, sizeof(int));
-    if (status != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_init(&v, ...) should return CSTD_OK\n");
+    status = ckit_vector_init(&v, sizeof(int), NULL);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_init(&v, ..., NULL) should return CKIT_OK\n");
         return 1;
     }
 
@@ -54,34 +54,34 @@ static int test_vector_push_grows_capacity(void) {
 
     for (i = 0; i < initial_capacity + 1; i++) {
         int value = (int)i;
-        status = cstd_vector_push(&v, &value);
-        if (status != CSTD_OK) {
-            fprintf(stderr, "cstd_vector_push should succeed across capacity growth\n");
+        status = ckit_vector_push(&v, &value);
+        if (status != CKIT_OK) {
+            fprintf(stderr, "ckit_vector_push should succeed across capacity growth\n");
             free(v.buffer);
             return 1;
         }
     }
 
     if (v.capacity <= initial_capacity) {
-        fprintf(stderr, "cstd_vector_push should grow capacity when full\n");
+        fprintf(stderr, "ckit_vector_push should grow capacity when full\n");
         free(v.buffer);
         return 1;
     }
 
     if (v.size != initial_capacity + 1) {
-        fprintf(stderr, "cstd_vector_push should preserve all pushed elements\n");
+        fprintf(stderr, "ckit_vector_push should preserve all pushed elements\n");
         free(v.buffer);
         return 1;
     }
 
     if (((int *)v.buffer)[0] != 0) {
-        fprintf(stderr, "cstd_vector_push should preserve existing values after realloc\n");
+        fprintf(stderr, "ckit_vector_push should preserve existing values after realloc\n");
         free(v.buffer);
         return 1;
     }
 
     if (((int *)v.buffer)[initial_capacity] != (int)initial_capacity) {
-        fprintf(stderr, "cstd_vector_push should keep correct value after realloc\n");
+        fprintf(stderr, "ckit_vector_push should keep correct value after realloc\n");
         free(v.buffer);
         return 1;
     }
@@ -91,25 +91,25 @@ static int test_vector_push_grows_capacity(void) {
 }
 
 static int test_vector_push_null_pointers(void) {
-    cstd_status status;
-    cstd_vector v;
+    ckit_status status;
+    ckit_vector v;
     int value = 1;
 
-    status = cstd_vector_push(NULL, &value);
-    if (status != CSTD_ERR_NULL) {
-        fprintf(stderr, "cstd_vector_push(NULL, &value) should return CSTD_ERR_NULL\n");
+    status = ckit_vector_push(NULL, &value);
+    if (status != CKIT_ERR_NULL) {
+        fprintf(stderr, "ckit_vector_push(NULL, &value) should return CKIT_ERR_NULL\n");
         return 1;
     }
 
-    status = cstd_vector_init(&v, sizeof(int));
-    if (status != CSTD_OK) {
-        fprintf(stderr, "cstd_vector_init(&v, ...) should return CSTD_OK\n");
+    status = ckit_vector_init(&v, sizeof(int), NULL);
+    if (status != CKIT_OK) {
+        fprintf(stderr, "ckit_vector_init(&v, ..., NULL) should return CKIT_OK\n");
         return 1;
     }
 
-    status = cstd_vector_push(&v, NULL);
-    if (status != CSTD_ERR_NULL) {
-        fprintf(stderr, "cstd_vector_push(&v, NULL) should return CSTD_ERR_NULL\n");
+    status = ckit_vector_push(&v, NULL);
+    if (status != CKIT_ERR_NULL) {
+        fprintf(stderr, "ckit_vector_push(&v, NULL) should return CKIT_ERR_NULL\n");
         free(v.buffer);
         return 1;
     }
