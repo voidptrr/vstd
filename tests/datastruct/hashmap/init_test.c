@@ -7,7 +7,8 @@
 int main(void) {
     ckit_hashmap map;
 
-    if (ckit_hashmap_init(NULL, sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL) != CKIT_ERR_NULL) {
+    if (ckit_hashmap_init(NULL, sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL) !=
+        CKIT_ERR_NULL) {
         fprintf(stderr, "ckit_hashmap_init(NULL, ...) should return CKIT_ERR_NULL\n");
         return 1;
     }

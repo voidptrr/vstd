@@ -17,12 +17,14 @@ int main(void) {
     }
 
     if (ckit_binary_heap_init(&heap, 0U, cmp_int_asc, NULL) != CKIT_ERR_RANGE) {
-        fprintf(stderr, "ckit_binary_heap_init(&heap, 0, ..., NULL) should return CKIT_ERR_RANGE\n");
+        fprintf(stderr,
+                "ckit_binary_heap_init(&heap, 0, ..., NULL) should return CKIT_ERR_RANGE\n");
         return 1;
     }
 
     if (ckit_binary_heap_init(&heap, sizeof(int), NULL, NULL) != CKIT_ERR_NULL) {
-        fprintf(stderr, "ckit_binary_heap_init(&heap, ..., NULL, NULL) should return CKIT_ERR_NULL\n");
+        fprintf(stderr,
+                "ckit_binary_heap_init(&heap, ..., NULL, NULL) should return CKIT_ERR_NULL\n");
         return 1;
     }
 
