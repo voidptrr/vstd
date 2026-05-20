@@ -18,12 +18,8 @@
   in {
     formatter = forEachSystem ({pkgs}: pkgs.alejandra);
 
-    devShells = forEachSystem ({pkgs}: let
-      commands = import ./tooling/nix/scripts {inherit pkgs;};
-    in {
-      default = pkgs.mkShell {
-        packages = [pkgs.gcc] ++ builtins.attrValues commands;
-      };
+    devShells = forEachSystem ({pkgs}: {
+      default = import ./tooling/nix/shell.nix {inherit pkgs;};
     });
   };
 }

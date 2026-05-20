@@ -1,9 +1,10 @@
 # Agent Development Guide
 
 ## Commands
-- Docs build: `docs-build`
-- Formatting: `format-all`
-- Testing: `test-all`
+- Docs build: `scripts/docs-build`
+- Formatting: `scripts/format`
+- Format check: `scripts/format-check`
+- Code check: `scripts/code-check`
 
 ## Directory Structure
 - Core: `src/`

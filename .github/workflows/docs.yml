@@ -35,7 +35,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build docs
-        run: nix develop -c docs-build
+        run: nix develop -c scripts/docs-build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
