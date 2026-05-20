@@ -19,7 +19,7 @@
     formatter = forEachSystem ({pkgs}: pkgs.alejandra);
 
     devShells = forEachSystem ({pkgs}: {
-      default = import ./tooling/nix/shell.nix {inherit pkgs;};
+      default = import ./tools/nix/shell.nix {inherit pkgs;};
     });
   };
 }

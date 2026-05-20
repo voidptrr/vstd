@@ -1,4 +1,3 @@
----
 Language: Cpp
 BasedOnStyle: LLVM
 IndentWidth: 4
@@ -14,4 +13,3 @@ PointerAlignment: Right
 SpaceBeforeParens: ControlStatements
 SortIncludes: false
 IndentCaseLabels: true
-...

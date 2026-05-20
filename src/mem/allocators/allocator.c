@@ -14,7 +14,8 @@ void *ckit_malloc(size_t size) {
 
 void *ckit_realloc(void *ptr, size_t size) {
     if (size == 0U) {
-        return realloc(ptr, size);
+        free(ptr);
+        return NULL;
     }
 
     void *new_ptr = realloc(ptr, size);

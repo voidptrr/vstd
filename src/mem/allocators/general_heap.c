@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ckit/mem/align.h"
+#include "mem/utils.h"
 #include "ckit/mem/allocators/allocator.h"
 #include "ckit/mem/allocators/general_heap.h"
+
+#define CKIT_HEAP_ALIGN (sizeof(max_align_t))
 
 typedef struct ckit_heap_block {
     size_t size;
@@ -13,8 +15,6 @@ typedef struct ckit_heap_block {
     struct ckit_heap_block *prev;
     bool is_free;
 } ckit_heap_block;
-
-#define CKIT_HEAP_ALIGN (sizeof(max_align_t))
 
 static ckit_heap_block *ckit_heap_head(const ckit_heap *heap) {
     return (ckit_heap_block *)heap->head;

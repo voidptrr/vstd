@@ -9,4 +9,4 @@
 ## Directory Structure
 - Core: `src/`
 - Public headers: `include/`
-- Nix and CMake: `toolings/`
+- Nix and CMake: `tools/`
