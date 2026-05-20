@@ -1,5 +1,5 @@
-#ifndef CKIT_MEM_ALIGN_H
-#define CKIT_MEM_ALIGN_H
+#ifndef CKIT_MEM_UTILS_H
+#define CKIT_MEM_UTILS_H
 
 #include <stddef.h>
 

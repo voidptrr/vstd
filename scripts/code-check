@@ -11,8 +11,17 @@ cmake \
   -B build/hardened \
   -G Ninja \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   -DCMAKE_C_FLAGS="$hardening_flags" \
   -DCMAKE_EXE_LINKER_FLAGS="$hardening_linker_flags"
 
 cmake --build build/hardened
+
+for file in $(find src -type f -name '*.c' | sort); do
+  clang-tidy \
+    -p build/hardened \
+    --quiet \
+    "$file"
+done
+
 ctest --test-dir build/hardened --output-on-failure

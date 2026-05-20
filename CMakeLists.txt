@@ -11,5 +11,5 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-include(tooling/cmake/tests.cmake)
+include(tools/cmake/tests.cmake)
 ckit_discover_tests()
