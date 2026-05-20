@@ -5,7 +5,6 @@
 #include <stddef.h>
 
 #include "ckit/mem/allocators/allocator.h"
-#include "ckit/status.h"
 
 /*
  * Generic FIFO deque backed by a circular buffer.
@@ -26,28 +25,28 @@ typedef struct ckit_deque {
 } ckit_deque;
 
 /* Initialize a deque with element size elem_size. */
-ckit_status ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *allocator);
+void ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *allocator);
 
 /* Enqueue one element by copying elem_size bytes from element. */
-ckit_status ckit_deque_push(ckit_deque *deque, const void *element);
+void ckit_deque_push(ckit_deque *deque, const void *element);
 
 /* Enqueue one element at the front by copying elem_size bytes from element. */
-ckit_status ckit_deque_pushfront(ckit_deque *deque, const void *element);
+void ckit_deque_pushfront(ckit_deque *deque, const void *element);
 
 /* Dequeue one element from the front into out. */
-ckit_status ckit_deque_popleft(ckit_deque *deque, void *out);
+void *ckit_deque_popleft(ckit_deque *deque);
 
 /* Remove one element from the back into out. */
-ckit_status ckit_deque_popback(ckit_deque *deque, void *out);
+void *ckit_deque_popback(ckit_deque *deque);
 
 /* Copy one element from the front into out without removing it. */
-ckit_status ckit_deque_peekleft(const ckit_deque *deque, void *out);
+const void *ckit_deque_peekleft(const ckit_deque *deque);
 
 /* Copy one element from the back into out without removing it. */
-ckit_status ckit_deque_peekback(const ckit_deque *deque, void *out);
+const void *ckit_deque_peekback(const ckit_deque *deque);
 
 /* Release owned storage and reset deque to an empty state. */
-ckit_status ckit_deque_free(ckit_deque *deque);
+void ckit_deque_free(ckit_deque *deque);
 
 /* Return the number of stored elements. */
 size_t ckit_deque_size(const ckit_deque *deque);

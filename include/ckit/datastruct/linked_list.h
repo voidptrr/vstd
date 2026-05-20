@@ -5,7 +5,6 @@
 #include <stddef.h>
 
 #include "ckit/mem/allocators/allocator.h"
-#include "ckit/status.h"
 
 /*
  * Generic singly linked list.
@@ -30,20 +29,19 @@ typedef struct ckit_linked_list {
 } ckit_linked_list;
 
 /* Initialize a linked list with element size elem_size. */
-ckit_status ckit_linked_list_init(ckit_linked_list *list, size_t elem_size,
-                                  ckit_allocator *allocator);
+void ckit_linked_list_init(ckit_linked_list *list, size_t elem_size, ckit_allocator *allocator);
 
 /* Append one element by copying elem_size bytes from element. */
-ckit_status ckit_linked_list_push(ckit_linked_list *list, const void *element);
+void ckit_linked_list_push(ckit_linked_list *list, const void *element);
 
 /* Prepend one element by copying elem_size bytes from element. */
-ckit_status ckit_linked_list_pushfront(ckit_linked_list *list, const void *element);
+void ckit_linked_list_pushfront(ckit_linked_list *list, const void *element);
 
 /* Remove the first element and copy it into out. */
-ckit_status ckit_linked_list_popleft(ckit_linked_list *list, void *out);
+void *ckit_linked_list_popleft(ckit_linked_list *list);
 
 /* Release owned nodes and reset list to an empty state. */
-ckit_status ckit_linked_list_free(ckit_linked_list *list);
+void ckit_linked_list_free(ckit_linked_list *list);
 
 /* Return the number of stored elements. */
 size_t ckit_linked_list_size(const ckit_linked_list *list);

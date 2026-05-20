@@ -5,7 +5,6 @@
 #include <stddef.h>
 
 #include "ckit/datastruct/vector.h"
-#include "ckit/status.h"
 
 /*
  * Binary heap backed by ckit_vector.
@@ -24,20 +23,20 @@ typedef struct ckit_binary_heap {
 } ckit_binary_heap;
 
 /* Initialize a heap for elements of size elem_size using cmp ordering. */
-ckit_status ckit_binary_heap_init(ckit_binary_heap *heap, size_t elem_size, ckit_heap_cmp_fn cmp,
-                                  ckit_allocator *allocator);
+void ckit_binary_heap_init(ckit_binary_heap *heap, size_t elem_size, ckit_heap_cmp_fn cmp,
+                           ckit_allocator *allocator);
 
 /* Insert one element by copying elem_size bytes from element. */
-ckit_status ckit_binary_heap_push(ckit_binary_heap *heap, const void *element);
+void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element);
 
 /* Remove the top element and copy it into out. */
-ckit_status ckit_binary_heap_pop(ckit_binary_heap *heap, void *out);
+void *ckit_binary_heap_pop(ckit_binary_heap *heap);
 
 /* Copy the top element into out without removing it. */
-ckit_status ckit_binary_heap_peek(const ckit_binary_heap *heap, void *out);
+const void *ckit_binary_heap_peek(const ckit_binary_heap *heap);
 
 /* Release owned storage and reset heap to an empty state. */
-ckit_status ckit_binary_heap_free(ckit_binary_heap *heap);
+void ckit_binary_heap_free(ckit_binary_heap *heap);
 
 /* Return the number of stored elements. */
 size_t ckit_binary_heap_size(const ckit_binary_heap *heap);

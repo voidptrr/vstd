@@ -5,7 +5,6 @@
 #include <stddef.h>
 
 #include "ckit/mem/allocators/allocator.h"
-#include "ckit/status.h"
 
 /*
  * Hash map with separate chaining.
@@ -59,29 +58,29 @@ typedef struct ckit_hashmap {
  * Hashing uses the internal FNV-1a implementation.
  * Initial capacity is implementation-defined.
  */
-ckit_status ckit_hashmap_init(ckit_hashmap *map, size_t key_size, size_t value_size,
-                              ckit_hashmap_key_eq_fn key_eq, ckit_allocator *allocator);
+void ckit_hashmap_init(ckit_hashmap *map, size_t key_size, size_t value_size,
+                       ckit_hashmap_key_eq_fn key_eq, ckit_allocator *allocator);
 
 /*
  * Insert or update an entry.
  * If key exists, overwrite value in place.
  */
-ckit_status ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value);
+void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value);
 
 /*
  * Lookup key and copy value into out_value.
  */
-ckit_status ckit_hashmap_get(const ckit_hashmap *map, const void *key, void *out_value);
+const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key);
 
 /*
  * Remove key from map.
  */
-ckit_status ckit_hashmap_remove(ckit_hashmap *map, const void *key);
+void *ckit_hashmap_remove(ckit_hashmap *map, const void *key);
 
 /*
  * Release all entries and bucket storage, reset map to empty state.
  */
-ckit_status ckit_hashmap_free(ckit_hashmap *map);
+void ckit_hashmap_free(ckit_hashmap *map);
 
 /* Return the number of stored entries. */
 size_t ckit_hashmap_size(const ckit_hashmap *map);

@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -55,48 +56,34 @@ static void ckit_binary_heap_sift_down(ckit_binary_heap *heap, size_t idx) {
     }
 }
 
-ckit_status ckit_binary_heap_init(ckit_binary_heap *heap, size_t elem_size, ckit_heap_cmp_fn cmp,
-                                  ckit_allocator *allocator) {
-    if (heap == NULL || cmp == NULL) {
-        return CKIT_ERR_NULL;
-    }
-    if (elem_size == 0U) {
-        return CKIT_ERR_RANGE;
-    }
+void ckit_binary_heap_init(ckit_binary_heap *heap, size_t elem_size, ckit_heap_cmp_fn cmp,
+                           ckit_allocator *allocator) {
+    assert(heap != NULL);
+    assert(cmp != NULL);
+    assert(elem_size > 0U);
 
-    ckit_status status = ckit_vector_init(&heap->root, elem_size, allocator);
-    if (status != CKIT_OK) {
-        return status;
-    }
+    ckit_vector_init(&heap->root, elem_size, allocator);
     heap->cmp = cmp;
-    return CKIT_OK;
 }
 
-ckit_status ckit_binary_heap_push(ckit_binary_heap *heap, const void *element) {
-    if (heap == NULL || element == NULL) {
-        return CKIT_ERR_NULL;
-    }
+void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element) {
+    assert(heap != NULL);
+    assert(element != NULL);
 
-    ckit_status status = ckit_vector_push(&heap->root, element);
-    if (status != CKIT_OK) {
-        return status;
-    }
+    ckit_vector_push(&heap->root, element);
 
     ckit_binary_heap_sift_up(heap, heap->root.size - 1U);
-    return CKIT_OK;
 }
 
-ckit_status ckit_binary_heap_pop(ckit_binary_heap *heap, void *out) {
-    if (heap == NULL || out == NULL) {
-        return CKIT_ERR_NULL;
-    }
+void *ckit_binary_heap_pop(ckit_binary_heap *heap) {
+    assert(heap != NULL);
     if (heap->root.size == 0U) {
-        return CKIT_ERR_EMPTY;
+        return NULL;
     }
 
     size_t elem_size = heap->root.elem_size;
     uint8_t *base = (uint8_t *)heap->root.buffer;
-    memcpy(out, base, elem_size);
+    void *out = base;
 
     size_t last = heap->root.size - 1U;
     if (last > 0U) {
@@ -108,31 +95,22 @@ ckit_status ckit_binary_heap_pop(ckit_binary_heap *heap, void *out) {
         ckit_binary_heap_sift_down(heap, 0U);
     }
 
-    return CKIT_OK;
+    return out;
 }
 
-ckit_status ckit_binary_heap_peek(const ckit_binary_heap *heap, void *out) {
-    if (heap == NULL || out == NULL) {
-        return CKIT_ERR_NULL;
-    }
+const void *ckit_binary_heap_peek(const ckit_binary_heap *heap) {
+    assert(heap != NULL);
     if (heap->root.size == 0U) {
-        return CKIT_ERR_EMPTY;
+        return NULL;
     }
 
-    memcpy(out, heap->root.buffer, heap->root.elem_size);
-    return CKIT_OK;
+    return heap->root.buffer;
 }
 
-ckit_status ckit_binary_heap_free(ckit_binary_heap *heap) {
-    if (heap == NULL) {
-        return CKIT_ERR_NULL;
-    }
-    ckit_status status = ckit_vector_free(&heap->root);
-    if (status != CKIT_OK) {
-        return status;
-    }
+void ckit_binary_heap_free(ckit_binary_heap *heap) {
+    assert(heap != NULL);
+    ckit_vector_free(&heap->root);
     heap->cmp = NULL;
-    return CKIT_OK;
 }
 
 size_t ckit_binary_heap_size(const ckit_binary_heap *heap) {
