@@ -16,7 +16,6 @@ typedef struct ckit_heap_block {
     bool is_free;
 } ckit_heap_block;
 
-
 static ckit_heap_block *ckit_heap_head(const ckit_heap *heap) {
     return (ckit_heap_block *)heap->head;
 }
