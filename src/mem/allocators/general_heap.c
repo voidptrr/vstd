@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -7,14 +8,15 @@
 #include "ckit/mem/allocators/allocator.h"
 #include "ckit/mem/allocators/general_heap.h"
 
+#define CKIT_HEAP_ALIGN (sizeof(max_align_t))
+
+/* Header stored immediately before each heap-managed payload block. */
 typedef struct ckit_heap_block {
     size_t size;
     struct ckit_heap_block *next;
     struct ckit_heap_block *prev;
     bool is_free;
 } ckit_heap_block;
-
-#define CKIT_HEAP_ALIGN (sizeof(max_align_t))
 
 static ckit_heap_block *ckit_heap_head(const ckit_heap *heap) {
     return (ckit_heap_block *)heap->head;
@@ -62,15 +64,11 @@ static void ckit_heap_coalesce(ckit_heap_block *block) {
     }
 }
 
-ckit_status ckit_heap_init(ckit_heap *heap, size_t capacity) {
-    if (heap == NULL) {
-        return CKIT_ERR_NULL;
-    }
+ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
+    assert(heap != NULL);
 
     capacity = ckit_align_up(capacity, CKIT_HEAP_ALIGN);
-    if (capacity <= sizeof(ckit_heap_block) + CKIT_HEAP_ALIGN) {
-        return CKIT_ERR_RANGE;
-    }
+    assert(capacity > sizeof(ckit_heap_block) + CKIT_HEAP_ALIGN);
 
     heap->buffer = ckit_malloc(capacity);
     heap->capacity = capacity;
@@ -82,20 +80,22 @@ ckit_status ckit_heap_init(ckit_heap *heap, size_t capacity) {
     block->prev = NULL;
     block->is_free = true;
 
-    return CKIT_OK;
+    ckit_allocator allocator;
+    allocator.ctx = heap;
+    allocator.alloc = (ckit_alloc_fn)ckit_heap_alloc;
+    allocator.realloc = (ckit_realloc_fn)ckit_heap_realloc;
+    allocator.dealloc = (ckit_dealloc_fn)ckit_heap_dealloc;
+
+    return allocator;
 }
 
-ckit_status ckit_heap_free(ckit_heap *heap) {
-    if (heap == NULL) {
-        return CKIT_ERR_NULL;
-    }
+void ckit_heap_free(ckit_heap *heap) {
+    assert(heap != NULL);
 
     free(heap->buffer);
     heap->buffer = NULL;
     heap->capacity = 0;
     heap->head = NULL;
-
-    return CKIT_OK;
 }
 
 void *ckit_heap_alloc(ckit_heap *heap, size_t size) {
@@ -200,27 +200,4 @@ size_t ckit_heap_available(const ckit_heap *heap) {
     }
 
     return total;
-}
-
-static void *ckit_heap_adapter_alloc(void *ctx, size_t size) {
-    return ckit_heap_alloc((ckit_heap *)ctx, size);
-}
-
-static void *ckit_heap_adapter_realloc(void *ctx, void *ptr, size_t size) {
-    return ckit_heap_realloc((ckit_heap *)ctx, ptr, size);
-}
-
-static void ckit_heap_adapter_dealloc(void *ctx, void *ptr) {
-    ckit_heap_dealloc((ckit_heap *)ctx, ptr);
-}
-
-ckit_allocator ckit_heap_allocator(ckit_heap *heap) {
-    ckit_allocator allocator;
-
-    allocator.ctx = heap;
-    allocator.alloc = ckit_heap_adapter_alloc;
-    allocator.realloc = ckit_heap_adapter_realloc;
-    allocator.dealloc = ckit_heap_adapter_dealloc;
-
-    return allocator;
 }

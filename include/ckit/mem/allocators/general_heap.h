@@ -4,10 +4,9 @@
 #include <stddef.h>
 
 #include "ckit/mem/allocators/allocator.h"
-#include "ckit/status.h"
 
 /*
- * Heap memory model (inside heap->buffer):
+ * Free-list heap memory model (inside heap->buffer):
  *
  * +----------------------+----------------------+----------------------+----------------------+
  * | block header (A)     | payload (A)          | block header (B)     | payload (B)          |
@@ -38,13 +37,14 @@ typedef struct ckit_heap {
 
 /*
  * Initialize a heap with `capacity` bytes of internal storage.
+ * Returns an allocator adapter that routes through this heap.
  */
-ckit_status ckit_heap_init(ckit_heap *heap, size_t capacity);
+ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity);
 
 /*
  * Release heap resources and reset heap state.
  */
-ckit_status ckit_heap_free(ckit_heap *heap);
+void ckit_heap_free(ckit_heap *heap);
 
 /*
  * Allocate `size` bytes from heap.
@@ -69,8 +69,5 @@ size_t ckit_heap_capacity(const ckit_heap *heap);
 
 /* Sum of currently free payload bytes. */
 size_t ckit_heap_available(const ckit_heap *heap);
-
-/* Build an allocator adapter that routes through this heap. */
-ckit_allocator ckit_heap_allocator(ckit_heap *heap);
 
 #endif
