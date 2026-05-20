@@ -5,63 +5,58 @@
 The binary_heap module provides a generic binary heap backed by a contiguous array (`root`).
 Heap ordering is defined by a user-supplied comparator function.
 
+This API is fail-fast: invalid required arguments are programmer errors and are asserted.
+
 ## FUNCTIONS
 
 ### ckit_binary_heap_init
 
 ```c
-ckit_status ckit_binary_heap_init(ckit_binary_heap *heap,
-                                  size_t elem_size,
-                                  ckit_heap_cmp_fn cmp,
-                                  ckit_allocator *allocator);
+void ckit_binary_heap_init(ckit_binary_heap *heap,
+                           size_t elem_size,
+                           ckit_heap_cmp_fn cmp,
+                           ckit_allocator *allocator);
 ```
 
 - Parameters: `heap`, `elem_size`, `cmp`, `allocator`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `heap` or `cmp` is `NULL`; CKIT_ERR_RANGE if `elem_size == 0`.
+- Returns: none.
 - Notes: when `allocator` is `NULL`, binary heap root storage uses default allocator backing.
 
 ### ckit_binary_heap_push
 
 ```c
-ckit_status ckit_binary_heap_push(ckit_binary_heap *heap, const void *element);
+void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element);
 ```
 
 - Parameters: `heap`, `element`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `heap` or `element` is `NULL`.
+- Returns: none.
 
 ### ckit_binary_heap_pop
 
 ```c
-ckit_status ckit_binary_heap_pop(ckit_binary_heap *heap, void *out);
+void *ckit_binary_heap_pop(ckit_binary_heap *heap);
 ```
 
-- Parameters: `heap`, `out`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `heap` or `out` is `NULL`; CKIT_ERR_EMPTY if heap is empty.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `heap`
+- Returns: pointer to removed top element in heap-managed storage, or `NULL` when empty.
 
 ### ckit_binary_heap_peek
 
 ```c
-ckit_status ckit_binary_heap_peek(const ckit_binary_heap *heap, void *out);
+const void *ckit_binary_heap_peek(const ckit_binary_heap *heap);
 ```
 
-- Parameters: `heap`, `out`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `heap` or `out` is `NULL`; CKIT_ERR_EMPTY if heap is empty.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `heap`
+- Returns: pointer to top element in heap-managed storage, or `NULL` when empty.
 
 ### ckit_binary_heap_free
 
 ```c
-ckit_status ckit_binary_heap_free(ckit_binary_heap *heap);
+void ckit_binary_heap_free(ckit_binary_heap *heap);
 ```
 
 - Parameters: `heap`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `heap` is `NULL`.
+- Returns: none.
 
 ### ckit_binary_heap_size
 

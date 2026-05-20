@@ -3,51 +3,48 @@
 ## DESCRIPTION
 
 The vector module provides a generic contiguous growable array for fixed-size elements.
-Elements are copied into vector-owned storage on push and copied out on pop.
+Elements are copied into vector-owned storage on push.
+
+This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
 ## FUNCTIONS
 
 ### ckit_vector_init
 
 ```c
-ckit_status ckit_vector_init(ckit_vector *vector, size_t elem_size, ckit_allocator *allocator);
+void ckit_vector_init(ckit_vector *vector, size_t elem_size, ckit_allocator *allocator);
 ```
 
 - Parameters: `vector`, `elem_size`, `allocator`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `vector` is `NULL`; CKIT_ERR_RANGE if `elem_size == 0`.
+- Returns: none.
 - Notes: when `allocator` is `NULL`, vector uses default `ckit_malloc`/`ckit_realloc` backing.
 
 ### ckit_vector_push
 
 ```c
-ckit_status ckit_vector_push(ckit_vector *vector, const void *element);
+void ckit_vector_push(ckit_vector *vector, const void *element);
 ```
 
 - Parameters: `vector`, `element`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `vector` or `element` is `NULL`.
+- Returns: none.
 
 ### ckit_vector_pop
 
 ```c
-ckit_status ckit_vector_pop(ckit_vector *vector, void *out);
+void *ckit_vector_pop(ckit_vector *vector);
 ```
 
-- Parameters: `vector`, `out`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `vector` or `out` is `NULL`; CKIT_ERR_EMPTY if the vector is empty.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `vector`
+- Returns: pointer to the removed element within vector-managed storage, or `NULL` when the vector is empty.
 
 ### ckit_vector_free
 
 ```c
-ckit_status ckit_vector_free(ckit_vector *vector);
+void ckit_vector_free(ckit_vector *vector);
 ```
 
 - Parameters: `vector`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `vector` is `NULL`.
+- Returns: none.
 
 ### ckit_vector_size
 

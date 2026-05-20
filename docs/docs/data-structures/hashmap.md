@@ -5,63 +5,59 @@
 The hashmap module provides fixed-size key/value mapping with separate chaining for collisions.
 Hashing uses an internal FNV-1a function; key equality is provided by a caller callback.
 
+This API is fail-fast: invalid required arguments are programmer errors and are asserted.
+
 ## FUNCTIONS
 
 ### ckit_hashmap_init
 
 ```c
-ckit_status ckit_hashmap_init(ckit_hashmap *map,
-                              size_t key_size,
-                              size_t value_size,
-                              ckit_hashmap_key_eq_fn key_eq,
-                              ckit_allocator *allocator);
+void ckit_hashmap_init(ckit_hashmap *map,
+                       size_t key_size,
+                       size_t value_size,
+                       ckit_hashmap_key_eq_fn key_eq,
+                       ckit_allocator *allocator);
 ```
 
 - Parameters: `map`, `key_size`, `value_size`, `key_eq`, `allocator`
-- Returns: `CKIT_OK` on success.
-- Errors: `CKIT_ERR_NULL` if `map` or `key_eq` is `NULL`; `CKIT_ERR_RANGE` if `key_size == 0` or `value_size == 0`.
+- Returns: none.
 - Notes: when `allocator` is `NULL`, hashmap uses default allocator backing.
 
 ### ckit_hashmap_put
 
 ```c
-ckit_status ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value);
+void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value);
 ```
 
 - Parameters: `map`, `key`, `value`
-- Returns: `CKIT_OK` on success.
-- Errors: `CKIT_ERR_NULL` if `map`, `key`, or `value` is `NULL`.
+- Returns: none.
 
 ### ckit_hashmap_get
 
 ```c
-ckit_status ckit_hashmap_get(const ckit_hashmap *map, const void *key, void *out_value);
+const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key);
 ```
 
-- Parameters: `map`, `key`, `out_value`
-- Returns: `CKIT_OK` on success.
-- Errors: `CKIT_ERR_NULL` if `map`, `key`, or `out_value` is `NULL`; `CKIT_ERR_NOT_FOUND` if key is missing.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `map`, `key`
+- Returns: pointer to stored value in map-managed storage, or `NULL` when key is missing.
 
 ### ckit_hashmap_remove
 
 ```c
-ckit_status ckit_hashmap_remove(ckit_hashmap *map, const void *key);
+void *ckit_hashmap_remove(ckit_hashmap *map, const void *key);
 ```
 
 - Parameters: `map`, `key`
-- Returns: `CKIT_OK` on success.
-- Errors: `CKIT_ERR_NULL` if `map` or `key` is `NULL`; `CKIT_ERR_NOT_FOUND` if key is missing.
+- Returns: pointer to removed value, or `NULL` when key is missing.
 
 ### ckit_hashmap_free
 
 ```c
-ckit_status ckit_hashmap_free(ckit_hashmap *map);
+void ckit_hashmap_free(ckit_hashmap *map);
 ```
 
 - Parameters: `map`
-- Returns: `CKIT_OK` on success.
-- Errors: `CKIT_ERR_NULL` if `map` is `NULL`.
+- Returns: none.
 
 ### ckit_hashmap_size
 
@@ -88,27 +84,26 @@ bool ckit_hashmap_is_empty(const ckit_hashmap *map);
 ```c
 #include <ckit/compare.h>
 #include <ckit/datastruct/hashmap.h>
-#include <ckit/status.h>
 #include <stdint.h>
 
 int main(void) {
     ckit_hashmap map;
     uint64_t key = 42U;
     uint64_t value = 9001U;
-    uint64_t out = 0U;
+    const uint64_t *found = NULL;
+    uint64_t *removed = NULL;
 
-    if (ckit_hashmap_init(&map, sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL) != CKIT_OK) {
-        return 1;
-    }
-    if (ckit_hashmap_put(&map, &key, &value) != CKIT_OK) {
+    ckit_hashmap_init(&map, sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
+    ckit_hashmap_put(&map, &key, &value);
+
+    found = (const uint64_t *)ckit_hashmap_get(&map, &key);
+    if (found == NULL || *found != value) {
         ckit_hashmap_free(&map);
         return 1;
     }
-    if (ckit_hashmap_get(&map, &key, &out) != CKIT_OK) {
-        ckit_hashmap_free(&map);
-        return 1;
-    }
-    if (ckit_hashmap_remove(&map, &key) != CKIT_OK) {
+
+    removed = (uint64_t *)ckit_hashmap_remove(&map, &key);
+    if (removed == NULL || *removed != value) {
         ckit_hashmap_free(&map);
         return 1;
     }

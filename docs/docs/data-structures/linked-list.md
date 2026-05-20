@@ -5,60 +5,56 @@
 The linked_list module provides a generic singly linked list for fixed-size elements.
 It supports insertion at head and tail and removal from head.
 
+This API is fail-fast: invalid required arguments are programmer errors and are asserted.
+
 ## FUNCTIONS
 
 ### ckit_linked_list_init
 
 ```c
-ckit_status ckit_linked_list_init(ckit_linked_list *list, size_t elem_size,
-                                  ckit_allocator *allocator);
+void ckit_linked_list_init(ckit_linked_list *list, size_t elem_size,
+                           ckit_allocator *allocator);
 ```
 
 - Parameters: `list`, `elem_size`, `allocator`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `list` is `NULL`; CKIT_ERR_RANGE if `elem_size == 0`.
+- Returns: none.
 - Notes: when `allocator` is `NULL`, linked list uses default `ckit_malloc` backing.
 
 ### ckit_linked_list_push
 
 ```c
-ckit_status ckit_linked_list_push(ckit_linked_list *list, const void *element);
+void ckit_linked_list_push(ckit_linked_list *list, const void *element);
 ```
 
 - Parameters: `list`, `element`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `list` or `element` is `NULL`.
+- Returns: none.
 
 ### ckit_linked_list_pushfront
 
 ```c
-ckit_status ckit_linked_list_pushfront(ckit_linked_list *list, const void *element);
+void ckit_linked_list_pushfront(ckit_linked_list *list, const void *element);
 ```
 
 - Parameters: `list`, `element`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `list` or `element` is `NULL`.
+- Returns: none.
 
 ### ckit_linked_list_popleft
 
 ```c
-ckit_status ckit_linked_list_popleft(ckit_linked_list *list, void *out);
+void *ckit_linked_list_popleft(ckit_linked_list *list);
 ```
 
-- Parameters: `list`, `out`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `list` or `out` is `NULL`; CKIT_ERR_EMPTY if list is empty.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `list`
+- Returns: pointer to removed front element data, or `NULL` when list is empty.
 
 ### ckit_linked_list_free
 
 ```c
-ckit_status ckit_linked_list_free(ckit_linked_list *list);
+void ckit_linked_list_free(ckit_linked_list *list);
 ```
 
 - Parameters: `list`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `list` is `NULL`.
+- Returns: none.
 
 ### ckit_linked_list_size
 

@@ -44,12 +44,11 @@ plugins:
 
 nav:
   - Overview: index.md
-  - Status: reference/ckit-status.md
   - Compare: reference/ckit-compare.md
   - Memory:
       - Allocators:
           - Overview: reference/ckit-mem-allocators.md
-          - General heap allocator: reference/ckit-mem-general-heap.md
+          - Free-list allocator: reference/ckit-mem-general-heap.md
       - Bytes: reference/ckit-mem-bytes.md
   - Data structures:
       - Hashmap: data-structures/hashmap.md

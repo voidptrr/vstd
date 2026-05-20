@@ -5,92 +5,82 @@
 The deque module provides a generic circular-buffer deque for fixed-size elements.
 It supports front and back insertion/removal and read-only peeks on both ends.
 
+This API is fail-fast: invalid required arguments are programmer errors and are asserted.
+
 ## FUNCTIONS
 
 ### ckit_deque_init
 
 ```c
-ckit_status ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *allocator);
+void ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *allocator);
 ```
 
 - Parameters: `deque`, `elem_size`, `allocator`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `deque` is `NULL`; CKIT_ERR_RANGE if `elem_size == 0`.
+- Returns: none.
 - Notes: when `allocator` is `NULL`, deque uses default `ckit_malloc` backing.
 
 ### ckit_deque_push
 
 ```c
-ckit_status ckit_deque_push(ckit_deque *deque, const void *element);
+void ckit_deque_push(ckit_deque *deque, const void *element);
 ```
 
 - Parameters: `deque`, `element`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `deque` or `element` is `NULL`.
+- Returns: none.
 
 ### ckit_deque_pushfront
 
 ```c
-ckit_status ckit_deque_pushfront(ckit_deque *deque, const void *element);
+void ckit_deque_pushfront(ckit_deque *deque, const void *element);
 ```
 
 - Parameters: `deque`, `element`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `deque` or `element` is `NULL`.
+- Returns: none.
 
 ### ckit_deque_popleft
 
 ```c
-ckit_status ckit_deque_popleft(ckit_deque *deque, void *out);
+void *ckit_deque_popleft(ckit_deque *deque);
 ```
 
-- Parameters: `deque`, `out`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `deque` or `out` is `NULL`; CKIT_ERR_EMPTY if deque is empty.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `deque`
+- Returns: pointer to removed front element in deque-managed storage, or `NULL` when empty.
 
 ### ckit_deque_popback
 
 ```c
-ckit_status ckit_deque_popback(ckit_deque *deque, void *out);
+void *ckit_deque_popback(ckit_deque *deque);
 ```
 
-- Parameters: `deque`, `out`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `deque` or `out` is `NULL`; CKIT_ERR_EMPTY if deque is empty.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `deque`
+- Returns: pointer to removed back element in deque-managed storage, or `NULL` when empty.
 
 ### ckit_deque_peekleft
 
 ```c
-ckit_status ckit_deque_peekleft(const ckit_deque *deque, void *out);
+const void *ckit_deque_peekleft(const ckit_deque *deque);
 ```
 
-- Parameters: `deque`, `out`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `deque` or `out` is `NULL`; CKIT_ERR_EMPTY if deque is empty.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `deque`
+- Returns: pointer to front element in deque-managed storage, or `NULL` when empty.
 
 ### ckit_deque_peekback
 
 ```c
-ckit_status ckit_deque_peekback(const ckit_deque *deque, void *out);
+const void *ckit_deque_peekback(const ckit_deque *deque);
 ```
 
-- Parameters: `deque`, `out`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `deque` or `out` is `NULL`; CKIT_ERR_EMPTY if deque is empty.
-- Notes: output parameter content is unspecified on failure.
+- Parameters: `deque`
+- Returns: pointer to back element in deque-managed storage, or `NULL` when empty.
 
 ### ckit_deque_free
 
 ```c
-ckit_status ckit_deque_free(ckit_deque *deque);
+void ckit_deque_free(ckit_deque *deque);
 ```
 
 - Parameters: `deque`
-- Returns: CKIT_OK on success.
-- Errors: CKIT_ERR_NULL if `deque` is `NULL`.
+- Returns: none.
 
 ### ckit_deque_size
 

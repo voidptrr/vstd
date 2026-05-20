@@ -2,31 +2,31 @@
 
 ## DESCRIPTION
 
-The heap module provides a general-purpose in-process allocator backed by an
+The heap module provides an in-process free-list allocator backed by an
 internal contiguous region. It supports allocation, deallocation, and reallocation
 using a coalescing free-list strategy.
+
+This API is fail-fast for required initialization/teardown preconditions.
 
 ## FUNCTIONS
 
 ### ckit_heap_init
 
 ```c
-ckit_status ckit_heap_init(ckit_heap *heap, size_t capacity);
+ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity);
 ```
 
 - Parameters: `heap`, `capacity`
-- Returns: `CKIT_OK` on success.
-- Errors: `CKIT_ERR_NULL` if `heap` is `NULL`; `CKIT_ERR_RANGE` if `capacity` is too small.
+- Returns: allocator adapter bound to `heap`.
 
 ### ckit_heap_free
 
 ```c
-ckit_status ckit_heap_free(ckit_heap *heap);
+void ckit_heap_free(ckit_heap *heap);
 ```
 
 - Parameters: `heap`
-- Returns: `CKIT_OK` on success.
-- Errors: `CKIT_ERR_NULL` if `heap` is `NULL`.
+- Returns: none.
 
 ### ckit_heap_alloc
 
