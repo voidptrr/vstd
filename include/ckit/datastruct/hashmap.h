@@ -68,7 +68,7 @@ void ckit_hashmap_init(ckit_hashmap *map, size_t key_size, size_t value_size,
 void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value);
 
 /*
- * Lookup key and copy value into out_value.
+ * Lookup key and return stored value pointer, or NULL when missing.
  */
 const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key);
 

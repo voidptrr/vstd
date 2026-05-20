@@ -26,7 +26,7 @@ void ckit_vector_init(ckit_vector *vector, size_t elem_size, ckit_allocator *all
 /* Append one element by copying elem_size bytes from element. */
 void ckit_vector_push(ckit_vector *vector, const void *element);
 
-/* Remove the last element and copy it into out. */
+/* Remove and return the last element pointer, or NULL when empty. */
 void *ckit_vector_pop(ckit_vector *vector);
 
 /* Release owned storage and reset vector to an empty state. */

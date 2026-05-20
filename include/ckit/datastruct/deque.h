@@ -33,16 +33,16 @@ void ckit_deque_push(ckit_deque *deque, const void *element);
 /* Enqueue one element at the front by copying elem_size bytes from element. */
 void ckit_deque_pushfront(ckit_deque *deque, const void *element);
 
-/* Dequeue one element from the front into out. */
+/* Dequeue and return the front element pointer, or NULL when empty. */
 void *ckit_deque_popleft(ckit_deque *deque);
 
-/* Remove one element from the back into out. */
+/* Remove and return the back element pointer, or NULL when empty. */
 void *ckit_deque_popback(ckit_deque *deque);
 
-/* Copy one element from the front into out without removing it. */
+/* Return the front element pointer without removing it, or NULL when empty. */
 const void *ckit_deque_peekleft(const ckit_deque *deque);
 
-/* Copy one element from the back into out without removing it. */
+/* Return the back element pointer without removing it, or NULL when empty. */
 const void *ckit_deque_peekback(const ckit_deque *deque);
 
 /* Release owned storage and reset deque to an empty state. */

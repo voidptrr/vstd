@@ -37,7 +37,7 @@ void ckit_linked_list_push(ckit_linked_list *list, const void *element);
 /* Prepend one element by copying elem_size bytes from element. */
 void ckit_linked_list_pushfront(ckit_linked_list *list, const void *element);
 
-/* Remove the first element and copy it into out. */
+/* Remove and return the first element pointer, or NULL when empty. */
 void *ckit_linked_list_popleft(ckit_linked_list *list);
 
 /* Release owned nodes and reset list to an empty state. */

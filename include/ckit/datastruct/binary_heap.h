@@ -29,10 +29,10 @@ void ckit_binary_heap_init(ckit_binary_heap *heap, size_t elem_size, ckit_heap_c
 /* Insert one element by copying elem_size bytes from element. */
 void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element);
 
-/* Remove the top element and copy it into out. */
+/* Remove and return the top element pointer, or NULL when empty. */
 void *ckit_binary_heap_pop(ckit_binary_heap *heap);
 
-/* Copy the top element into out without removing it. */
+/* Return the top element pointer without removing it, or NULL when empty. */
 const void *ckit_binary_heap_peek(const ckit_binary_heap *heap);
 
 /* Release owned storage and reset heap to an empty state. */
