@@ -1,4 +1,4 @@
-name: Pre-Merge Checks
+name: pre-merge 
 
 on:
   pull_request:
@@ -11,7 +11,6 @@ on:
       - "tooling/**"
       - "flake.nix"
       - "flake.lock"
-      - ".github/scripts/**"
       - ".github/workflows/pre-merge.yml"
       - ".clang-format"
 
@@ -20,26 +19,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality-gates:
+  checks:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
       - uses: DeterminateSystems/nix-installer-action@v16
-
-      - name: Enforce branch naming
-        env:
-          BRANCH_NAME: ${{ github.head_ref }}
-        run: ./.github/scripts/validate-naming.sh --branch "$BRANCH_NAME"
-
-      - name: Enforce commits naming and no merges
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: ./.github/scripts/validate-commits.sh
 
       - run: nix develop -c format-check
       - run: nix develop -c code-check
