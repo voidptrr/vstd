@@ -71,7 +71,7 @@ ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
     CKIT_ASSERT(capacity > sizeof(ckit_heap_block) + CKIT_HEAP_ALIGN,
                 "fatal: ckit_heap_init invalid capacity");
 
-    heap->buffer = ckit_malloc(capacity);
+    heap->buffer = ckit_malloc(NULL, capacity);
     heap->capacity = capacity;
     heap->head = heap->buffer;
 

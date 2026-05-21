@@ -26,20 +26,31 @@ typedef struct ckit_allocator {
 ### ckit_malloc
 
 ```c
-void *ckit_malloc(size_t size);
+void *ckit_malloc(ckit_allocator *allocator, size_t size);
 ```
 
-- Parameters: `size`
+- Parameters: `allocator`, `size`
 - Returns: pointer to allocated memory.
 - Behavior: prints a fatal message and aborts on out-of-memory.
+- Notes: when `allocator` is `NULL`, uses the C library heap.
 
 ### ckit_realloc
 
 ```c
-void *ckit_realloc(void *ptr, size_t size);
+void *ckit_realloc(ckit_allocator *allocator, void *ptr, size_t size);
 ```
 
-- Parameters: `ptr`, `size`
+- Parameters: `allocator`, `ptr`, `size`
 - Returns: pointer to resized memory.
 - Behavior: prints a fatal message and aborts on allocation failure.
-- Notes: when `size == 0`, behavior follows C library `realloc` semantics.
+- Notes: when `allocator` is `NULL`, uses the C library heap. When `size == 0`, frees `ptr` and returns `NULL`.
+
+### ckit_dealloc
+
+```c
+void ckit_dealloc(ckit_allocator *allocator, void *ptr);
+```
+
+- Parameters: `allocator`, `ptr`
+- Returns: none.
+- Notes: when `allocator` is `NULL`, uses the C library heap. `NULL` pointers are ignored.

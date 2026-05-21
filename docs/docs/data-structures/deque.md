@@ -12,12 +12,12 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 ### ckit_deque_init
 
 ```c
-void ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *allocator);
+ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator);
 ```
 
-- Parameters: `deque`, `elem_size`, `allocator`
-- Returns: none.
-- Notes: when `allocator` is `NULL`, deque uses default `ckit_malloc` backing.
+- Parameters: `elem_size`, `allocator`
+- Returns: opaque deque handle.
+- Notes: when `allocator` is `NULL`, deque uses the C library heap through `ckit_malloc`.
 
 ### ckit_deque_push
 
@@ -81,6 +81,7 @@ void ckit_deque_free(ckit_deque *deque);
 
 - Parameters: `deque`
 - Returns: none.
+- Notes: releases deque storage and the opaque handle. Do not use `deque` after this call.
 
 ### ckit_deque_size
 

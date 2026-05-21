@@ -19,16 +19,13 @@ typedef struct ckit_allocator {
     ckit_dealloc_fn dealloc;
 } ckit_allocator;
 
-/*
- * Allocate size bytes.
- * Panics (prints fatal message and aborts) on out-of-memory.
- */
-void *ckit_malloc(size_t size);
+/* Allocate size bytes through allocator when provided, otherwise malloc. */
+void *ckit_malloc(ckit_allocator *allocator, size_t size);
 
-/*
- * Resize ptr to size bytes.
- * Panics (prints fatal message and aborts) on out-of-memory when size > 0.
- */
-void *ckit_realloc(void *ptr, size_t size);
+/* Resize ptr through allocator when provided, otherwise realloc. */
+void *ckit_realloc(ckit_allocator *allocator, void *ptr, size_t size);
+
+/* Release ptr through allocator when provided, otherwise free. */
+void ckit_dealloc(ckit_allocator *allocator, void *ptr);
 
 #endif

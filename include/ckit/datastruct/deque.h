@@ -7,25 +7,27 @@
 #include "ckit/memory/allocators/allocator.h"
 
 /*
- * Generic FIFO deque backed by a circular buffer.
- * +----------------------+----------------------+----------------------+
- * | size (size_t)        | elem_size (size_t)   | capacity (size_t)    |
- * +----------------------+----------------------+----------------------+
- * | head (size_t)        | tail (size_t)        | buffer (void *)      |
- * +----------------------+----------------------+----------------------+
+ * Opaque generic double-ended queue backed by circular storage.
+ *
+ * Logical view:
+ *
+ *              popleft                 popback
+ *                 |                       |
+ *                 v                       v
+ *          +------+------+------+ ... +------+
+ *   front  |  T   |  T   |  T   |     |  T   |  back
+ *          +------+------+------+ ... +------+
+ *                 ^                       ^
+ *                 |                       |
+ *             pushfront                 push
+ *
+ * Storage may wrap internally, but callers observe a normal front-to-back
+ * sequence.
  */
-typedef struct ckit_deque {
-    size_t size;
-    size_t elem_size;
-    size_t capacity;
-    size_t head;
-    size_t tail;
-    void *buffer;
-    ckit_allocator *allocator;
-} ckit_deque;
+typedef struct ckit_deque ckit_deque;
 
-/* Initialize a deque with element size elem_size. */
-void ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *allocator);
+/* Create a deque with element size elem_size. */
+ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator);
 
 /* Enqueue one element by copying elem_size bytes from element. */
 void ckit_deque_push(ckit_deque *deque, const void *element);
@@ -45,7 +47,7 @@ const void *ckit_deque_peekleft(const ckit_deque *deque);
 /* Return the back element pointer without removing it, or NULL when empty. */
 const void *ckit_deque_peekback(const ckit_deque *deque);
 
-/* Release owned storage and reset deque to an empty state. */
+/* Release owned storage and the deque handle. */
 void ckit_deque_free(ckit_deque *deque);
 
 /* Return the number of stored elements. */

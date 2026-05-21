@@ -12,13 +12,12 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 ### ckit_linked_list_init
 
 ```c
-void ckit_linked_list_init(ckit_linked_list *list, size_t elem_size,
-                           ckit_allocator *allocator);
+ckit_linked_list *ckit_linked_list_init(size_t elem_size, ckit_allocator *allocator);
 ```
 
-- Parameters: `list`, `elem_size`, `allocator`
-- Returns: none.
-- Notes: when `allocator` is `NULL`, linked list uses default `ckit_malloc` backing.
+- Parameters: `elem_size`, `allocator`
+- Returns: opaque linked-list handle.
+- Notes: when `allocator` is `NULL`, linked list uses the C library heap through `ckit_malloc`.
 
 ### ckit_linked_list_push
 
@@ -55,6 +54,7 @@ void ckit_linked_list_free(ckit_linked_list *list);
 
 - Parameters: `list`
 - Returns: none.
+- Notes: releases nodes and the opaque handle. Do not use `list` after this call.
 
 ### ckit_linked_list_size
 

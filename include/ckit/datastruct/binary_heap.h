@@ -5,27 +5,39 @@
 #include <stddef.h>
 
 #include "ckit/compare.h"
-#include "ckit/datastruct/vector.h"
+#include "ckit/memory/allocators/allocator.h"
 
 /*
- * Binary heap backed by ckit_vector.
- * +----------------------+------------------------+
- * | root (ckit_vector)   | cmp (ckit_heap_cmp_fn) |
- * +----------------------+------------------------+
+ * Opaque binary heap.
+ *
+ * Logical tree view:
+ *
+ *                  top
+ *                   |
+ *                   v
+ *                  [0]
+ *                /     \
+ *              [1]     [2]
+ *             /   \   /   \
+ *           [3]  [4] [5]  [6]
+ *
+ * Backing storage is vector-like:
+ *
+ *   +-----+-----+-----+-----+-----+-----+-----+
+ *   | [0] | [1] | [2] | [3] | [4] | [5] | [6] |
+ *   +-----+-----+-----+-----+-----+-----+-----+
+ *
+ * For index i: left child = 2*i + 1, right child = 2*i + 2.
  */
 
 /* Comparator callback: negative if a < b, zero if equal, positive if a > b. */
 typedef ckit_cmp_fn ckit_heap_cmp_fn;
 
-/* Heap object wrapping vector storage and comparator policy. */
-typedef struct ckit_binary_heap {
-    ckit_vector root;
-    ckit_heap_cmp_fn cmp;
-} ckit_binary_heap;
+typedef struct ckit_binary_heap ckit_binary_heap;
 
-/* Initialize a heap for elements of size elem_size using cmp ordering. */
-void ckit_binary_heap_init(ckit_binary_heap *heap, size_t elem_size, ckit_heap_cmp_fn cmp,
-                           ckit_allocator *allocator);
+/* Create a heap for elements of size elem_size using cmp ordering. */
+ckit_binary_heap *ckit_binary_heap_init(size_t elem_size, ckit_heap_cmp_fn cmp,
+                                        ckit_allocator *allocator);
 
 /* Insert one element by copying elem_size bytes from element. */
 void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element);
@@ -36,7 +48,7 @@ void *ckit_binary_heap_pop(ckit_binary_heap *heap);
 /* Return the top element pointer without removing it, or NULL when empty. */
 const void *ckit_binary_heap_peek(const ckit_binary_heap *heap);
 
-/* Release owned storage and reset heap to an empty state. */
+/* Release owned storage and the heap handle. */
 void ckit_binary_heap_free(ckit_binary_heap *heap);
 
 /* Return the number of stored elements. */

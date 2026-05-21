@@ -12,16 +12,15 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 ### ckit_hashmap_init
 
 ```c
-void ckit_hashmap_init(ckit_hashmap *map,
-                       size_t key_size,
-                       size_t value_size,
-                       ckit_hashmap_key_eq_fn key_eq,
-                       ckit_allocator *allocator);
+ckit_hashmap *ckit_hashmap_init(size_t key_size,
+                                size_t value_size,
+                                ckit_hashmap_key_eq_fn key_eq,
+                                ckit_allocator *allocator);
 ```
 
-- Parameters: `map`, `key_size`, `value_size`, `key_eq`, `allocator`
-- Returns: none.
-- Notes: when `allocator` is `NULL`, hashmap uses default allocator backing.
+- Parameters: `key_size`, `value_size`, `key_eq`, `allocator`
+- Returns: opaque hashmap handle.
+- Notes: when `allocator` is `NULL`, hashmap uses the C library heap through `ckit_malloc`.
 
 ### ckit_hashmap_put
 
@@ -58,6 +57,7 @@ void ckit_hashmap_free(ckit_hashmap *map);
 
 - Parameters: `map`
 - Returns: none.
+- Notes: releases entries, buckets, and the opaque handle. Do not use `map` after this call.
 
 ### ckit_hashmap_size
 
@@ -87,28 +87,28 @@ bool ckit_hashmap_is_empty(const ckit_hashmap *map);
 #include <stdint.h>
 
 int main(void) {
-    ckit_hashmap map;
+    ckit_hashmap *map;
     uint64_t key = 42U;
     uint64_t value = 9001U;
     const uint64_t *found = NULL;
     uint64_t *removed = NULL;
 
-    ckit_hashmap_init(&map, sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
-    ckit_hashmap_put(&map, &key, &value);
+    map = ckit_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
+    ckit_hashmap_put(map, &key, &value);
 
-    found = (const uint64_t *)ckit_hashmap_get(&map, &key);
+    found = (const uint64_t *)ckit_hashmap_get(map, &key);
     if (found == NULL || *found != value) {
-        ckit_hashmap_free(&map);
+        ckit_hashmap_free(map);
         return 1;
     }
 
-    removed = (uint64_t *)ckit_hashmap_remove(&map, &key);
+    removed = (uint64_t *)ckit_hashmap_remove(map, &key);
     if (removed == NULL || *removed != value) {
-        ckit_hashmap_free(&map);
+        ckit_hashmap_free(map);
         return 1;
     }
 
-    ckit_hashmap_free(&map);
+    ckit_hashmap_free(map);
     return 0;
 }
 ```

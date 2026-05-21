@@ -56,3 +56,4 @@ nav:
       - Vector: data-structures/vector.md
       - Deque: data-structures/deque.md
       - Linked list: data-structures/linked-list.md
+      - String: data-structures/string.md

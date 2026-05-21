@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "ckit/common/panic.h"
@@ -8,30 +7,23 @@
 
 #define CKIT_DEQUE_DEFAULT_CAPACITY 16
 
-static void *ckit_deque_alloc(const ckit_deque *deque, size_t size) {
-    if (deque->allocator == NULL || deque->allocator->alloc == NULL) {
-        return ckit_malloc(size);
-    }
-    return deque->allocator->alloc(deque->allocator->ctx, size);
-}
-
-static void ckit_deque_dealloc(const ckit_deque *deque, void *ptr) {
-    if (deque->allocator == NULL || deque->allocator->dealloc == NULL) {
-        free(ptr);
-        return;
-    }
-    deque->allocator->dealloc(deque->allocator->ctx, ptr);
-}
+struct ckit_deque {
+    size_t size;
+    size_t elem_size;
+    size_t capacity;
+    size_t head;
+    size_t tail;
+    void *buffer;
+    ckit_allocator *allocator;
+};
 
 static void ckit_deque_grow(ckit_deque *deque) {
     size_t old_capacity = deque->capacity;
     size_t new_capacity = old_capacity * 2;
     uint8_t *old_buffer = (uint8_t *)deque->buffer;
-    uint8_t *new_buffer = ckit_deque_alloc(deque, new_capacity * deque->elem_size);
-    if (new_buffer == NULL) {
-        ckit_panic("fatal: ckit_deque_grow allocation failed");
-        return;
-    }
+
+    size_t alloc_size = new_capacity * deque->elem_size;
+    uint8_t *new_buffer = ckit_malloc(deque->allocator, alloc_size);
 
     if (deque->size > 0) {
         if (deque->head < deque->tail) {
@@ -50,23 +42,21 @@ static void ckit_deque_grow(ckit_deque *deque) {
         }
     }
 
-    ckit_deque_dealloc(deque, deque->buffer);
+    ckit_dealloc(deque->allocator, deque->buffer);
     deque->buffer = new_buffer;
     deque->capacity = new_capacity;
     deque->head = 0;
     deque->tail = deque->size;
 }
 
-void ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *allocator) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_init invalid arguments");
+ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator) {
     CKIT_ASSERT(elem_size > 0U, "fatal: ckit_deque_init invalid arguments");
 
+    ckit_deque *deque = ckit_malloc(allocator, sizeof(*deque));
     deque->allocator = allocator;
 
-    void *buffer = ckit_deque_alloc(deque, elem_size * CKIT_DEQUE_DEFAULT_CAPACITY);
-    if (buffer == NULL) {
-        ckit_panic("fatal: ckit_deque_init allocation failed");
-    }
+    size_t alloc_size = elem_size * CKIT_DEQUE_DEFAULT_CAPACITY;
+    void *buffer = ckit_malloc(allocator, alloc_size);
 
     deque->size = 0;
     deque->elem_size = elem_size;
@@ -74,6 +64,8 @@ void ckit_deque_init(ckit_deque *deque, size_t elem_size, ckit_allocator *alloca
     deque->head = 0;
     deque->tail = 0;
     deque->buffer = buffer;
+
+    return deque;
 }
 
 void ckit_deque_push(ckit_deque *deque, const void *element) {
@@ -169,13 +161,9 @@ const void *ckit_deque_peekback(const ckit_deque *deque) {
 void ckit_deque_free(ckit_deque *deque) {
     CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_free invalid arguments");
 
-    ckit_deque_dealloc(deque, deque->buffer);
-    deque->buffer = NULL;
-    deque->size = 0;
-    deque->capacity = 0;
-    deque->head = 0;
-    deque->tail = 0;
-    deque->allocator = NULL;
+    ckit_allocator *allocator = deque->allocator;
+    ckit_dealloc(deque->allocator, deque->buffer);
+    ckit_dealloc(allocator, deque);
 }
 
 size_t ckit_deque_size(const ckit_deque *deque) {

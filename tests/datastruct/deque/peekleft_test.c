@@ -3,22 +3,22 @@
 #include "ckit/datastruct/deque.h"
 
 int main(void) {
-    ckit_deque q;
+    ckit_deque *q;
     int first = 1;
     int second = 2;
     const int *out;
 
-    ckit_deque_init(&q, sizeof(int), NULL);
-    ckit_deque_push(&q, &first);
-    ckit_deque_push(&q, &second);
+    q = ckit_deque_init(sizeof(int), NULL);
+    ckit_deque_push(q, &first);
+    ckit_deque_push(q, &second);
 
-    out = (const int *)ckit_deque_peekleft(&q);
+    out = (const int *)ckit_deque_peekleft(q);
     if (out == NULL || *out != first) {
         fprintf(stderr, "peekleft should return front\n");
-        ckit_deque_free(&q);
+        ckit_deque_free(q);
         return 1;
     }
 
-    ckit_deque_free(&q);
+    ckit_deque_free(q);
     return 0;
 }

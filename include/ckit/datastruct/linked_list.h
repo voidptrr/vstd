@@ -7,29 +7,25 @@
 #include "ckit/memory/allocators/allocator.h"
 
 /*
- * Generic singly linked list.
- * +----------------------+----------------------+----------------------+
- * | size (size_t)        | elem_size (size_t)   | head (node *)        |
- * +----------------------+----------------------+----------------------+
- * | tail (node *)        |                      |                      |
- * +----------------------+----------------------+----------------------+
+ * Opaque generic singly linked list.
+ *
+ * Logical view:
+ *
+ *   head                                      tail
+ *    |                                         |
+ *    v                                         v
+ *  +------+    +------+    +------+        +------+
+ *  |  T   | -> |  T   | -> |  T   |  ...   |  T   | -> NULL
+ *  +------+    +------+    +------+        +------+
+ *
+ * - push appends at tail
+ * - pushfront prepends at head
+ * - popleft removes from head
  */
+typedef struct ckit_linked_list ckit_linked_list;
 
-typedef struct ckit_linked_list_node {
-    struct ckit_linked_list_node *next;
-    void *data;
-} ckit_linked_list_node;
-
-typedef struct ckit_linked_list {
-    size_t size;
-    size_t elem_size;
-    ckit_linked_list_node *head;
-    ckit_linked_list_node *tail;
-    ckit_allocator *allocator;
-} ckit_linked_list;
-
-/* Initialize a linked list with element size elem_size. */
-void ckit_linked_list_init(ckit_linked_list *list, size_t elem_size, ckit_allocator *allocator);
+/* Create a linked list with element size elem_size. */
+ckit_linked_list *ckit_linked_list_init(size_t elem_size, ckit_allocator *allocator);
 
 /* Append one element by copying elem_size bytes from element. */
 void ckit_linked_list_push(ckit_linked_list *list, const void *element);
@@ -40,7 +36,7 @@ void ckit_linked_list_pushfront(ckit_linked_list *list, const void *element);
 /* Remove and return the first element pointer, or NULL when empty. */
 void *ckit_linked_list_popleft(ckit_linked_list *list);
 
-/* Release owned nodes and reset list to an empty state. */
+/* Release owned nodes and the linked-list handle. */
 void ckit_linked_list_free(ckit_linked_list *list);
 
 /* Return the number of stored elements. */

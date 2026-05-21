@@ -9,18 +9,13 @@ static int cmp_int_asc(const void *a, const void *b) {
 }
 
 int main(void) {
-    ckit_binary_heap heap;
+    ckit_binary_heap *heap;
     int value = 1;
 
-    ckit_binary_heap_init(&heap, sizeof(int), cmp_int_asc, NULL);
+    heap = ckit_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
 
-    ckit_binary_heap_push(&heap, &value);
-    ckit_binary_heap_free(&heap);
-
-    if (ckit_binary_heap_size(&heap) != 0U || heap.cmp != NULL) {
-        fprintf(stderr, "ckit_binary_heap_free should reset heap state\n");
-        return 1;
-    }
+    ckit_binary_heap_push(heap, &value);
+    ckit_binary_heap_free(heap);
 
     return 0;
 }
