@@ -18,10 +18,18 @@ cmake \
 cmake --build build/hardened
 
 for file in $(find src -type f -name '*.c' | sort); do
-  clang-tidy \
-    -p build/hardened \
-    --quiet \
-    "$file"
+  status=0
+  output="$(clang-tidy -p build/hardened --quiet "$file" 2>&1)" || status=$?
+  if [ -n "$output" ]; then
+    printf '%s\n' "$output" |
+      sed \
+        -e '/^[0-9][0-9]* warnings generated\.$/d' \
+        -e '/^Suppressed [0-9][0-9]* warnings/d' \
+        -e '/^Use -header-filter=/d'
+  fi
+  if [ "$status" -ne 0 ]; then
+    exit "$status"
+  fi
 done
 
 ctest --test-dir build/hardened --output-on-failure

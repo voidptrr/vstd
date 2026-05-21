@@ -38,7 +38,7 @@ static bool ckit_hashmap_should_grow(const ckit_hashmap *map) {
 static void ckit_hashmap_rehash(ckit_hashmap *map, size_t new_capacity) {
     ckit_hashmap_entry **new_buckets =
         (ckit_hashmap_entry **)ckit_hashmap_alloc(map, sizeof(*new_buckets) * new_capacity);
-    if (new_buckets == NULL) {
+    if (!new_buckets) {
         ckit_panic("fatal: ckit_hashmap_rehash allocation failed");
     }
     memset((void *)new_buckets, 0, sizeof(*new_buckets) * new_capacity);
@@ -71,7 +71,7 @@ void ckit_hashmap_init(ckit_hashmap *map, size_t key_size, size_t value_size,
     map->allocator = allocator;
     map->buckets = (ckit_hashmap_entry **)ckit_hashmap_alloc(
         map, sizeof(*map->buckets) * CKIT_HASHMAP_DEFAULT_CAPACITY);
-    if (map->buckets == NULL) {
+    if (!map->buckets) {
         ckit_panic("fatal: ckit_hashmap_init allocation failed");
     }
     memset((void *)map->buckets, 0, sizeof(*map->buckets) * CKIT_HASHMAP_DEFAULT_CAPACITY);
@@ -173,7 +173,7 @@ void *ckit_hashmap_remove(ckit_hashmap *map, const void *key) {
 void ckit_hashmap_free(ckit_hashmap *map) {
     CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_free invalid arguments");
 
-    if (map->buckets != NULL) {
+    if (map->buckets) {
         for (size_t i = 0U; i < map->capacity; i++) {
             ckit_hashmap_entry *curr = map->buckets[i];
             while (curr != NULL) {
