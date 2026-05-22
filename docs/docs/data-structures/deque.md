@@ -102,3 +102,34 @@ bool ckit_deque_is_empty(const ckit_deque *deque);
 - Parameters: `deque`
 - Returns: `true` when empty; otherwise `false`.
 - Notes: returns `true` when `deque` is `NULL`.
+
+## EXAMPLE
+
+```c
+#include <ckit/datastruct/deque.h>
+
+int main(void) {
+    ckit_deque *deque = ckit_deque_init(sizeof(int), NULL);
+    int front = 1;
+    int back = 2;
+
+    ckit_deque_pushfront(deque, &front);
+    ckit_deque_push(deque, &back);
+
+    const int *left = (const int *)ckit_deque_peekleft(deque);
+    const int *right = (const int *)ckit_deque_peekback(deque);
+    if (left == NULL || right == NULL || *left != front || *right != back) {
+        ckit_deque_free(deque);
+        return 1;
+    }
+
+    int *out = (int *)ckit_deque_popleft(deque);
+    if (out == NULL || *out != front) {
+        ckit_deque_free(deque);
+        return 1;
+    }
+
+    ckit_deque_free(deque);
+    return 0;
+}
+```

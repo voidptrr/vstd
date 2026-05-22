@@ -103,3 +103,33 @@ bool ckit_vector_is_empty(const ckit_vector *vector);
 - Parameters: `vector`
 - Returns: `true` when empty; otherwise `false`.
 - Notes: returns `true` when `vector` is `NULL`.
+
+## EXAMPLE
+
+```c
+#include <ckit/datastruct/vector.h>
+
+int main(void) {
+    ckit_vector *vector = ckit_vector_init(sizeof(int), NULL);
+    int first = 10;
+    int second = 20;
+
+    ckit_vector_push(vector, &first);
+    ckit_vector_push(vector, &second);
+
+    int *item = (int *)ckit_vector_get(vector, 1);
+    if (item == NULL || *item != second) {
+        ckit_vector_free(vector);
+        return 1;
+    }
+
+    int *popped = (int *)ckit_vector_pop(vector);
+    if (popped == NULL || *popped != second) {
+        ckit_vector_free(vector);
+        return 1;
+    }
+
+    ckit_vector_free(vector);
+    return 0;
+}
+```

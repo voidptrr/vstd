@@ -77,3 +77,35 @@ bool ckit_binary_heap_is_empty(const ckit_binary_heap *heap);
 - Parameters: `heap`
 - Returns: `true` when empty; otherwise `false`.
 - Notes: returns `true` when `heap` is `NULL`.
+
+## EXAMPLE
+
+```c
+#include <ckit/compare.h>
+#include <ckit/datastruct/binary_heap.h>
+#include <stdint.h>
+
+int main(void) {
+    ckit_binary_heap *heap = ckit_binary_heap_init(sizeof(int32_t), ckit_cmp_i32, NULL);
+    int32_t values[] = {5, 2, 8, 1};
+
+    for (size_t i = 0; i < 4U; i++) {
+        ckit_binary_heap_push(heap, &values[i]);
+    }
+
+    const int32_t *top = (const int32_t *)ckit_binary_heap_peek(heap);
+    if (top == NULL || *top != 1) {
+        ckit_binary_heap_free(heap);
+        return 1;
+    }
+
+    int32_t *popped = (int32_t *)ckit_binary_heap_pop(heap);
+    if (popped == NULL || *popped != 1) {
+        ckit_binary_heap_free(heap);
+        return 1;
+    }
+
+    ckit_binary_heap_free(heap);
+    return 0;
+}
+```
