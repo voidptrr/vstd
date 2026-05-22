@@ -21,7 +21,7 @@ int main(void) {
 
     ckit_linked_list_node *out_second_node = ckit_linked_list_popleft(list);
     ckit_linked_list_node *out_first_node = ckit_linked_list_popleft(list);
-    if (out_second_node == NULL || out_first_node == NULL || ckit_linked_list_size(list) != 0U) {
+    if (out_second_node == NULL || out_first_node == NULL || ckit_linked_list_size(list) != 0) {
         fprintf(stderr, "pushfront should return two nodes\n");
         ckit_linked_list_free(list);
         return 1;

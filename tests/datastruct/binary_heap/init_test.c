@@ -13,7 +13,7 @@ int main(void) {
 
     heap = ckit_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
 
-    if (ckit_binary_heap_size(heap) != 0U) {
+    if (ckit_binary_heap_size(heap) != 0) {
         fprintf(stderr, "newly initialized heap should be empty\n");
         ckit_binary_heap_free(heap);
         return 1;

@@ -6,7 +6,7 @@ int main(void) {
     ckit_linked_list *list;
     list = ckit_linked_list_init(NULL);
 
-    if (ckit_linked_list_size(list) != 0U) {
+    if (ckit_linked_list_size(list) != 0) {
         fprintf(stderr, "linked list should initialize empty\n");
         ckit_linked_list_free(list);
         return 1;

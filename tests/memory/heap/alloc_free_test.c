@@ -9,7 +9,7 @@ int main(void) {
     int *a;
     int *b;
 
-    ckit_heap_init(&heap, 2048U);
+    ckit_heap_init(&heap, 2048);
     before = ckit_heap_available(&heap);
 
     a = (int *)ckit_heap_alloc(&heap, sizeof(int));

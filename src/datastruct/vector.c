@@ -16,7 +16,7 @@ struct ckit_vector {
 };
 
 ckit_vector *ckit_vector_init(size_t elem_size, ckit_allocator *allocator) {
-    CKIT_ASSERT(elem_size > 0U, "fatal: ckit_vector_init invalid arguments");
+    CKIT_ASSERT(elem_size > 0, "fatal: ckit_vector_init invalid arguments");
 
     ckit_vector *vector = ckit_malloc(allocator, sizeof(*vector));
     vector->allocator = allocator;
@@ -84,7 +84,7 @@ const void *ckit_vector_get_const(const ckit_vector *vector, size_t index) {
 
 size_t ckit_vector_elem_size(const ckit_vector *vector) {
     if (vector == NULL) {
-        return 0U;
+        return 0;
     }
 
     return vector->elem_size;
@@ -99,7 +99,7 @@ void *ckit_vector_swap_remove(ckit_vector *vector, size_t index) {
 
     uint8_t *base = (uint8_t *)vector->buffer;
     void *slot = base + (index * vector->elem_size);
-    size_t last = vector->size - 1U;
+    size_t last = vector->size - 1;
 
     if (index != last) {
         void *last_slot = base + (last * vector->elem_size);

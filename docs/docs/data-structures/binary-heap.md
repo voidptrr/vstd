@@ -79,7 +79,7 @@ int main(void) {
     ckit_binary_heap *heap = ckit_binary_heap_init(sizeof(int32_t), ckit_cmp_i32, NULL);
     int32_t values[] = {5, 2, 8, 1};
 
-    for (size_t i = 0; i < 4U; i++) {
+    for (size_t i = 0; i < 4; i++) {
         ckit_binary_heap_push(heap, &values[i]);
     }
 
