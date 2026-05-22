@@ -3,11 +3,12 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "ckit/memory/allocators/allocator.h"
 
 /*
- * Opaque generic singly linked list.
+ * Opaque intrusive singly linked list.
  *
  * Logical view:
  *
@@ -15,28 +16,42 @@
  *    |                                         |
  *    v                                         v
  *  +------+    +------+    +------+        +------+
- *  |  T   | -> |  T   | -> |  T   |  ...   |  T   | -> NULL
+ *  | node | -> | node | -> | node |  ...   | node | -> NULL
  *  +------+    +------+    +------+        +------+
+ *     ^           ^           ^               ^
+ *     |           |           |               |
+ *  user object embeds ckit_linked_list_node
  *
  * - push appends at tail
  * - pushfront prepends at head
  * - popleft removes from head
+ * - linked list nodes and owning objects are caller-owned
  */
+
+#define ckit_container_of(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
+
+typedef struct ckit_linked_list_node {
+    struct ckit_linked_list_node *next;
+} ckit_linked_list_node;
+
 typedef struct ckit_linked_list ckit_linked_list;
 
-/* Create a linked list with element size elem_size. */
-ckit_linked_list *ckit_linked_list_init(size_t elem_size, ckit_allocator *allocator);
+/* Create an intrusive linked list. */
+ckit_linked_list *ckit_linked_list_init(ckit_allocator *allocator);
 
-/* Append one element by copying elem_size bytes from element. */
-void ckit_linked_list_push(ckit_linked_list *list, const void *element);
+/* Reset node linkage before first use or after removal. */
+void ckit_linked_list_node_init(ckit_linked_list_node *node);
 
-/* Prepend one element by copying elem_size bytes from element. */
-void ckit_linked_list_pushfront(ckit_linked_list *list, const void *element);
+/* Append node at the tail. */
+void ckit_linked_list_push(ckit_linked_list *list, ckit_linked_list_node *node);
 
-/* Remove and return the first element pointer, or NULL when empty. */
-void *ckit_linked_list_popleft(ckit_linked_list *list);
+/* Prepend node at the head. */
+void ckit_linked_list_pushfront(ckit_linked_list *list, ckit_linked_list_node *node);
 
-/* Release owned nodes and the linked-list handle. */
+/* Remove and return the head node, or NULL when empty. */
+ckit_linked_list_node *ckit_linked_list_popleft(ckit_linked_list *list);
+
+/* Release the linked-list handle. Nodes remain caller-owned. */
 void ckit_linked_list_free(ckit_linked_list *list);
 
 /* Return the number of stored elements. */

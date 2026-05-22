@@ -2,12 +2,18 @@
 
 #include "ckit/datastruct/linked_list.h"
 
+typedef struct test_item {
+    int value;
+    ckit_linked_list_node node;
+} test_item;
+
 int main(void) {
     ckit_linked_list *list;
-    int value = 1;
+    test_item item = {.value = 1};
 
-    list = ckit_linked_list_init(sizeof(int), NULL);
-    ckit_linked_list_push(list, &value);
+    ckit_linked_list_node_init(&item.node);
+    list = ckit_linked_list_init(NULL);
+    ckit_linked_list_push(list, &item.node);
     ckit_linked_list_free(list);
 
     return 0;
