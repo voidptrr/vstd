@@ -48,7 +48,7 @@ static ckit_string_header *ckit_string_ensure_capacity(ckit_string *string, size
 }
 
 ckit_string ckit_string_init(const char *initial, ckit_allocator *allocator) {
-    size_t len = initial == NULL ? 0U : strlen(initial);
+    size_t len = initial == NULL ? 0 : strlen(initial);
     size_t capacity = ckit_string_capacity_for(len);
     size_t alloc_size = sizeof(ckit_string_header) + capacity;
 
@@ -57,7 +57,7 @@ ckit_string ckit_string_init(const char *initial, ckit_allocator *allocator) {
     header->capacity = capacity;
     header->allocator = allocator;
 
-    if (len > 0U) {
+    if (len > 0) {
         memcpy(header->buf, initial, len);
     }
     header->buf[len] = '\0';
@@ -71,7 +71,7 @@ void ckit_string_append(ckit_string *string, const char *suffix) {
     CKIT_ASSERT(suffix != NULL, "fatal: ckit_string_append invalid arguments");
 
     size_t suffix_len = strlen(suffix);
-    if (suffix_len == 0U) {
+    if (suffix_len == 0) {
         return;
     }
 
@@ -90,7 +90,7 @@ void ckit_string_prepend(ckit_string *string, const char *prefix) {
     CKIT_ASSERT(prefix != NULL, "fatal: ckit_string_prepend invalid arguments");
 
     size_t prefix_len = strlen(prefix);
-    if (prefix_len == 0U) {
+    if (prefix_len == 0) {
         return;
     }
 
@@ -99,7 +99,7 @@ void ckit_string_prepend(ckit_string *string, const char *prefix) {
     size_t new_len = old_len + prefix_len;
     header = ckit_string_ensure_capacity(string, new_len);
 
-    memmove(header->buf + prefix_len, header->buf, old_len + 1U);
+    memmove(header->buf + prefix_len, header->buf, old_len + 1);
     memcpy(header->buf, prefix, prefix_len);
     header->len = new_len;
 }
@@ -139,7 +139,7 @@ void ckit_string_clear(ckit_string string) {
     CKIT_ASSERT(string != NULL, "fatal: ckit_string_clear invalid arguments");
 
     ckit_string_header *header = ckit_string_header_from_buf(string);
-    header->len = 0U;
+    header->len = 0;
     header->buf[0] = '\0';
 }
 

@@ -10,7 +10,7 @@ int main(void) {
     ckit_deque_push(q, &value);
 
     const int *out = ckit_deque_peekback(q);
-    if (ckit_deque_size(q) != 1U || out == NULL || *out != value) {
+    if (ckit_deque_size(q) != 1 || out == NULL || *out != value) {
         fprintf(stderr, "push should append element\n");
         ckit_deque_free(q);
         return 1;

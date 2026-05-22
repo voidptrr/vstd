@@ -50,7 +50,7 @@ static void ckit_deque_grow(ckit_deque *deque) {
 }
 
 ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator) {
-    CKIT_ASSERT(elem_size > 0U, "fatal: ckit_deque_init invalid arguments");
+    CKIT_ASSERT(elem_size > 0, "fatal: ckit_deque_init invalid arguments");
 
     ckit_deque *deque = ckit_malloc(allocator, sizeof(*deque));
     deque->allocator = allocator;
@@ -71,7 +71,7 @@ ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator) {
 void ckit_deque_push(ckit_deque *deque, const void *element) {
     CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_push invalid arguments");
     CKIT_ASSERT(element != NULL, "fatal: ckit_deque_push invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0U, "fatal: ckit_deque_push invalid state");
+    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_push invalid state");
 
     if (deque->size == deque->capacity) {
         ckit_deque_grow(deque);
@@ -87,7 +87,7 @@ void ckit_deque_push(ckit_deque *deque, const void *element) {
 void ckit_deque_pushfront(ckit_deque *deque, const void *element) {
     CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_pushfront invalid arguments");
     CKIT_ASSERT(element != NULL, "fatal: ckit_deque_pushfront invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0U, "fatal: ckit_deque_pushfront invalid state");
+    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_pushfront invalid state");
 
     if (deque->size == deque->capacity) {
         ckit_deque_grow(deque);
@@ -103,7 +103,7 @@ void ckit_deque_pushfront(ckit_deque *deque, const void *element) {
 
 void *ckit_deque_popleft(ckit_deque *deque) {
     CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_popleft invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0U, "fatal: ckit_deque_popleft invalid state");
+    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_popleft invalid state");
 
     if (deque->size == 0) {
         return NULL;
@@ -119,7 +119,7 @@ void *ckit_deque_popleft(ckit_deque *deque) {
 
 void *ckit_deque_popback(ckit_deque *deque) {
     CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_popback invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0U, "fatal: ckit_deque_popback invalid state");
+    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_popback invalid state");
 
     if (deque->size == 0) {
         return NULL;
@@ -147,7 +147,7 @@ const void *ckit_deque_peekleft(const ckit_deque *deque) {
 
 const void *ckit_deque_peekback(const ckit_deque *deque) {
     CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_peekback invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0U, "fatal: ckit_deque_peekback invalid state");
+    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_peekback invalid state");
 
     if (deque->size == 0) {
         return NULL;

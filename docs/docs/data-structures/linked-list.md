@@ -43,16 +43,6 @@ ckit_linked_list *ckit_linked_list_init(ckit_allocator *allocator);
 - Returns: opaque linked-list handle.
 - Notes: when `allocator` is `NULL`, the list handle uses the C library heap through `ckit_malloc`.
 
-### ckit_linked_list_node_init
-
-```c
-void ckit_linked_list_node_init(ckit_linked_list_node *node);
-```
-
-- Parameters: `node`
-- Returns: none.
-- Notes: resets node linkage before first use or after removal.
-
 ### ckit_linked_list_push
 
 ```c
@@ -114,9 +104,6 @@ int main(void) {
     ckit_linked_list *list = ckit_linked_list_init(NULL);
     job first = {.id = 1};
     job second = {.id = 2};
-
-    ckit_linked_list_node_init(&first.node);
-    ckit_linked_list_node_init(&second.node);
 
     ckit_linked_list_push(list, &first.node);
     ckit_linked_list_push(list, &second.node);

@@ -18,7 +18,7 @@ void *ckit_malloc(ckit_allocator *allocator, size_t size) {
 }
 
 void *ckit_realloc(ckit_allocator *allocator, void *ptr, size_t size) {
-    if (size == 0U) {
+    if (size == 0) {
         ckit_dealloc(allocator, ptr);
         return NULL;
     }

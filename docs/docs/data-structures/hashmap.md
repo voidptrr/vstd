@@ -78,8 +78,8 @@ size_t ckit_hashmap_size(const ckit_hashmap *map);
 
 int main(void) {
     ckit_hashmap *map;
-    uint64_t key = 42U;
-    uint64_t value = 9001U;
+    uint64_t key = 42;
+    uint64_t value = 9001;
     const uint64_t *found = NULL;
     uint64_t *removed = NULL;
 

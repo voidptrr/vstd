@@ -7,7 +7,7 @@ int main(void) {
     ckit_string value = ckit_string_init("hello", NULL);
 
     ckit_string_clear(value);
-    if (ckit_string_len(value) != 0U || strcmp(value, "") != 0) {
+    if (ckit_string_len(value) != 0 || strcmp(value, "") != 0) {
         fprintf(stderr, "clear should reset string to empty\n");
         ckit_string_free(value);
         return 1;

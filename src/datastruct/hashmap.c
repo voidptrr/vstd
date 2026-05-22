@@ -5,9 +5,9 @@
 #include "ckit/memory/allocators/allocator.h"
 #include "crypto/fnv1a.h"
 
-#define CKIT_HASHMAP_DEFAULT_CAPACITY 16U
-#define CKIT_HASHMAP_MAX_LOAD_FACTOR_NUM 3U
-#define CKIT_HASHMAP_MAX_LOAD_FACTOR_DEN 4U
+#define CKIT_HASHMAP_DEFAULT_CAPACITY 16
+#define CKIT_HASHMAP_MAX_LOAD_FACTOR_NUM 3
+#define CKIT_HASHMAP_MAX_LOAD_FACTOR_DEN 4
 
 typedef struct ckit_hashmap_entry {
     void *key;
@@ -31,7 +31,7 @@ static size_t ckit_hashmap_bucket_index(const ckit_hashmap *map, const void *key
 }
 
 static bool ckit_hashmap_should_grow(const ckit_hashmap *map) {
-    return (map->size + 1U) * CKIT_HASHMAP_MAX_LOAD_FACTOR_DEN >
+    return (map->size + 1) * CKIT_HASHMAP_MAX_LOAD_FACTOR_DEN >
            map->capacity * CKIT_HASHMAP_MAX_LOAD_FACTOR_NUM;
 }
 
@@ -41,7 +41,7 @@ static void ckit_hashmap_rehash(ckit_hashmap *map, size_t new_capacity) {
         (ckit_hashmap_entry **)ckit_malloc(map->allocator, alloc_size);
     memset((void *)new_buckets, 0, alloc_size);
 
-    for (size_t i = 0U; i < map->capacity; i++) {
+    for (size_t i = 0; i < map->capacity; i++) {
         ckit_hashmap_entry *curr = map->buckets[i];
         while (curr != NULL) {
             ckit_hashmap_entry *next = curr->next;
@@ -62,8 +62,8 @@ static void ckit_hashmap_rehash(ckit_hashmap *map, size_t new_capacity) {
 ckit_hashmap *ckit_hashmap_init(size_t key_size, size_t value_size, ckit_hashmap_key_eq_fn key_eq,
                                 ckit_allocator *allocator) {
     CKIT_ASSERT(key_eq != NULL, "fatal: ckit_hashmap_init invalid arguments");
-    CKIT_ASSERT(key_size > 0U, "fatal: ckit_hashmap_init invalid arguments");
-    CKIT_ASSERT(value_size > 0U, "fatal: ckit_hashmap_init invalid arguments");
+    CKIT_ASSERT(key_size > 0, "fatal: ckit_hashmap_init invalid arguments");
+    CKIT_ASSERT(value_size > 0, "fatal: ckit_hashmap_init invalid arguments");
 
     ckit_hashmap *map = ckit_malloc(allocator, sizeof(*map));
     map->allocator = allocator;
@@ -71,7 +71,7 @@ ckit_hashmap *ckit_hashmap_init(size_t key_size, size_t value_size, ckit_hashmap
     map->buckets = (ckit_hashmap_entry **)ckit_malloc(allocator, alloc_size);
     memset((void *)map->buckets, 0, alloc_size);
 
-    map->size = 0U;
+    map->size = 0;
     map->key_size = key_size;
     map->value_size = value_size;
     map->capacity = CKIT_HASHMAP_DEFAULT_CAPACITY;
@@ -97,7 +97,7 @@ void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value) {
     }
 
     if (ckit_hashmap_should_grow(map)) {
-        ckit_hashmap_rehash(map, map->capacity * 2U);
+        ckit_hashmap_rehash(map, map->capacity * 2);
         bucket = ckit_hashmap_bucket_index(map, key);
     }
 
@@ -110,7 +110,7 @@ void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value) {
 
     entry->next = map->buckets[bucket];
     map->buckets[bucket] = entry;
-    map->size += 1U;
+    map->size += 1;
 }
 
 const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key) {
@@ -147,7 +147,7 @@ void *ckit_hashmap_remove(ckit_hashmap *map, const void *key) {
             void *value = curr->value;
             ckit_dealloc(map->allocator, curr->key);
             ckit_dealloc(map->allocator, curr);
-            map->size -= 1U;
+            map->size -= 1;
             return value;
         }
         prev = curr;
@@ -162,7 +162,7 @@ void ckit_hashmap_free(ckit_hashmap *map) {
 
     ckit_allocator *allocator = map->allocator;
     if (map->buckets) {
-        for (size_t i = 0U; i < map->capacity; i++) {
+        for (size_t i = 0; i < map->capacity; i++) {
             ckit_hashmap_entry *curr = map->buckets[i];
             while (curr != NULL) {
                 ckit_hashmap_entry *next = curr->next;
@@ -180,7 +180,7 @@ void ckit_hashmap_free(ckit_hashmap *map) {
 
 size_t ckit_hashmap_size(const ckit_hashmap *map) {
     if (map == NULL) {
-        return 0U;
+        return 0;
     }
     return map->size;
 }

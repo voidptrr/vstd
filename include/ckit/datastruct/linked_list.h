@@ -39,9 +39,6 @@ typedef struct ckit_linked_list ckit_linked_list;
 /* Create an intrusive linked list. */
 ckit_linked_list *ckit_linked_list_init(ckit_allocator *allocator);
 
-/* Reset node linkage before first use or after removal. */
-void ckit_linked_list_node_init(ckit_linked_list_node *node);
-
 /* Append node at the tail. */
 void ckit_linked_list_push(ckit_linked_list *list, ckit_linked_list_node *node);
 

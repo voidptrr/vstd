@@ -19,12 +19,6 @@ ckit_linked_list *ckit_linked_list_init(ckit_allocator *allocator) {
     return list;
 }
 
-void ckit_linked_list_node_init(ckit_linked_list_node *node) {
-    CKIT_ASSERT(node != NULL, "fatal: ckit_linked_list_node_init invalid arguments");
-
-    node->next = NULL;
-}
-
 void ckit_linked_list_push(ckit_linked_list *list, ckit_linked_list_node *node) {
     CKIT_ASSERT(list != NULL, "fatal: ckit_linked_list_push invalid arguments");
     CKIT_ASSERT(node != NULL, "fatal: ckit_linked_list_push invalid arguments");

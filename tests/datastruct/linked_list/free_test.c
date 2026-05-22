@@ -11,7 +11,6 @@ int main(void) {
     ckit_linked_list *list;
     test_item item = {.value = 1};
 
-    ckit_linked_list_node_init(&item.node);
     list = ckit_linked_list_init(NULL);
     ckit_linked_list_push(list, &item.node);
     ckit_linked_list_free(list);

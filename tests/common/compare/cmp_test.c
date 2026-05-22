@@ -14,9 +14,9 @@ int main(void) {
         return 1;
     }
 
-    uint64_t u64a = 1U;
-    uint64_t u64b = 2U;
-    uint64_t u64c = 2U;
+    uint64_t u64a = 1;
+    uint64_t u64b = 2;
+    uint64_t u64c = 2;
 
     if (!(ckit_cmp_u64(&u64a, &u64b) < 0 && ckit_cmp_u64(&u64b, &u64a) > 0 &&
           ckit_cmp_u64(&u64b, &u64c) == 0)) {
@@ -24,9 +24,9 @@ int main(void) {
         return 1;
     }
 
-    size_t size_a = 1U;
-    size_t size_b = 2U;
-    size_t size_c = 2U;
+    size_t size_a = 1;
+    size_t size_b = 2;
+    size_t size_c = 2;
 
     if (!(ckit_cmp_size(&size_a, &size_b) < 0 && ckit_cmp_size(&size_b, &size_a) > 0 &&
           ckit_cmp_size(&size_b, &size_c) == 0)) {

@@ -100,7 +100,7 @@ void ckit_heap_free(ckit_heap *heap) {
 }
 
 void *ckit_heap_alloc(ckit_heap *heap, size_t size) {
-    if (heap == NULL || size == 0U || heap->head == NULL) {
+    if (heap == NULL || size == 0 || heap->head == NULL) {
         return NULL;
     }
 
@@ -144,7 +144,7 @@ void *ckit_heap_realloc(ckit_heap *heap, void *ptr, size_t size) {
         return ckit_heap_alloc(heap, size);
     }
 
-    if (size == 0U) {
+    if (size == 0) {
         ckit_heap_dealloc(heap, ptr);
         return NULL;
     }
@@ -180,16 +180,16 @@ void *ckit_heap_realloc(ckit_heap *heap, void *ptr, size_t size) {
 
 size_t ckit_heap_capacity(const ckit_heap *heap) {
     if (heap == NULL) {
-        return 0U;
+        return 0;
     }
     return heap->capacity;
 }
 
 size_t ckit_heap_available(const ckit_heap *heap) {
-    size_t total = 0U;
+    size_t total = 0;
 
     if (heap == NULL || heap->head == NULL) {
-        return 0U;
+        return 0;
     }
 
     const ckit_heap_block *block = ckit_heap_head(heap);

@@ -8,7 +8,7 @@
  * alignment must be a power of two and non-zero.
  */
 static inline size_t ckit_align_up(size_t value, size_t alignment) {
-    size_t mask = alignment - 1U;
+    size_t mask = alignment - 1;
     return (value + mask) & ~mask;
 }
 

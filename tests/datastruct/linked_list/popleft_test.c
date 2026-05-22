@@ -12,9 +12,6 @@ int main(void) {
     test_item first = {.value = 5};
     test_item second = {.value = 9};
 
-    ckit_linked_list_node_init(&first.node);
-    ckit_linked_list_node_init(&second.node);
-
     list = ckit_linked_list_init(NULL);
     if (ckit_linked_list_popleft(list) != NULL) {
         fprintf(stderr, "popleft on empty list should return NULL\n");
