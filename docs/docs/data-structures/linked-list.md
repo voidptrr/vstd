@@ -88,7 +88,6 @@ size_t ckit_linked_list_size(const ckit_linked_list *list);
 
 - Parameters: `list`
 - Returns: current element count.
-- Notes: returns `0` when `list` is `NULL`.
 
 ## EXAMPLE
 

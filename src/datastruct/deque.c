@@ -167,9 +167,7 @@ void ckit_deque_free(ckit_deque *deque) {
 }
 
 size_t ckit_deque_size(const ckit_deque *deque) {
-    if (deque == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_size invalid arguments");
 
     return deque->size;
 }

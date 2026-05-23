@@ -62,7 +62,7 @@ size_t ckit_vector_elem_size(const ckit_vector *vector);
 ```
 
 - Parameters: `vector`
-- Returns: configured element size, or `0` when `vector` is `NULL`.
+- Returns: configured element size.
 
 ### ckit_vector_swap_remove
 
@@ -92,7 +92,6 @@ size_t ckit_vector_size(const ckit_vector *vector);
 
 - Parameters: `vector`
 - Returns: current element count.
-- Notes: returns `0` when `vector` is `NULL`.
 
 ## EXAMPLE
 

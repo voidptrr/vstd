@@ -67,7 +67,6 @@ size_t ckit_hashmap_size(const ckit_hashmap *map);
 
 - Parameters: `map`
 - Returns: current entry count.
-- Notes: returns `0` when `map` is `NULL`.
 
 ## EXAMPLE
 
