@@ -179,8 +179,7 @@ void ckit_hashmap_free(ckit_hashmap *map) {
 }
 
 size_t ckit_hashmap_size(const ckit_hashmap *map) {
-    if (map == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_size invalid arguments");
+
     return map->size;
 }

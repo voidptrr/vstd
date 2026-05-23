@@ -91,7 +91,6 @@ size_t ckit_deque_size(const ckit_deque *deque);
 
 - Parameters: `deque`
 - Returns: current element count.
-- Notes: returns `0` when `deque` is `NULL`.
 
 ## EXAMPLE
 

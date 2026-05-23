@@ -116,8 +116,7 @@ void ckit_binary_heap_free(ckit_binary_heap *heap) {
 }
 
 size_t ckit_binary_heap_size(const ckit_binary_heap *heap) {
-    if (heap == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_size invalid arguments");
+
     return ckit_vector_size(heap->root);
 }

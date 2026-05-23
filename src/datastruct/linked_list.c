@@ -75,9 +75,7 @@ void ckit_linked_list_free(ckit_linked_list *list) {
 }
 
 size_t ckit_linked_list_size(const ckit_linked_list *list) {
-    if (list == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(list != NULL, "fatal: ckit_linked_list_size invalid arguments");
 
     return list->size;
 }

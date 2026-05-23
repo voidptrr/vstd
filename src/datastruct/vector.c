@@ -83,9 +83,7 @@ const void *ckit_vector_get_const(const ckit_vector *vector, size_t index) {
 }
 
 size_t ckit_vector_elem_size(const ckit_vector *vector) {
-    if (vector == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_elem_size invalid arguments");
 
     return vector->elem_size;
 }
@@ -119,9 +117,7 @@ void ckit_vector_free(ckit_vector *vector) {
 }
 
 size_t ckit_vector_size(const ckit_vector *vector) {
-    if (vector == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_size invalid arguments");
 
     return vector->size;
 }

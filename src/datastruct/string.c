@@ -153,10 +153,8 @@ void ckit_string_free(ckit_string string) {
 }
 
 size_t ckit_string_len(const ckit_string string) {
-    ckit_string_header *header = ckit_string_header_from_buf(string);
-    if (header == NULL) {
-        return 0;
-    }
+    CKIT_ASSERT(string != NULL, "fatal: ckit_string_len invalid arguments");
 
+    ckit_string_header *header = ckit_string_header_from_buf(string);
     return header->len;
 }

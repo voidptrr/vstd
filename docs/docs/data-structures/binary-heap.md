@@ -66,7 +66,6 @@ size_t ckit_binary_heap_size(const ckit_binary_heap *heap);
 
 - Parameters: `heap`
 - Returns: current element count.
-- Notes: returns `0` when `heap` is `NULL`.
 
 ## EXAMPLE
 
