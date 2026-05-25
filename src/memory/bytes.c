@@ -2,7 +2,7 @@
 
 #include "ckit/memory/bytes.h"
 
-void ckit_memswap(void *a, void *b, size_t size) {
+void ck_memswap(void *a, void *b, size_t size) {
     uint8_t *left = (uint8_t *)a;
     uint8_t *right = (uint8_t *)b;
 

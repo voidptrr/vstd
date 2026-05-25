@@ -1,5 +1,5 @@
-#ifndef CKIT_DATASTRUCT_DEQUE_H
-#define CKIT_DATASTRUCT_DEQUE_H
+#ifndef CK_DATASTRUCT_DEQUE_H
+#define CK_DATASTRUCT_DEQUE_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -24,33 +24,33 @@
  * Storage may wrap internally, but callers observe a normal front-to-back
  * sequence.
  */
-typedef struct ckit_deque ckit_deque;
+typedef struct ck_deque ck_deque;
 
 /* Initialize a deque with element size elem_size. */
-ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator);
+ck_deque *ck_deque_init(size_t elem_size, ck_allocator *allocator);
 
 /* Enqueue one element by copying elem_size bytes from element. */
-void ckit_deque_push(ckit_deque *deque, const void *element);
+void ck_deque_push(ck_deque *deque, const void *element);
 
 /* Enqueue one element at the front by copying elem_size bytes from element. */
-void ckit_deque_pushfront(ckit_deque *deque, const void *element);
+void ck_deque_pushfront(ck_deque *deque, const void *element);
 
 /* Dequeue and return the front element pointer, or NULL when empty. */
-void *ckit_deque_popleft(ckit_deque *deque);
+void *ck_deque_popleft(ck_deque *deque);
 
 /* Remove and return the back element pointer, or NULL when empty. */
-void *ckit_deque_popback(ckit_deque *deque);
+void *ck_deque_popback(ck_deque *deque);
 
 /* Return the front element pointer without removing it, or NULL when empty. */
-const void *ckit_deque_peekleft(const ckit_deque *deque);
+const void *ck_deque_peekleft(const ck_deque *deque);
 
 /* Return the back element pointer without removing it, or NULL when empty. */
-const void *ckit_deque_peekback(const ckit_deque *deque);
+const void *ck_deque_peekback(const ck_deque *deque);
 
 /* Return the number of stored elements. */
-size_t ckit_deque_size(const ckit_deque *deque);
+size_t ck_deque_size(const ck_deque *deque);
 
 /* Deinitialize and release owned storage. */
-void ckit_deque_deinit(ckit_deque *deque);
+void ck_deque_deinit(ck_deque *deque);
 
 #endif

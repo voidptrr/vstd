@@ -3,73 +3,73 @@
 ## DESCRIPTION
 
 The arena module provides a bump allocator backed by an internal contiguous
-region. Allocation moves an offset forward, and `ckit_arena_reset` releases all
+region. Allocation moves an offset forward, and `ck_arena_reset` releases all
 arena allocations together by moving the offset back to zero.
 
 Arena allocations are useful for short-lived groups of memory with the same
 lifetime. Individual deallocation is unsupported, so the allocator adapter does
-not advertise `CKIT_ALLOCATOR_FEATURE_DEALLOC` and does not provide a dealloc
+not advertise `CK_ALLOCATOR_FEATURE_DEALLOC` and does not provide a dealloc
 callback.
 
 This API is fail-fast for required initialization/teardown preconditions.
 
 ## TYPES
 
-### ckit_arena
+### ck_arena
 
 ```c
-typedef struct ckit_arena ckit_arena;
+typedef struct ck_arena ck_arena;
 ```
 
-- Notes: `ckit_arena` is opaque. Use the functions below to inspect or mutate
+- Notes: `ck_arena` is opaque. Use the functions below to inspect or mutate
   arena state.
 
 ## FUNCTIONS
 
-### ckit_arena_init
+### ck_arena_init
 
 ```c
-ckit_arena *ckit_arena_init(size_t capacity);
+ck_arena *ck_arena_init(size_t capacity);
 ```
 
 - Parameters: `capacity`
 - Returns: arena pointer.
-- Notes: capacity is aligned up to `CKIT_MEMORY_ALIGN`.
+- Notes: capacity is aligned up to `CK_MEMORY_ALIGN`.
 
-### ckit_arena_allocator
+### ck_arena_allocator
 
 ```c
-ckit_allocator ckit_arena_allocator(ckit_arena *arena);
+ck_allocator ck_arena_allocator(ck_arena *arena);
 ```
 
 - Parameters: `arena`
 - Returns: allocator adapter bound to `arena`.
-- Notes: the returned allocator advertises `CKIT_ALLOCATOR_FEATURE_REALLOC | CKIT_ALLOCATOR_FEATURE_RESET`.
+- Notes: the returned allocator advertises `CK_ALLOCATOR_FEATURE_REALLOC | CK_ALLOCATOR_FEATURE_RESET`.
 
-### ckit_arena_alloc
+### ck_arena_alloc
 
 ```c
-void *ckit_arena_alloc(ckit_arena *arena, size_t size);
+void *ck_arena_alloc(ck_arena *arena, size_t size);
 ```
 
 - Parameters: `arena`, `size`
 - Returns: allocated pointer, or `NULL` when allocation cannot be satisfied.
-- Notes: returned pointers are aligned to `CKIT_MEMORY_ALIGN`.
+- Notes: returned pointers are aligned to `CK_MEMORY_ALIGN`.
 
-### ckit_arena_realloc
+### ck_arena_realloc
 
 ```c
-void *ckit_arena_realloc(ckit_arena *arena, void *ptr, size_t size);
+void *ck_arena_realloc(ck_arena *arena, void *ptr, size_t size);
 ```
 
 - Parameters: `arena`, `ptr`, `size`
 - Returns: grown pointer, original pointer when the aligned size is unchanged, or `NULL` on failure.
 - Notes: `ptr == NULL` behaves like allocation. `size == 0` returns `NULL`. Shrinking an existing allocation is invalid.
 
-### ckit_arena_reset
+### ck_arena_reset
 
 ```c
-void ckit_arena_reset(ckit_arena *arena);
+void ck_arena_reset(ck_arena *arena);
 ```
 
 - Parameters: `arena`
@@ -77,37 +77,37 @@ void ckit_arena_reset(ckit_arena *arena);
 - Behavior: releases all arena allocations together while keeping the backing buffer.
 - Notes: pointers returned before reset must not be used after reset.
 
-### ckit_arena_capacity
+### ck_arena_capacity
 
 ```c
-size_t ckit_arena_capacity(const ckit_arena *arena);
+size_t ck_arena_capacity(const ck_arena *arena);
 ```
 
 - Parameters: `arena`
 - Returns: total managed bytes.
 
-### ckit_arena_used
+### ck_arena_used
 
 ```c
-size_t ckit_arena_used(const ckit_arena *arena);
+size_t ck_arena_used(const ck_arena *arena);
 ```
 
 - Parameters: `arena`
 - Returns: number of bytes consumed from the arena buffer.
 
-### ckit_arena_available
+### ck_arena_available
 
 ```c
-size_t ckit_arena_available(const ckit_arena *arena);
+size_t ck_arena_available(const ck_arena *arena);
 ```
 
 - Parameters: `arena`
 - Returns: number of bytes still available.
 
-### ckit_arena_deinit
+### ck_arena_deinit
 
 ```c
-void ckit_arena_deinit(ckit_arena *arena);
+void ck_arena_deinit(ck_arena *arena);
 ```
 
 - Parameters: `arena`
@@ -122,21 +122,24 @@ void ckit_arena_deinit(ckit_arena *arena);
 #include <ckit/memory/allocators/arena.h>
 
 int main(void) {
-    ckit_arena *arena = ckit_arena_init(1024);
-    ckit_allocator allocator = ckit_arena_allocator(arena);
+    int status = 0;
+    ck_arena *arena = ck_arena_init(1024);
+    ck_allocator allocator = ck_arena_allocator(arena);
 
-    uint64_t *value = ckit_arena_alloc(arena, sizeof(*value));
+    uint64_t *value = ck_arena_alloc(arena, sizeof(uint64_t));
     if (value == NULL) {
-        ckit_arena_deinit(arena);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
     *value = 42;
 
-    ckit_arena_reset(arena);
-    ckit_arena_deinit(arena);
+    ck_arena_reset(arena);
+
+cleanup:
+    ck_arena_deinit(arena);
 
     (void)allocator;
-    return 0;
+    return status;
 }
 ```

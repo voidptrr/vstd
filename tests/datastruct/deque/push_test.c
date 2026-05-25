@@ -3,19 +3,21 @@
 #include "ckit/datastruct/deque.h"
 
 int main(void) {
-    ckit_deque *q;
+    int status = 0;
+    ck_deque *q;
     int value = 42;
 
-    q = ckit_deque_init(sizeof(int), NULL);
-    ckit_deque_push(q, &value);
+    q = ck_deque_init(sizeof(int), NULL);
+    ck_deque_push(q, &value);
 
-    const int *out = ckit_deque_peekback(q);
-    if (ckit_deque_size(q) != 1 || out == NULL || *out != value) {
+    const int *out = ck_deque_peekback(q);
+    if (ck_deque_size(q) != 1 || out == NULL || *out != value) {
         fprintf(stderr, "push should append element\n");
-        ckit_deque_deinit(q);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_deque_deinit(q);
-    return 0;
+cleanup:
+    ck_deque_deinit(q);
+    return status;
 }

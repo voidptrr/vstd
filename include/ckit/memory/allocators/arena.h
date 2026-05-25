@@ -1,5 +1,5 @@
-#ifndef CKIT_MEMORY_ARENA_H
-#define CKIT_MEMORY_ARENA_H
+#ifndef CK_MEMORY_ARENA_H
+#define CK_MEMORY_ARENA_H
 
 #include <stddef.h>
 
@@ -21,48 +21,48 @@
  * - small internal allocation headers are stored before payloads so realloc can
  *   preserve existing bytes
  */
-typedef struct ckit_arena ckit_arena;
+typedef struct ck_arena ck_arena;
 
 /*
  * Initialize an arena with `capacity` bytes of internal storage.
  */
-ckit_arena *ckit_arena_init(size_t capacity);
+ck_arena *ck_arena_init(size_t capacity);
 
 /*
  * Return an allocator adapter that routes through this arena.
  */
-ckit_allocator ckit_arena_allocator(ckit_arena *arena);
+ck_allocator ck_arena_allocator(ck_arena *arena);
 
 /*
  * Allocate `size` bytes from arena.
  * Returns NULL when the arena does not have enough available space.
  */
-void *ckit_arena_alloc(ckit_arena *arena, size_t size);
+void *ck_arena_alloc(ck_arena *arena, size_t size);
 
 /*
  * Grow an arena allocation.
  * NULL ptr allocates. Size 0 is treated like dealloc and returns NULL.
  * Shrinking an existing allocation is invalid.
  */
-void *ckit_arena_realloc(ckit_arena *arena, void *ptr, size_t size);
+void *ck_arena_realloc(ck_arena *arena, void *ptr, size_t size);
 
 /*
  * Release all arena allocations while keeping the backing buffer.
  */
-void ckit_arena_reset(ckit_arena *arena);
+void ck_arena_reset(ck_arena *arena);
 
 /* Total managed bytes. */
-size_t ckit_arena_capacity(const ckit_arena *arena);
+size_t ck_arena_capacity(const ck_arena *arena);
 
 /* Number of bytes currently consumed. */
-size_t ckit_arena_used(const ckit_arena *arena);
+size_t ck_arena_used(const ck_arena *arena);
 
 /* Number of bytes still available. */
-size_t ckit_arena_available(const ckit_arena *arena);
+size_t ck_arena_available(const ck_arena *arena);
 
 /*
  * Deinitialize and release arena resources.
  */
-void ckit_arena_deinit(ckit_arena *arena);
+void ck_arena_deinit(ck_arena *arena);
 
 #endif

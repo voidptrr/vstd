@@ -3,7 +3,7 @@
 #include "ckit/common/panic.h"
 #include "ckit/memory/allocators/allocator.h"
 
-void *ckit_malloc(ckit_allocator *allocator, size_t size) {
+void *ck_malloc(ck_allocator *allocator, size_t size) {
     void *ptr = NULL;
     if (allocator == NULL || allocator->alloc == NULL) {
         ptr = malloc(size);
@@ -12,14 +12,14 @@ void *ckit_malloc(ckit_allocator *allocator, size_t size) {
     }
 
     if (ptr == NULL) {
-        ckit_panic("fatal: ckit_malloc out of memory");
+        ck_panic("fatal: ck_malloc out of memory");
     }
     return ptr;
 }
 
-void *ckit_realloc(ckit_allocator *allocator, void *ptr, size_t size) {
+void *ck_realloc(ck_allocator *allocator, void *ptr, size_t size) {
     if (size == 0) {
-        ckit_dealloc(allocator, ptr);
+        ck_dealloc(allocator, ptr);
         return NULL;
     }
 
@@ -31,21 +31,21 @@ void *ckit_realloc(ckit_allocator *allocator, void *ptr, size_t size) {
     }
 
     if (new_ptr == NULL) {
-        ckit_panic("fatal: ckit_realloc out of memory");
+        ck_panic("fatal: ck_realloc out of memory");
     }
     return new_ptr;
 }
 
-void ckit_dealloc(ckit_allocator *allocator, void *ptr) {
+void ck_dealloc(ck_allocator *allocator, void *ptr) {
     if (allocator == NULL) {
         free(ptr);
         return;
     }
 
-    if ((allocator->features & CKIT_ALLOCATOR_FEATURE_DEALLOC) == 0) {
+    if ((allocator->features & CK_ALLOCATOR_FEATURE_DEALLOC) == 0) {
         return;
     }
 
-    CKIT_ASSERT(allocator->dealloc != NULL, "fatal: ckit_dealloc invalid arguments");
+    CK_ASSERT(allocator->dealloc != NULL, "fatal: ck_dealloc invalid arguments");
     allocator->dealloc(allocator->ctx, ptr);
 }

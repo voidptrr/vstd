@@ -7,145 +7,145 @@
 #include "ckit/memory/utils.h"
 #include "datastruct/hash_common.h"
 
-typedef struct ckit_hashmap_entry {
-    ckit_linked_list_node node;
+typedef struct ck_hashmap_entry {
+    ck_linked_list_node node;
     void *key;
     void *value;
-} ckit_hashmap_entry;
+} ck_hashmap_entry;
 
-struct ckit_hashmap {
+struct ck_hashmap {
     size_t size;
     size_t key_size;
     size_t value_size;
     size_t capacity;
-    ckit_linked_list **buckets;
-    ckit_hashmap_key_eq_fn key_eq;
-    ckit_allocator *allocator;
+    ck_linked_list **buckets;
+    ck_hashmap_key_eq_fn key_eq;
+    ck_allocator *allocator;
 };
 
-static void ckit_hashmap_entry_deinit(ckit_linked_list_node *node, ckit_allocator *allocator) {
-    ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
-    ckit_dealloc(allocator, entry->key);
-    ckit_dealloc(allocator, entry->value);
-    ckit_dealloc(allocator, entry);
+static void ck_hashmap_entry_deinit(ck_linked_list_node *node, ck_allocator *allocator) {
+    ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
+    ck_dealloc(allocator, entry->key);
+    ck_dealloc(allocator, entry->value);
+    ck_dealloc(allocator, entry);
 }
 
-static const void *ckit_hashmap_entry_key(const ckit_linked_list_node *node) {
-    const ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
+static const void *ck_hashmap_entry_key(const ck_linked_list_node *node) {
+    const ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
     return entry->key;
 }
 
-static ckit_hashmap_entry *ckit_hashmap_entry_get(const ckit_hashmap *map, const void *key) {
-    size_t bucket = ckit_hash_bucket_index(key, map->key_size, map->capacity);
-    ckit_linked_list_node *node = ckit_hash_bucket_find(map->buckets[bucket], key, map->key_size,
-                                                        map->key_eq, ckit_hashmap_entry_key);
+static ck_hashmap_entry *ck_hashmap_entry_get(const ck_hashmap *map, const void *key) {
+    size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
+    ck_linked_list_node *node = ck_hash_common_bucket_find(map->buckets[bucket], key, map->key_size,
+                                                           map->key_eq, ck_hashmap_entry_key);
     if (node != NULL) {
-        return CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
+        return CK_CONTAINER_OF(node, ck_hashmap_entry, node);
     }
     return NULL;
 }
 
-ckit_hashmap *ckit_hashmap_init(size_t key_size, size_t value_size, ckit_hashmap_key_eq_fn key_eq,
-                                ckit_allocator *allocator) {
-    CKIT_ASSERT(key_eq != NULL, "fatal: ckit_hashmap_init invalid arguments");
-    CKIT_ASSERT(key_size > 0, "fatal: ckit_hashmap_init invalid arguments");
-    CKIT_ASSERT(value_size > 0, "fatal: ckit_hashmap_init invalid arguments");
+ck_hashmap *ck_hashmap_init(size_t key_size, size_t value_size, ck_hashmap_key_eq_fn key_eq,
+                            ck_allocator *allocator) {
+    CK_ASSERT(key_eq != NULL, "fatal: ck_hashmap_init invalid arguments");
+    CK_ASSERT(key_size > 0, "fatal: ck_hashmap_init invalid arguments");
+    CK_ASSERT(value_size > 0, "fatal: ck_hashmap_init invalid arguments");
 
-    ckit_hashmap *map = ckit_malloc(allocator, sizeof(*map));
+    ck_hashmap *map = ck_malloc(allocator, sizeof(ck_hashmap));
     map->allocator = allocator;
-    map->buckets = ckit_hash_buckets_init(CKIT_HASH_DEFAULT_CAPACITY, allocator);
+    map->buckets = ck_hash_common_buckets_init(CK_HASH_COMMON_DEFAULT_CAPACITY, allocator);
 
     map->size = 0;
     map->key_size = key_size;
     map->value_size = value_size;
-    map->capacity = CKIT_HASH_DEFAULT_CAPACITY;
+    map->capacity = CK_HASH_COMMON_DEFAULT_CAPACITY;
     map->key_eq = key_eq;
 
     return map;
 }
 
-void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value) {
-    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_put invalid arguments");
-    CKIT_ASSERT(key != NULL, "fatal: ckit_hashmap_put invalid arguments");
-    CKIT_ASSERT(value != NULL, "fatal: ckit_hashmap_put invalid arguments");
+void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value) {
+    CK_ASSERT(map != NULL, "fatal: ck_hashmap_put invalid arguments");
+    CK_ASSERT(key != NULL, "fatal: ck_hashmap_put invalid arguments");
+    CK_ASSERT(value != NULL, "fatal: ck_hashmap_put invalid arguments");
 
-    size_t bucket = ckit_hash_bucket_index(key, map->key_size, map->capacity);
-    ckit_linked_list_node *node = ckit_hash_bucket_find(map->buckets[bucket], key, map->key_size,
-                                                        map->key_eq, ckit_hashmap_entry_key);
+    size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
+    ck_linked_list_node *node = ck_hash_common_bucket_find(map->buckets[bucket], key, map->key_size,
+                                                           map->key_eq, ck_hashmap_entry_key);
     if (node != NULL) {
-        ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
+        ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
         memcpy(entry->value, value, map->value_size);
         return;
     }
 
-    if (ckit_hash_should_grow(map->size, map->capacity)) {
+    if (ck_hash_common_should_grow(map->size, map->capacity)) {
         size_t new_capacity = map->capacity * 2;
         map->buckets =
-            ckit_hash_buckets_rehash(map->buckets, map->capacity, new_capacity, map->key_size,
-                                     map->allocator, ckit_hashmap_entry_key);
+            ck_hash_common_buckets_rehash(map->buckets, map->capacity, new_capacity, map->key_size,
+                                          map->allocator, ck_hashmap_entry_key);
         map->capacity = new_capacity;
-        bucket = ckit_hash_bucket_index(key, map->key_size, map->capacity);
+        bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
     }
 
-    ckit_hashmap_entry *entry = ckit_malloc(map->allocator, sizeof(*entry));
-    entry->key = ckit_malloc(map->allocator, map->key_size);
-    entry->value = ckit_malloc(map->allocator, map->value_size);
+    ck_hashmap_entry *entry = ck_malloc(map->allocator, sizeof(ck_hashmap_entry));
+    entry->key = ck_malloc(map->allocator, map->key_size);
+    entry->value = ck_malloc(map->allocator, map->value_size);
 
     memcpy(entry->key, key, map->key_size);
     memcpy(entry->value, value, map->value_size);
 
-    ckit_linked_list_pushfront(map->buckets[bucket], &entry->node);
+    ck_linked_list_pushfront(map->buckets[bucket], &entry->node);
     map->size += 1;
 }
 
-void *ckit_hashmap_get(ckit_hashmap *map, const void *key) {
-    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_get invalid arguments");
-    CKIT_ASSERT(key != NULL, "fatal: ckit_hashmap_get invalid arguments");
+void *ck_hashmap_get(ck_hashmap *map, const void *key) {
+    CK_ASSERT(map != NULL, "fatal: ck_hashmap_get invalid arguments");
+    CK_ASSERT(key != NULL, "fatal: ck_hashmap_get invalid arguments");
 
-    ckit_hashmap_entry *entry = ckit_hashmap_entry_get(map, key);
+    ck_hashmap_entry *entry = ck_hashmap_entry_get(map, key);
     if (entry != NULL) {
         return entry->value;
     }
     return NULL;
 }
 
-const void *ckit_hashmap_get_const(const ckit_hashmap *map, const void *key) {
-    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_get_const invalid arguments");
-    CKIT_ASSERT(key != NULL, "fatal: ckit_hashmap_get_const invalid arguments");
+const void *ck_hashmap_get_const(const ck_hashmap *map, const void *key) {
+    CK_ASSERT(map != NULL, "fatal: ck_hashmap_get_const invalid arguments");
+    CK_ASSERT(key != NULL, "fatal: ck_hashmap_get_const invalid arguments");
 
-    ckit_hashmap_entry *entry = ckit_hashmap_entry_get(map, key);
+    ck_hashmap_entry *entry = ck_hashmap_entry_get(map, key);
     if (entry != NULL) {
         return entry->value;
     }
     return NULL;
 }
 
-void ckit_hashmap_remove(ckit_hashmap *map, const void *key) {
-    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_remove invalid arguments");
-    CKIT_ASSERT(key != NULL, "fatal: ckit_hashmap_remove invalid arguments");
+void ck_hashmap_remove(ck_hashmap *map, const void *key) {
+    CK_ASSERT(map != NULL, "fatal: ck_hashmap_remove invalid arguments");
+    CK_ASSERT(key != NULL, "fatal: ck_hashmap_remove invalid arguments");
 
-    size_t bucket = ckit_hash_bucket_index(key, map->key_size, map->capacity);
-    ckit_linked_list_node *node = ckit_hash_bucket_remove(map->buckets[bucket], key, map->key_size,
-                                                          map->key_eq, ckit_hashmap_entry_key);
+    size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
+    ck_linked_list_node *node = ck_hash_common_bucket_remove(
+        map->buckets[bucket], key, map->key_size, map->key_eq, ck_hashmap_entry_key);
     if (node != NULL) {
-        ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
-        ckit_dealloc(map->allocator, entry->key);
-        ckit_dealloc(map->allocator, entry->value);
-        ckit_dealloc(map->allocator, entry);
+        ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
+        ck_dealloc(map->allocator, entry->key);
+        ck_dealloc(map->allocator, entry->value);
+        ck_dealloc(map->allocator, entry);
         map->size -= 1;
     }
 }
 
-size_t ckit_hashmap_size(const ckit_hashmap *map) {
-    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_size invalid arguments");
+size_t ck_hashmap_size(const ck_hashmap *map) {
+    CK_ASSERT(map != NULL, "fatal: ck_hashmap_size invalid arguments");
 
     return map->size;
 }
 
-void ckit_hashmap_deinit(ckit_hashmap *map) {
-    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_deinit invalid arguments");
+void ck_hashmap_deinit(ck_hashmap *map) {
+    CK_ASSERT(map != NULL, "fatal: ck_hashmap_deinit invalid arguments");
 
-    ckit_allocator *allocator = map->allocator;
-    ckit_hash_buckets_deinit(map->buckets, map->capacity, allocator, ckit_hashmap_entry_deinit);
-    ckit_dealloc(allocator, map);
+    ck_allocator *allocator = map->allocator;
+    ck_hash_common_buckets_deinit(map->buckets, map->capacity, allocator, ck_hashmap_entry_deinit);
+    ck_dealloc(allocator, map);
 }

@@ -3,21 +3,23 @@
 #include "ckit/datastruct/vector.h"
 
 int main(void) {
-    ckit_vector *v;
+    int status = 0;
+    ck_vector *v;
 
-    v = ckit_vector_init(sizeof(int), NULL);
+    v = ck_vector_init(sizeof(int), NULL);
 
     for (size_t i = 0; i < 17; i++) {
         int value = (int)i;
-        ckit_vector_push(v, &value);
+        ck_vector_push(v, &value);
     }
 
-    if (ckit_vector_size(v) != 17) {
+    if (ck_vector_size(v) != 17) {
         fprintf(stderr, "vector should store all pushed elements\n");
-        ckit_vector_deinit(v);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_vector_deinit(v);
-    return 0;
+cleanup:
+    ck_vector_deinit(v);
+    return status;
 }

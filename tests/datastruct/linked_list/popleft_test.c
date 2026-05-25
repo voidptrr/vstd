@@ -4,52 +4,54 @@
 
 typedef struct test_item {
     int value;
-    ckit_linked_list_node node;
+    ck_linked_list_node node;
 } test_item;
 
 int main(void) {
-    ckit_linked_list *list;
+    int status = 0;
+    ck_linked_list *list;
     test_item first = {.value = 5};
     test_item second = {.value = 9};
 
-    list = ckit_linked_list_init(NULL);
-    if (ckit_linked_list_popleft(list) != NULL) {
+    list = ck_linked_list_init(NULL);
+    if (ck_linked_list_popleft(list) != NULL) {
         fprintf(stderr, "popleft on empty list should return NULL\n");
-        ckit_linked_list_deinit(list);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_linked_list_push(list, &first.node);
-    ckit_linked_list_push(list, &second.node);
+    ck_linked_list_push(list, &first.node);
+    ck_linked_list_push(list, &second.node);
 
-    ckit_linked_list_node *out_node = ckit_linked_list_popleft(list);
+    ck_linked_list_node *out_node = ck_linked_list_popleft(list);
     if (out_node == NULL) {
         fprintf(stderr, "popleft should return head node\n");
-        ckit_linked_list_deinit(list);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    test_item *out = CKIT_CONTAINER_OF(out_node, test_item, node);
+    test_item *out = CK_CONTAINER_OF(out_node, test_item, node);
     if (out->value != first.value) {
         fprintf(stderr, "popleft should return head value\n");
-        ckit_linked_list_deinit(list);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    out_node = ckit_linked_list_popleft(list);
+    out_node = ck_linked_list_popleft(list);
     if (out_node == NULL) {
         fprintf(stderr, "popleft should return second node\n");
-        ckit_linked_list_deinit(list);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    out = CKIT_CONTAINER_OF(out_node, test_item, node);
+    out = CK_CONTAINER_OF(out_node, test_item, node);
     if (out->value != second.value) {
         fprintf(stderr, "popleft should preserve FIFO order\n");
-        ckit_linked_list_deinit(list);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_linked_list_deinit(list);
-    return 0;
+cleanup:
+    ck_linked_list_deinit(list);
+    return status;
 }

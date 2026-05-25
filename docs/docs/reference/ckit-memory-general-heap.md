@@ -10,85 +10,85 @@ This API is fail-fast for required initialization/teardown preconditions.
 
 ## TYPES
 
-### ckit_heap
+### ck_heap
 
 ```c
-typedef struct ckit_heap ckit_heap;
+typedef struct ck_heap ck_heap;
 ```
 
-- Notes: `ckit_heap` is opaque. Use the functions below to inspect or mutate
+- Notes: `ck_heap` is opaque. Use the functions below to inspect or mutate
   heap state.
 
 ## FUNCTIONS
 
-### ckit_heap_init
+### ck_heap_init
 
 ```c
-ckit_heap *ckit_heap_init(size_t capacity);
+ck_heap *ck_heap_init(size_t capacity);
 ```
 
 - Parameters: `capacity`
 - Returns: heap pointer.
 
-### ckit_heap_allocator
+### ck_heap_allocator
 
 ```c
-ckit_allocator ckit_heap_allocator(ckit_heap *heap);
+ck_allocator ck_heap_allocator(ck_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: allocator adapter bound to `heap`.
 
-### ckit_heap_alloc
+### ck_heap_alloc
 
 ```c
-void *ckit_heap_alloc(ckit_heap *heap, size_t size);
+void *ck_heap_alloc(ck_heap *heap, size_t size);
 ```
 
 - Parameters: `heap`, `size`
 - Returns: allocated pointer, or `NULL` when allocation cannot be satisfied.
 
-### ckit_heap_dealloc
+### ck_heap_dealloc
 
 ```c
-void ckit_heap_dealloc(ckit_heap *heap, void *ptr);
+void ck_heap_dealloc(ck_heap *heap, void *ptr);
 ```
 
 - Parameters: `heap`, `ptr`
 - Behavior: frees `ptr` if valid.
 
-### ckit_heap_realloc
+### ck_heap_realloc
 
 ```c
-void *ckit_heap_realloc(ckit_heap *heap, void *ptr, size_t size);
+void *ck_heap_realloc(ck_heap *heap, void *ptr, size_t size);
 ```
 
 - Parameters: `heap`, `ptr`, `size`
 - Returns: resized pointer, or `NULL` on failure.
 - Notes: `ptr == NULL` behaves like allocation; `size == 0` frees `ptr` and returns `NULL`.
 
-### ckit_heap_capacity
+### ck_heap_capacity
 
 ```c
-size_t ckit_heap_capacity(const ckit_heap *heap);
+size_t ck_heap_capacity(const ck_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: total managed bytes.
 
-### ckit_heap_available
+### ck_heap_available
 
 ```c
-size_t ckit_heap_available(const ckit_heap *heap);
+size_t ck_heap_available(const ck_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: sum of currently free payload bytes.
 
-### ckit_heap_deinit
+### ck_heap_deinit
 
 ```c
-void ckit_heap_deinit(ckit_heap *heap);
+void ck_heap_deinit(ck_heap *heap);
 ```
 
 - Parameters: `heap`

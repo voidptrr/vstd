@@ -5,29 +5,31 @@
 #include "ckit/datastruct/hashset.h"
 
 int main(void) {
-    ckit_hashset *set;
+    int status = 0;
+    ck_hashset *set;
 
-    set = ckit_hashset_init(sizeof(uint64_t), ckit_eq_u64, NULL);
+    set = ck_hashset_init(sizeof(uint64_t), ck_eq_u64, NULL);
 
     uint64_t first = 42;
-    ckit_hashset_insert(set, &first);
-    ckit_hashset_insert(set, &first);
-    if (ckit_hashset_size(set) != 1) {
+    ck_hashset_insert(set, &first);
+    ck_hashset_insert(set, &first);
+    if (ck_hashset_size(set) != 1) {
         fprintf(stderr, "hashset insert should ignore duplicates\n");
-        ckit_hashset_deinit(set);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        ckit_hashset_insert(set, &i);
+        ck_hashset_insert(set, &i);
     }
 
-    if (ckit_hashset_size(set) != 256) {
+    if (ck_hashset_size(set) != 256) {
         fprintf(stderr, "hashset size should match unique inserted values\n");
-        ckit_hashset_deinit(set);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_hashset_deinit(set);
-    return 0;
+cleanup:
+    ck_hashset_deinit(set);
+    return status;
 }

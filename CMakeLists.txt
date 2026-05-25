@@ -12,4 +12,4 @@ set(CMAKE_C_EXTENSIONS OFF)
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 include(tools/cmake/tests.cmake)
-ckit_discover_tests()
+ck_discover_tests()

@@ -7,116 +7,115 @@
 #include "ckit/memory/allocators/allocator.h"
 #include "ckit/memory/bytes.h"
 
-struct ckit_binary_heap {
-    ckit_vector *root;
-    ckit_heap_cmp_fn cmp;
-    ckit_allocator *allocator;
+struct ck_binary_heap {
+    ck_vector *root;
+    ck_heap_cmp_fn cmp;
+    ck_allocator *allocator;
 };
 
-static void ckit_binary_heap_swap_at(ckit_binary_heap *heap, size_t i, size_t j) {
-    size_t elem_size = ckit_vector_elem_size(heap->root);
-    void *a = ckit_vector_get(heap->root, i);
-    void *b = ckit_vector_get(heap->root, j);
+static void ck_binary_heap_swap_at(ck_binary_heap *heap, size_t i, size_t j) {
+    size_t elem_size = ck_vector_elem_size(heap->root);
+    void *a = ck_vector_get(heap->root, i);
+    void *b = ck_vector_get(heap->root, j);
 
-    ckit_memswap(a, b, elem_size);
+    ck_memswap(a, b, elem_size);
 }
 
-static int ckit_binary_heap_compare_idx(const ckit_binary_heap *heap, size_t i, size_t j) {
-    const void *a = ckit_vector_get_const(heap->root, i);
-    const void *b = ckit_vector_get_const(heap->root, j);
+static int ck_binary_heap_compare_idx(const ck_binary_heap *heap, size_t i, size_t j) {
+    const void *a = ck_vector_get_const(heap->root, i);
+    const void *b = ck_vector_get_const(heap->root, j);
     return heap->cmp(a, b);
 }
 
-static void ckit_binary_heap_sift_up(ckit_binary_heap *heap, size_t idx) {
+static void ck_binary_heap_sift_up(ck_binary_heap *heap, size_t idx) {
     while (idx > 0) {
         size_t parent = (idx - 1) / 2;
-        if (ckit_binary_heap_compare_idx(heap, idx, parent) >= 0) {
+        if (ck_binary_heap_compare_idx(heap, idx, parent) >= 0) {
             break;
         }
-        ckit_binary_heap_swap_at(heap, idx, parent);
+        ck_binary_heap_swap_at(heap, idx, parent);
         idx = parent;
     }
 }
 
-static void ckit_binary_heap_sift_down(ckit_binary_heap *heap, size_t idx) {
-    size_t n = ckit_vector_size(heap->root);
+static void ck_binary_heap_sift_down(ck_binary_heap *heap, size_t idx) {
+    size_t n = ck_vector_size(heap->root);
 
     while (1) {
         size_t left = (2 * idx) + 1;
         size_t right = left + 1;
         size_t best = idx;
 
-        if (left < n && ckit_binary_heap_compare_idx(heap, left, best) < 0) {
+        if (left < n && ck_binary_heap_compare_idx(heap, left, best) < 0) {
             best = left;
         }
-        if (right < n && ckit_binary_heap_compare_idx(heap, right, best) < 0) {
+        if (right < n && ck_binary_heap_compare_idx(heap, right, best) < 0) {
             best = right;
         }
         if (best == idx) {
             break;
         }
 
-        ckit_binary_heap_swap_at(heap, idx, best);
+        ck_binary_heap_swap_at(heap, idx, best);
         idx = best;
     }
 }
 
-ckit_binary_heap *ckit_binary_heap_init(size_t elem_size, ckit_heap_cmp_fn cmp,
-                                        ckit_allocator *allocator) {
-    CKIT_ASSERT(cmp != NULL, "fatal: ckit_binary_heap_init invalid arguments");
-    CKIT_ASSERT(elem_size > 0, "fatal: ckit_binary_heap_init invalid arguments");
+ck_binary_heap *ck_binary_heap_init(size_t elem_size, ck_heap_cmp_fn cmp, ck_allocator *allocator) {
+    CK_ASSERT(cmp != NULL, "fatal: ck_binary_heap_init invalid arguments");
+    CK_ASSERT(elem_size > 0, "fatal: ck_binary_heap_init invalid arguments");
 
-    ckit_binary_heap *heap = ckit_malloc(allocator, sizeof(*heap));
-    heap->root = ckit_vector_init(elem_size, allocator);
+    ck_binary_heap *heap = ck_malloc(allocator, sizeof(ck_binary_heap));
+    heap->root = ck_vector_init(elem_size, allocator);
     heap->cmp = cmp;
     heap->allocator = allocator;
 
     return heap;
 }
 
-void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element) {
-    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_push invalid arguments");
-    CKIT_ASSERT(element != NULL, "fatal: ckit_binary_heap_push invalid arguments");
+void ck_binary_heap_push(ck_binary_heap *heap, const void *element) {
+    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_push invalid arguments");
+    CK_ASSERT(element != NULL, "fatal: ck_binary_heap_push invalid arguments");
 
-    ckit_vector_push(heap->root, element);
+    ck_vector_push(heap->root, element);
 
-    ckit_binary_heap_sift_up(heap, ckit_vector_size(heap->root) - 1);
+    ck_binary_heap_sift_up(heap, ck_vector_size(heap->root) - 1);
 }
 
-void *ckit_binary_heap_pop(ckit_binary_heap *heap) {
-    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_pop invalid arguments");
-    size_t size = ckit_vector_size(heap->root);
+void *ck_binary_heap_pop(ck_binary_heap *heap) {
+    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_pop invalid arguments");
+    size_t size = ck_vector_size(heap->root);
     if (size == 0) {
         return NULL;
     }
 
-    void *out = ckit_vector_swap_remove(heap->root, 0);
+    void *out = ck_vector_swap_remove(heap->root, 0);
 
     if (size > 1) {
-        ckit_binary_heap_sift_down(heap, 0);
+        ck_binary_heap_sift_down(heap, 0);
     }
 
     return out;
 }
 
-const void *ckit_binary_heap_peek(const ckit_binary_heap *heap) {
-    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_peek invalid arguments");
-    if (ckit_vector_size(heap->root) == 0) {
+const void *ck_binary_heap_peek(const ck_binary_heap *heap) {
+    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_peek invalid arguments");
+    if (ck_vector_size(heap->root) == 0) {
         return NULL;
     }
 
-    return ckit_vector_get_const(heap->root, 0);
+    return ck_vector_get_const(heap->root, 0);
 }
 
-size_t ckit_binary_heap_size(const ckit_binary_heap *heap) {
-    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_size invalid arguments");
+size_t ck_binary_heap_size(const ck_binary_heap *heap) {
+    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_size invalid arguments");
 
-    return ckit_vector_size(heap->root);
+    return ck_vector_size(heap->root);
 }
 
-void ckit_binary_heap_deinit(ckit_binary_heap *heap) {
-    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_deinit invalid arguments");
-    ckit_allocator *allocator = heap->allocator;
-    ckit_vector_deinit(heap->root);
-    ckit_dealloc(allocator, heap);
+void ck_binary_heap_deinit(ck_binary_heap *heap) {
+    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_deinit invalid arguments");
+    ck_allocator *allocator = heap->allocator;
+    ck_vector_deinit(heap->root);
+    ck_dealloc(allocator, heap);
 }

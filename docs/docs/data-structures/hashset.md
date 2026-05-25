@@ -14,78 +14,78 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ckit_hashset_init
+### ck_hashset_init
 
 ```c
-ckit_hashset *ckit_hashset_init(size_t elem_size,
-                                ckit_hashset_elem_eq_fn elem_eq,
-                                ckit_allocator *allocator);
+ck_hashset *ck_hashset_init(size_t elem_size,
+                                ck_hashset_elem_eq_fn elem_eq,
+                                ck_allocator *allocator);
 ```
 
 - Parameters: `elem_size`, `elem_eq`, `allocator`
 - Returns: opaque hashset handle.
-- Notes: when `allocator` is `NULL`, hashset uses the C library heap through `ckit_malloc`.
+- Notes: when `allocator` is `NULL`, hashset uses the C library heap through `ck_malloc`.
 
-### ckit_hashset_insert
+### ck_hashset_insert
 
 ```c
-void ckit_hashset_insert(ckit_hashset *set, const void *elem);
+void ck_hashset_insert(ck_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
 - Returns: none.
 - Notes: copies `elem` into set-managed storage when it is not already present.
 
-### ckit_hashset_contains
+### ck_hashset_contains
 
 ```c
-bool ckit_hashset_contains(const ckit_hashset *set, const void *elem);
+bool ck_hashset_contains(const ck_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
 - Returns: `true` when an equal element exists, otherwise `false`.
 
-### ckit_hashset_get
+### ck_hashset_get
 
 ```c
-void *ckit_hashset_get(ckit_hashset *set, const void *elem);
+void *ck_hashset_get(ck_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
 - Returns: pointer to stored element in set-managed storage, or `NULL` when element is missing.
 
-### ckit_hashset_get_const
+### ck_hashset_get_const
 
 ```c
-const void *ckit_hashset_get_const(const ckit_hashset *set, const void *elem);
+const void *ck_hashset_get_const(const ck_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
 - Returns: const pointer to stored element in set-managed storage, or `NULL` when element is missing.
 
-### ckit_hashset_remove
+### ck_hashset_remove
 
 ```c
-void ckit_hashset_remove(ckit_hashset *set, const void *elem);
+void ck_hashset_remove(ck_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
 - Returns: none.
 - Notes: removes an equal element when present. Missing elements are ignored.
 
-### ckit_hashset_size
+### ck_hashset_size
 
 ```c
-size_t ckit_hashset_size(const ckit_hashset *set);
+size_t ck_hashset_size(const ck_hashset *set);
 ```
 
 - Parameters: `set`
 - Returns: current element count.
 
-### ckit_hashset_deinit
+### ck_hashset_deinit
 
 ```c
-void ckit_hashset_deinit(ckit_hashset *set);
+void ck_hashset_deinit(ck_hashset *set);
 ```
 
 - Parameters: `set`
@@ -100,26 +100,28 @@ void ckit_hashset_deinit(ckit_hashset *set);
 #include <stdint.h>
 
 int main(void) {
-    ckit_hashset *set;
+    int status = 0;
+    ck_hashset *set;
     uint64_t value = 42;
     const uint64_t *found = NULL;
 
-    set = ckit_hashset_init(sizeof(uint64_t), ckit_eq_u64, NULL);
-    ckit_hashset_insert(set, &value);
+    set = ck_hashset_init(sizeof(uint64_t), ck_eq_u64, NULL);
+    ck_hashset_insert(set, &value);
 
-    found = (const uint64_t *)ckit_hashset_get_const(set, &value);
+    found = (const uint64_t *)ck_hashset_get_const(set, &value);
     if (found == NULL || *found != value) {
-        ckit_hashset_deinit(set);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_hashset_remove(set, &value);
-    if (ckit_hashset_contains(set, &value) || ckit_hashset_size(set) != 0) {
-        ckit_hashset_deinit(set);
-        return 1;
+    ck_hashset_remove(set, &value);
+    if (ck_hashset_contains(set, &value) || ck_hashset_size(set) != 0) {
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_hashset_deinit(set);
-    return 0;
+cleanup:
+    ck_hashset_deinit(set);
+    return status;
 }
 ```

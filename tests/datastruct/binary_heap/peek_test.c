@@ -9,26 +9,28 @@ static int cmp_int_asc(const void *a, const void *b) {
 }
 
 int main(void) {
-    ckit_binary_heap *heap;
+    int status = 0;
+    ck_binary_heap *heap;
     int value = 3;
     const int *out;
 
-    heap = ckit_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
+    heap = ck_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
 
-    if (ckit_binary_heap_peek(heap) != NULL) {
+    if (ck_binary_heap_peek(heap) != NULL) {
         fprintf(stderr, "peek on empty heap should return NULL\n");
-        ckit_binary_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_binary_heap_push(heap, &value);
-    out = (const int *)ckit_binary_heap_peek(heap);
+    ck_binary_heap_push(heap, &value);
+    out = (const int *)ck_binary_heap_peek(heap);
     if (out == NULL || *out != 3) {
         fprintf(stderr, "peek should return current top\n");
-        ckit_binary_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_binary_heap_deinit(heap);
-    return 0;
+cleanup:
+    ck_binary_heap_deinit(heap);
+    return status;
 }

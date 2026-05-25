@@ -1,5 +1,5 @@
-function(ckit_discover_tests)
-  file(GLOB_RECURSE CKIT_SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.c")
+function(ck_discover_tests)
+  file(GLOB_RECURSE CK_SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.c")
   file(GLOB TEST_FILES RELATIVE "${CMAKE_SOURCE_DIR}" "tests/*/*/*_test.c")
 
   if(NOT TEST_FILES)
@@ -21,7 +21,7 @@ function(ckit_discover_tests)
     string(REGEX REPLACE "_test\\.c$" "" TEST_VARIANT "${TEST_FILENAME}")
 
     set(EXECUTABLE_NAME "${TARGET_GROUP}-${TARGET_NAME}-${TEST_VARIANT}")
-    add_executable(${EXECUTABLE_NAME} ${CKIT_SRC_FILES} "${CMAKE_SOURCE_DIR}/${TEST_FILE_REL}")
+    add_executable(${EXECUTABLE_NAME} ${CK_SRC_FILES} "${CMAKE_SOURCE_DIR}/${TEST_FILE_REL}")
     target_include_directories(${EXECUTABLE_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
 
     set(CTEST_NAME "${TARGET_GROUP}/${TARGET_NAME}/${TEST_VARIANT}")

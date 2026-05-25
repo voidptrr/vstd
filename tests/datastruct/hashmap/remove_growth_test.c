@@ -5,31 +5,33 @@
 #include "ckit/datastruct/hashmap.h"
 
 int main(void) {
-    ckit_hashmap *map;
+    int status = 0;
+    ck_hashmap *map;
 
-    map = ckit_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
+    map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
 
     for (uint64_t i = 0; i < 256; i++) {
         uint64_t value = i * 3;
-        ckit_hashmap_put(map, &i, &value);
+        ck_hashmap_put(map, &i, &value);
     }
 
-    if (ckit_hashmap_size(map) != 256) {
+    if (ck_hashmap_size(map) != 256) {
         fprintf(stderr, "hashmap size should match inserted count\n");
-        ckit_hashmap_deinit(map);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
     {
         uint64_t key = 128;
-        ckit_hashmap_remove(map, &key);
-        if (ckit_hashmap_get(map, &key) != NULL) {
+        ck_hashmap_remove(map, &key);
+        if (ck_hashmap_get(map, &key) != NULL) {
             fprintf(stderr, "removed key should not be found\n");
-            ckit_hashmap_deinit(map);
-            return 1;
+            status = 1;
+            goto cleanup;
         }
     }
 
-    ckit_hashmap_deinit(map);
-    return 0;
+cleanup:
+    ck_hashmap_deinit(map);
+    return status;
 }

@@ -1,5 +1,5 @@
-#ifndef CKIT_DATASTRUCT_LINKED_LIST_H
-#define CKIT_DATASTRUCT_LINKED_LIST_H
+#ifndef CK_DATASTRUCT_LINKED_LIST_H
+#define CK_DATASTRUCT_LINKED_LIST_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -20,7 +20,7 @@
  *  +------+    +------+    +------+        +------+
  *     ^           ^           ^               ^
  *     |           |           |               |
- *  user object embeds ckit_linked_list_node
+ *  user object embeds ck_linked_list_node
  *
  * - push appends at tail
  * - pushfront prepends at head
@@ -28,35 +28,34 @@
  * - linked list nodes and owning objects are caller-owned
  */
 
-typedef struct ckit_linked_list_node {
-    struct ckit_linked_list_node *next;
-} ckit_linked_list_node;
+typedef struct ck_linked_list_node {
+    struct ck_linked_list_node *next;
+} ck_linked_list_node;
 
-typedef struct ckit_linked_list ckit_linked_list;
+typedef struct ck_linked_list ck_linked_list;
 
 /* Initialize an intrusive linked list. */
-ckit_linked_list *ckit_linked_list_init(ckit_allocator *allocator);
+ck_linked_list *ck_linked_list_init(ck_allocator *allocator);
 
 /* Append node at the tail. */
-void ckit_linked_list_push(ckit_linked_list *list, ckit_linked_list_node *node);
+void ck_linked_list_push(ck_linked_list *list, ck_linked_list_node *node);
 
 /* Prepend node at the head. */
-void ckit_linked_list_pushfront(ckit_linked_list *list, ckit_linked_list_node *node);
+void ck_linked_list_pushfront(ck_linked_list *list, ck_linked_list_node *node);
 
 /* Remove and return the head node, or NULL when empty. */
-ckit_linked_list_node *ckit_linked_list_popleft(ckit_linked_list *list);
+ck_linked_list_node *ck_linked_list_popleft(ck_linked_list *list);
 
 /* Remove and return the node after prev, or the head node when prev is NULL. */
-ckit_linked_list_node *ckit_linked_list_remove_after(ckit_linked_list *list,
-                                                     ckit_linked_list_node *prev);
+ck_linked_list_node *ck_linked_list_remove_after(ck_linked_list *list, ck_linked_list_node *prev);
 
 /* Return the number of stored elements. */
-size_t ckit_linked_list_size(const ckit_linked_list *list);
+size_t ck_linked_list_size(const ck_linked_list *list);
 
 /* Return the head node, or NULL when empty. */
-ckit_linked_list_node *ckit_linked_list_head(const ckit_linked_list *list);
+ck_linked_list_node *ck_linked_list_head(const ck_linked_list *list);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
-void ckit_linked_list_deinit(ckit_linked_list *list);
+void ck_linked_list_deinit(ck_linked_list *list);
 
 #endif

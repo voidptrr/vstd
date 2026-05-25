@@ -1,5 +1,5 @@
-#ifndef CKIT_DATASTRUCT_BINARY_HEAP_H
-#define CKIT_DATASTRUCT_BINARY_HEAP_H
+#ifndef CK_DATASTRUCT_BINARY_HEAP_H
+#define CK_DATASTRUCT_BINARY_HEAP_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -31,27 +31,26 @@
  */
 
 /* Comparator callback: negative if a < b, zero if equal, positive if a > b. */
-typedef ckit_cmp_fn ckit_heap_cmp_fn;
+typedef ck_cmp_fn ck_heap_cmp_fn;
 
-typedef struct ckit_binary_heap ckit_binary_heap;
+typedef struct ck_binary_heap ck_binary_heap;
 
 /* Initialize a heap for elements of size elem_size using cmp ordering. */
-ckit_binary_heap *ckit_binary_heap_init(size_t elem_size, ckit_heap_cmp_fn cmp,
-                                        ckit_allocator *allocator);
+ck_binary_heap *ck_binary_heap_init(size_t elem_size, ck_heap_cmp_fn cmp, ck_allocator *allocator);
 
 /* Insert one element by copying elem_size bytes from element. */
-void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element);
+void ck_binary_heap_push(ck_binary_heap *heap, const void *element);
 
 /* Remove and return the top element pointer, or NULL when empty. */
-void *ckit_binary_heap_pop(ckit_binary_heap *heap);
+void *ck_binary_heap_pop(ck_binary_heap *heap);
 
 /* Return the top element pointer without removing it, or NULL when empty. */
-const void *ckit_binary_heap_peek(const ckit_binary_heap *heap);
+const void *ck_binary_heap_peek(const ck_binary_heap *heap);
 
 /* Return the number of stored elements. */
-size_t ckit_binary_heap_size(const ckit_binary_heap *heap);
+size_t ck_binary_heap_size(const ck_binary_heap *heap);
 
 /* Deinitialize and release owned storage. */
-void ckit_binary_heap_deinit(ckit_binary_heap *heap);
+void ck_binary_heap_deinit(ck_binary_heap *heap);
 
 #endif
