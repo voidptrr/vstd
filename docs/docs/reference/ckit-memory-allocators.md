@@ -12,14 +12,29 @@ allocation helpers used by `ckit` internals.
 ```c
 typedef struct ckit_allocator {
     void *ctx;
+    unsigned int features;
     ckit_alloc_fn alloc;
     ckit_realloc_fn realloc;
     ckit_dealloc_fn dealloc;
 } ckit_allocator;
 ```
 
-- Fields: `ctx`, `alloc`, `realloc`, `dealloc`
+- Fields: `ctx`, `features`, `alloc`, `realloc`, `dealloc`
 - Notes: containers can use these callbacks when a custom allocator is provided.
+
+### ckit_allocator_features
+
+```c
+typedef enum ckit_allocator_features {
+    CKIT_ALLOCATOR_FEATURE_DEALLOC = 1 << 0,
+    CKIT_ALLOCATOR_FEATURE_REALLOC = 1 << 1,
+    CKIT_ALLOCATOR_FEATURE_RESET = 1 << 2,
+} ckit_allocator_features;
+```
+
+- `CKIT_ALLOCATOR_FEATURE_DEALLOC`: allocator supports freeing individual allocations.
+- `CKIT_ALLOCATOR_FEATURE_REALLOC`: allocator supports resizing allocations.
+- `CKIT_ALLOCATOR_FEATURE_RESET`: allocator supports releasing all allocations together.
 
 ## FUNCTIONS
 
@@ -53,4 +68,4 @@ void ckit_dealloc(ckit_allocator *allocator, void *ptr);
 
 - Parameters: `allocator`, `ptr`
 - Returns: none.
-- Notes: when `allocator` is `NULL`, uses the C library heap. `NULL` pointers are ignored.
+- Notes: when `allocator` is `NULL`, uses the C library heap. `NULL` pointers are ignored. If a custom allocator does not advertise `CKIT_ALLOCATOR_FEATURE_DEALLOC`, this function returns without calling a dealloc callback.

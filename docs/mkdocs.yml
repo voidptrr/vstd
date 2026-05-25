@@ -48,6 +48,7 @@ nav:
   - Memory:
       - Allocators:
           - Overview: reference/ckit-memory-allocators.md
+          - Arena allocator: reference/ckit-memory-arena.md
           - Free-list allocator: reference/ckit-memory-general-heap.md
       - Bytes: reference/ckit-memory-bytes.md
   - Data structures:
