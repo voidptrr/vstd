@@ -23,9 +23,10 @@ ckit_allocator ckit_arena_init(ckit_arena *arena, size_t capacity) {
 
     ckit_allocator allocator;
     allocator.ctx = arena;
+    allocator.features = CKIT_ALLOCATOR_FEATURE_REALLOC | CKIT_ALLOCATOR_FEATURE_RESET;
     allocator.alloc = (ckit_alloc_fn)ckit_arena_alloc;
     allocator.realloc = (ckit_realloc_fn)ckit_arena_realloc;
-    allocator.dealloc = (ckit_dealloc_fn)ckit_arena_dealloc;
+    allocator.dealloc = NULL;
 
     return allocator;
 }
@@ -42,12 +43,12 @@ void *ckit_arena_alloc(ckit_arena *arena, size_t size) {
         return NULL;
     }
 
-    uint8_t *alloc = (uint8_t *)arena->buffer + arena->offset;
-    ckit_arena_alloc_header *header = (ckit_arena_alloc_header *)alloc;
+    uint8_t *ptr = (uint8_t *)arena->buffer + arena->offset;
+    ckit_arena_alloc_header *header = (ckit_arena_alloc_header *)ptr;
     header->size = size;
 
     arena->offset += header_size + size;
-    return alloc + header_size;
+    return ptr + header_size;
 }
 
 void ckit_arena_free(ckit_arena *arena) {
@@ -57,14 +58,6 @@ void ckit_arena_free(ckit_arena *arena) {
     arena->buffer = NULL;
     arena->capacity = 0;
     arena->offset = 0;
-}
-
-void ckit_arena_dealloc(ckit_arena *arena, void *ptr) {
-    CKIT_ASSERT(arena != NULL, "fatal: ckit_arena_dealloc invalid arguments");
-    CKIT_ASSERT(ptr != NULL, "fatal: ckit_arena_dealloc invalid arguments");
-    CKIT_ASSERT(arena->buffer != NULL, "fatal: ckit_arena_dealloc invalid arena");
-
-    (void)ptr;
 }
 
 void *ckit_arena_realloc(ckit_arena *arena, void *ptr, size_t size) {

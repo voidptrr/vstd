@@ -7,7 +7,8 @@ int main(void) {
     ckit_allocator allocator = ckit_arena_init(&arena, 128);
 
     if (allocator.ctx != &arena || allocator.alloc == NULL || allocator.realloc == NULL ||
-        allocator.dealloc == NULL) {
+        allocator.dealloc != NULL ||
+        allocator.features != (CKIT_ALLOCATOR_FEATURE_REALLOC | CKIT_ALLOCATOR_FEATURE_RESET)) {
         fprintf(stderr, "arena init should return allocator adapter\n");
         ckit_arena_free(&arena);
         return 1;

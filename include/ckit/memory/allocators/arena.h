@@ -16,7 +16,7 @@
  *
  * Allocation strategy:
  * - bump offset forward on alloc
- * - individual dealloc is a no-op
+ * - individual dealloc is unsupported
  * - reset releases all allocations together
  * - small internal allocation headers are stored before payloads so realloc can
  *   preserve existing bytes
@@ -46,12 +46,6 @@ void ckit_arena_free(ckit_arena *arena);
  * Returns NULL when the arena does not have enough available space.
  */
 void *ckit_arena_alloc(ckit_arena *arena, size_t size);
-
-/*
- * No-op for individual arena allocations.
- * Use ckit_arena_reset to release all arena allocations together.
- */
-void ckit_arena_dealloc(ckit_arena *arena, void *ptr);
 
 /*
  * Grow an arena allocation.
