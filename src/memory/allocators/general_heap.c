@@ -91,6 +91,7 @@ ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
 
     ckit_allocator allocator;
     allocator.ctx = heap;
+    allocator.features = CKIT_ALLOCATOR_FEATURE_DEALLOC | CKIT_ALLOCATOR_FEATURE_REALLOC;
     allocator.alloc = (ckit_alloc_fn)ckit_heap_alloc;
     allocator.realloc = (ckit_realloc_fn)ckit_heap_realloc;
     allocator.dealloc = (ckit_dealloc_fn)ckit_heap_dealloc;

@@ -42,6 +42,10 @@ void ckit_dealloc(ckit_allocator *allocator, void *ptr) {
         return;
     }
 
+    if ((allocator->features & CKIT_ALLOCATOR_FEATURE_DEALLOC) == 0) {
+        return;
+    }
+
     CKIT_ASSERT(allocator->dealloc != NULL, "fatal: ckit_dealloc invalid arguments");
     allocator->dealloc(allocator->ctx, ptr);
 }

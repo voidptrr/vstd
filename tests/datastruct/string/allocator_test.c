@@ -33,6 +33,7 @@ int main(void) {
     test_allocator_ctx ctx = {0};
     ckit_allocator allocator = {
         .ctx = &ctx,
+        .features = CKIT_ALLOCATOR_FEATURE_DEALLOC | CKIT_ALLOCATOR_FEATURE_REALLOC,
         .alloc = test_alloc,
         .realloc = test_realloc,
         .dealloc = test_dealloc,
