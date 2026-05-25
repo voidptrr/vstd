@@ -84,3 +84,26 @@ ckit_linked_list_node *ckit_hash_bucket_find(ckit_linked_list *bucket, const voi
 
     return NULL;
 }
+
+ckit_linked_list_node *ckit_hash_bucket_remove(ckit_linked_list *bucket, const void *value,
+                                               size_t value_size, ckit_eq_fn value_eq,
+                                               ckit_hash_entry_value_fn entry_value) {
+    CKIT_ASSERT(bucket != NULL, "fatal: ckit_hash_bucket_remove invalid arguments");
+    CKIT_ASSERT(value != NULL, "fatal: ckit_hash_bucket_remove invalid arguments");
+    CKIT_ASSERT(value_size > 0, "fatal: ckit_hash_bucket_remove invalid arguments");
+    CKIT_ASSERT(value_eq != NULL, "fatal: ckit_hash_bucket_remove invalid arguments");
+    CKIT_ASSERT(entry_value != NULL, "fatal: ckit_hash_bucket_remove invalid arguments");
+
+    ckit_linked_list_node *prev = NULL;
+    ckit_linked_list_node *node = ckit_linked_list_head(bucket);
+    while (node != NULL) {
+        if (value_eq(entry_value(node), value, value_size)) {
+            ckit_linked_list_remove_after(bucket, prev);
+            return node;
+        }
+        prev = node;
+        node = node->next;
+    }
+
+    return NULL;
+}

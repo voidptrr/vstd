@@ -45,6 +45,24 @@ bool ckit_hashset_contains(const ckit_hashset *set, const void *elem);
 - Parameters: `set`, `elem`
 - Returns: `true` when an equal element exists, otherwise `false`.
 
+### ckit_hashset_get
+
+```c
+void *ckit_hashset_get(ckit_hashset *set, const void *elem);
+```
+
+- Parameters: `set`, `elem`
+- Returns: pointer to stored element in set-managed storage, or `NULL` when element is missing.
+
+### ckit_hashset_get_const
+
+```c
+const void *ckit_hashset_get_const(const ckit_hashset *set, const void *elem);
+```
+
+- Parameters: `set`, `elem`
+- Returns: const pointer to stored element in set-managed storage, or `NULL` when element is missing.
+
 ### ckit_hashset_remove
 
 ```c
@@ -84,11 +102,13 @@ size_t ckit_hashset_size(const ckit_hashset *set);
 int main(void) {
     ckit_hashset *set;
     uint64_t value = 42;
+    const uint64_t *found = NULL;
 
     set = ckit_hashset_init(sizeof(uint64_t), ckit_eq_u64, NULL);
     ckit_hashset_insert(set, &value);
 
-    if (!ckit_hashset_contains(set, &value)) {
+    found = (const uint64_t *)ckit_hashset_get_const(set, &value);
+    if (found == NULL || *found != value) {
         ckit_hashset_free(set);
         return 1;
     }

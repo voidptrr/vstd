@@ -50,12 +50,17 @@ void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value);
 /*
  * Lookup key and return stored value pointer, or NULL when missing.
  */
-const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key);
+void *ckit_hashmap_get(ckit_hashmap *map, const void *key);
+
+/*
+ * Lookup key and return const stored value pointer, or NULL when missing.
+ */
+const void *ckit_hashmap_get_const(const ckit_hashmap *map, const void *key);
 
 /*
  * Remove key from map.
  */
-void *ckit_hashmap_remove(ckit_hashmap *map, const void *key);
+void ckit_hashmap_remove(ckit_hashmap *map, const void *key);
 
 /*
  * Release all entries, bucket storage, and the hashmap handle.
