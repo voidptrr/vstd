@@ -9,22 +9,24 @@ static int cmp_int_asc(const void *a, const void *b) {
 }
 
 int main(void) {
-    ckit_binary_heap *heap;
+    int status = 0;
+    ck_binary_heap *heap;
     int values[] = {5, 2, 8, 1};
     const int *top;
 
-    heap = ckit_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
+    heap = ck_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
     for (size_t i = 0; i < 4; i++) {
-        ckit_binary_heap_push(heap, &values[i]);
+        ck_binary_heap_push(heap, &values[i]);
     }
 
-    top = (const int *)ckit_binary_heap_peek(heap);
-    if (top == NULL || *top != 1 || ckit_binary_heap_size(heap) != 4) {
+    top = (const int *)ck_binary_heap_peek(heap);
+    if (top == NULL || *top != 1 || ck_binary_heap_size(heap) != 4) {
         fprintf(stderr, "push should maintain heap invariant\n");
-        ckit_binary_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_binary_heap_deinit(heap);
-    return 0;
+cleanup:
+    ck_binary_heap_deinit(heap);
+    return status;
 }

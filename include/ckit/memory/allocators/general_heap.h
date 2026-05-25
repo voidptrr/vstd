@@ -1,5 +1,5 @@
-#ifndef CKIT_MEMORY_GENERAL_HEAP_H
-#define CKIT_MEMORY_GENERAL_HEAP_H
+#ifndef CK_MEMORY_GENERAL_HEAP_H
+#define CK_MEMORY_GENERAL_HEAP_H
 
 #include <stddef.h>
 
@@ -26,44 +26,44 @@
  * - split large free blocks
  * - coalesce neighboring free blocks on dealloc
  */
-typedef struct ckit_heap ckit_heap;
+typedef struct ck_heap ck_heap;
 
 /*
  * Initialize a heap with `capacity` bytes of internal storage.
  */
-ckit_heap *ckit_heap_init(size_t capacity);
+ck_heap *ck_heap_init(size_t capacity);
 
 /*
  * Return an allocator adapter that routes through this heap.
  */
-ckit_allocator ckit_heap_allocator(ckit_heap *heap);
+ck_allocator ck_heap_allocator(ck_heap *heap);
 
 /*
  * Allocate `size` bytes from heap.
  * Returns NULL when no suitable free block exists.
  */
-void *ckit_heap_alloc(ckit_heap *heap, size_t size);
+void *ck_heap_alloc(ck_heap *heap, size_t size);
 
 /*
- * Free a pointer previously returned by ckit_heap_alloc/ckit_heap_realloc.
+ * Free a pointer previously returned by ck_heap_alloc/ck_heap_realloc.
  */
-void ckit_heap_dealloc(ckit_heap *heap, void *ptr);
+void ck_heap_dealloc(ck_heap *heap, void *ptr);
 
 /*
  * Resize an existing heap allocation.
  * Behaves like realloc: NULL ptr allocates, size 0 frees and returns NULL.
  */
-void *ckit_heap_realloc(ckit_heap *heap, void *ptr, size_t size);
+void *ck_heap_realloc(ck_heap *heap, void *ptr, size_t size);
 
 /* Total managed bytes (including internal metadata overhead). */
-size_t ckit_heap_capacity(const ckit_heap *heap);
+size_t ck_heap_capacity(const ck_heap *heap);
 
 /* Sum of currently free payload bytes. */
-size_t ckit_heap_available(const ckit_heap *heap);
+size_t ck_heap_available(const ck_heap *heap);
 
 /*
  * Deinitialize and release heap resources.
  */
-void ckit_heap_deinit(ckit_heap *heap);
+void ck_heap_deinit(ck_heap *heap);
 
 #endif

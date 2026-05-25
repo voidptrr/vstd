@@ -9,58 +9,58 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ckit_binary_heap_init
+### ck_binary_heap_init
 
 ```c
-ckit_binary_heap *ckit_binary_heap_init(size_t elem_size,
-                                        ckit_heap_cmp_fn cmp,
-                                        ckit_allocator *allocator);
+ck_binary_heap *ck_binary_heap_init(size_t elem_size,
+                                        ck_heap_cmp_fn cmp,
+                                        ck_allocator *allocator);
 ```
 
 - Parameters: `elem_size`, `cmp`, `allocator`
 - Returns: opaque binary-heap handle.
-- Notes: when `allocator` is `NULL`, binary heap storage uses the C library heap through `ckit_malloc`.
+- Notes: when `allocator` is `NULL`, binary heap storage uses the C library heap through `ck_malloc`.
 
-### ckit_binary_heap_push
+### ck_binary_heap_push
 
 ```c
-void ckit_binary_heap_push(ckit_binary_heap *heap, const void *element);
+void ck_binary_heap_push(ck_binary_heap *heap, const void *element);
 ```
 
 - Parameters: `heap`, `element`
 - Returns: none.
 
-### ckit_binary_heap_pop
+### ck_binary_heap_pop
 
 ```c
-void *ckit_binary_heap_pop(ckit_binary_heap *heap);
+void *ck_binary_heap_pop(ck_binary_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: pointer to removed top element in heap-managed storage, or `NULL` when empty.
 
-### ckit_binary_heap_peek
+### ck_binary_heap_peek
 
 ```c
-const void *ckit_binary_heap_peek(const ckit_binary_heap *heap);
+const void *ck_binary_heap_peek(const ck_binary_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: pointer to top element in heap-managed storage, or `NULL` when empty.
 
-### ckit_binary_heap_size
+### ck_binary_heap_size
 
 ```c
-size_t ckit_binary_heap_size(const ckit_binary_heap *heap);
+size_t ck_binary_heap_size(const ck_binary_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: current element count.
 
-### ckit_binary_heap_deinit
+### ck_binary_heap_deinit
 
 ```c
-void ckit_binary_heap_deinit(ckit_binary_heap *heap);
+void ck_binary_heap_deinit(ck_binary_heap *heap);
 ```
 
 - Parameters: `heap`
@@ -75,26 +75,28 @@ void ckit_binary_heap_deinit(ckit_binary_heap *heap);
 #include <stdint.h>
 
 int main(void) {
-    ckit_binary_heap *heap = ckit_binary_heap_init(sizeof(int32_t), ckit_cmp_i32, NULL);
+    int status = 0;
+    ck_binary_heap *heap = ck_binary_heap_init(sizeof(int32_t), ck_cmp_i32, NULL);
     int32_t values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
-        ckit_binary_heap_push(heap, &values[i]);
+        ck_binary_heap_push(heap, &values[i]);
     }
 
-    const int32_t *top = (const int32_t *)ckit_binary_heap_peek(heap);
+    const int32_t *top = (const int32_t *)ck_binary_heap_peek(heap);
     if (top == NULL || *top != 1) {
-        ckit_binary_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    int32_t *popped = (int32_t *)ckit_binary_heap_pop(heap);
+    int32_t *popped = (int32_t *)ck_binary_heap_pop(heap);
     if (popped == NULL || *popped != 1) {
-        ckit_binary_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_binary_heap_deinit(heap);
-    return 0;
+cleanup:
+    ck_binary_heap_deinit(heap);
+    return status;
 }
 ```

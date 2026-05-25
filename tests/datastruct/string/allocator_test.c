@@ -30,36 +30,42 @@ static void test_dealloc(void *ctx, void *ptr) {
 }
 
 int main(void) {
+    int status = 0;
     test_allocator_ctx ctx = {0};
-    ckit_allocator allocator = {
+    ck_allocator allocator = {
         .ctx = &ctx,
-        .features = CKIT_ALLOCATOR_FEATURE_DEALLOC | CKIT_ALLOCATOR_FEATURE_REALLOC,
+        .features = CK_ALLOCATOR_FEATURE_DEALLOC | CK_ALLOCATOR_FEATURE_REALLOC,
         .alloc = test_alloc,
         .realloc = test_realloc,
         .dealloc = test_dealloc,
     };
 
-    ckit_string value = ckit_string_init("abc", &allocator);
+    ck_string value = ck_string_init("abc", &allocator);
     if (ctx.alloc_count != 1 || ctx.realloc_count != 0 || ctx.dealloc_count != 0) {
         fprintf(stderr, "string should initialize through custom allocator\n");
-        ckit_string_deinit(value);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_string_append(&value, "012345678901234567890123456789");
+    ck_string_append(&value, "012345678901234567890123456789");
     if (ctx.realloc_count != 1) {
         fprintf(stderr, "string growth should use custom realloc\n");
-        ckit_string_deinit(value);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    if (ckit_string_len(value) != 33 || strcmp(value, "abc012345678901234567890123456789") != 0) {
+    if (ck_string_len(value) != 33 || strcmp(value, "abc012345678901234567890123456789") != 0) {
         fprintf(stderr, "string should keep contents after allocator-backed growth\n");
-        ckit_string_deinit(value);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_string_deinit(value);
+cleanup:
+    ck_string_deinit(value);
+    if (status != 0) {
+        return status;
+    }
+
     if (ctx.dealloc_count != 1) {
         fprintf(stderr, "string should free through custom deallocator\n");
         return 1;

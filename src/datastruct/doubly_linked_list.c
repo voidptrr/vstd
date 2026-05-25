@@ -2,15 +2,15 @@
 #include "ckit/datastruct/doubly_linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
 
-struct ckit_doubly_linked_list {
+struct ck_doubly_linked_list {
     size_t size;
-    ckit_doubly_linked_list_node *head;
-    ckit_doubly_linked_list_node *tail;
-    ckit_allocator *allocator;
+    ck_doubly_linked_list_node *head;
+    ck_doubly_linked_list_node *tail;
+    ck_allocator *allocator;
 };
 
-ckit_doubly_linked_list *ckit_doubly_linked_list_init(ckit_allocator *allocator) {
-    ckit_doubly_linked_list *list = ckit_malloc(allocator, sizeof(*list));
+ck_doubly_linked_list *ck_doubly_linked_list_init(ck_allocator *allocator) {
+    ck_doubly_linked_list *list = ck_malloc(allocator, sizeof(ck_doubly_linked_list));
     list->size = 0;
     list->head = NULL;
     list->tail = NULL;
@@ -19,10 +19,9 @@ ckit_doubly_linked_list *ckit_doubly_linked_list_init(ckit_allocator *allocator)
     return list;
 }
 
-void ckit_doubly_linked_list_push(ckit_doubly_linked_list *list,
-                                  ckit_doubly_linked_list_node *node) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_push invalid arguments");
-    CKIT_ASSERT(node != NULL, "fatal: ckit_doubly_linked_list_push invalid arguments");
+void ck_doubly_linked_list_push(ck_doubly_linked_list *list, ck_doubly_linked_list_node *node) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_push invalid arguments");
+    CK_ASSERT(node != NULL, "fatal: ck_doubly_linked_list_push invalid arguments");
 
     node->prev = list->tail;
     node->next = NULL;
@@ -37,10 +36,10 @@ void ckit_doubly_linked_list_push(ckit_doubly_linked_list *list,
     list->size += 1;
 }
 
-void ckit_doubly_linked_list_pushfront(ckit_doubly_linked_list *list,
-                                       ckit_doubly_linked_list_node *node) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_pushfront invalid arguments");
-    CKIT_ASSERT(node != NULL, "fatal: ckit_doubly_linked_list_pushfront invalid arguments");
+void ck_doubly_linked_list_pushfront(ck_doubly_linked_list *list,
+                                     ck_doubly_linked_list_node *node) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_pushfront invalid arguments");
+    CK_ASSERT(node != NULL, "fatal: ck_doubly_linked_list_pushfront invalid arguments");
 
     node->prev = NULL;
     node->next = list->head;
@@ -55,14 +54,14 @@ void ckit_doubly_linked_list_pushfront(ckit_doubly_linked_list *list,
     list->size += 1;
 }
 
-void ckit_doubly_linked_list_insert_after(ckit_doubly_linked_list *list,
-                                          ckit_doubly_linked_list_node *after,
-                                          ckit_doubly_linked_list_node *node) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_insert_after invalid arguments");
-    CKIT_ASSERT(node != NULL, "fatal: ckit_doubly_linked_list_insert_after invalid arguments");
+void ck_doubly_linked_list_insert_after(ck_doubly_linked_list *list,
+                                        ck_doubly_linked_list_node *after,
+                                        ck_doubly_linked_list_node *node) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_insert_after invalid arguments");
+    CK_ASSERT(node != NULL, "fatal: ck_doubly_linked_list_insert_after invalid arguments");
 
     if (after == NULL) {
-        ckit_doubly_linked_list_pushfront(list, node);
+        ck_doubly_linked_list_pushfront(list, node);
         return;
     }
 
@@ -79,14 +78,14 @@ void ckit_doubly_linked_list_insert_after(ckit_doubly_linked_list *list,
     list->size += 1;
 }
 
-ckit_doubly_linked_list_node *ckit_doubly_linked_list_popleft(ckit_doubly_linked_list *list) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_popleft invalid arguments");
+ck_doubly_linked_list_node *ck_doubly_linked_list_popleft(ck_doubly_linked_list *list) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_popleft invalid arguments");
 
     if (list->head == NULL) {
         return NULL;
     }
 
-    ckit_doubly_linked_list_node *old_head = list->head;
+    ck_doubly_linked_list_node *old_head = list->head;
     list->head = old_head->next;
 
     if (list->head != NULL) {
@@ -101,14 +100,14 @@ ckit_doubly_linked_list_node *ckit_doubly_linked_list_popleft(ckit_doubly_linked
     return old_head;
 }
 
-ckit_doubly_linked_list_node *ckit_doubly_linked_list_popback(ckit_doubly_linked_list *list) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_popback invalid arguments");
+ck_doubly_linked_list_node *ck_doubly_linked_list_popback(ck_doubly_linked_list *list) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_popback invalid arguments");
 
     if (list->tail == NULL) {
         return NULL;
     }
 
-    ckit_doubly_linked_list_node *old_tail = list->tail;
+    ck_doubly_linked_list_node *old_tail = list->tail;
     list->tail = old_tail->prev;
 
     if (list->tail != NULL) {
@@ -123,10 +122,9 @@ ckit_doubly_linked_list_node *ckit_doubly_linked_list_popback(ckit_doubly_linked
     return old_tail;
 }
 
-void ckit_doubly_linked_list_remove(ckit_doubly_linked_list *list,
-                                    ckit_doubly_linked_list_node *node) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_remove invalid arguments");
-    CKIT_ASSERT(node != NULL, "fatal: ckit_doubly_linked_list_remove invalid arguments");
+void ck_doubly_linked_list_remove(ck_doubly_linked_list *list, ck_doubly_linked_list_node *node) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_remove invalid arguments");
+    CK_ASSERT(node != NULL, "fatal: ck_doubly_linked_list_remove invalid arguments");
 
     if (node->prev != NULL) {
         node->prev->next = node->next;
@@ -145,27 +143,27 @@ void ckit_doubly_linked_list_remove(ckit_doubly_linked_list *list,
     list->size -= 1;
 }
 
-size_t ckit_doubly_linked_list_size(const ckit_doubly_linked_list *list) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_size invalid arguments");
+size_t ck_doubly_linked_list_size(const ck_doubly_linked_list *list) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_size invalid arguments");
 
     return list->size;
 }
 
-ckit_doubly_linked_list_node *ckit_doubly_linked_list_head(const ckit_doubly_linked_list *list) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_head invalid arguments");
+ck_doubly_linked_list_node *ck_doubly_linked_list_head(const ck_doubly_linked_list *list) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_head invalid arguments");
 
     return list->head;
 }
 
-ckit_doubly_linked_list_node *ckit_doubly_linked_list_tail(const ckit_doubly_linked_list *list) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_tail invalid arguments");
+ck_doubly_linked_list_node *ck_doubly_linked_list_tail(const ck_doubly_linked_list *list) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_tail invalid arguments");
 
     return list->tail;
 }
 
-void ckit_doubly_linked_list_deinit(ckit_doubly_linked_list *list) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_deinit invalid arguments");
+void ck_doubly_linked_list_deinit(ck_doubly_linked_list *list) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_deinit invalid arguments");
 
-    ckit_allocator *allocator = list->allocator;
-    ckit_dealloc(allocator, list);
+    ck_allocator *allocator = list->allocator;
+    ck_dealloc(allocator, list);
 }

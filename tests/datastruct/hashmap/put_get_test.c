@@ -5,45 +5,47 @@
 #include "ckit/datastruct/hashmap.h"
 
 int main(void) {
-    ckit_hashmap *map;
+    int status = 0;
+    ck_hashmap *map;
     uint64_t key = 7;
     uint64_t value = 11;
     uint64_t value2 = 99;
     const uint64_t *out;
-    const ckit_hashmap *const_map;
+    const ck_hashmap *const_map;
 
-    map = ckit_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
+    map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
 
-    if (ckit_hashmap_get(map, &key) != NULL) {
+    if (ck_hashmap_get(map, &key) != NULL) {
         fprintf(stderr, "missing key should return NULL\n");
-        ckit_hashmap_deinit(map);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_hashmap_put(map, &key, &value);
-    out = (uint64_t *)ckit_hashmap_get(map, &key);
+    ck_hashmap_put(map, &key, &value);
+    out = (uint64_t *)ck_hashmap_get(map, &key);
     if (out == NULL || *out != value) {
         fprintf(stderr, "get should return inserted value\n");
-        ckit_hashmap_deinit(map);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
     const_map = map;
-    out = (const uint64_t *)ckit_hashmap_get_const(const_map, &key);
+    out = (const uint64_t *)ck_hashmap_get_const(const_map, &key);
     if (out == NULL || *out != value) {
         fprintf(stderr, "get_const should return inserted value\n");
-        ckit_hashmap_deinit(map);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_hashmap_put(map, &key, &value2);
-    out = (uint64_t *)ckit_hashmap_get(map, &key);
-    if (out == NULL || *out != value2 || ckit_hashmap_size(map) != 1) {
+    ck_hashmap_put(map, &key, &value2);
+    out = (uint64_t *)ck_hashmap_get(map, &key);
+    if (out == NULL || *out != value2 || ck_hashmap_size(map) != 1) {
         fprintf(stderr, "put should update existing key in place\n");
-        ckit_hashmap_deinit(map);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_hashmap_deinit(map);
-    return 0;
+cleanup:
+    ck_hashmap_deinit(map);
+    return status;
 }

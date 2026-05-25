@@ -5,42 +5,42 @@
 #include "ckit/datastruct/vector.h"
 #include "ckit/memory/allocators/allocator.h"
 
-#define CKIT_VECTOR_DEFAULT_CAPACITY 16
+#define CK_VECTOR_DEFAULT_CAPACITY 16
 
-struct ckit_vector {
+struct ck_vector {
     size_t size;
     size_t elem_size;
     size_t capacity;
     void *buffer;
-    ckit_allocator *allocator;
+    ck_allocator *allocator;
 };
 
-ckit_vector *ckit_vector_init(size_t elem_size, ckit_allocator *allocator) {
-    CKIT_ASSERT(elem_size > 0, "fatal: ckit_vector_init invalid arguments");
+ck_vector *ck_vector_init(size_t elem_size, ck_allocator *allocator) {
+    CK_ASSERT(elem_size > 0, "fatal: ck_vector_init invalid arguments");
 
-    ckit_vector *vector = ckit_malloc(allocator, sizeof(*vector));
+    ck_vector *vector = ck_malloc(allocator, sizeof(ck_vector));
     vector->allocator = allocator;
 
-    size_t alloc_size = elem_size * CKIT_VECTOR_DEFAULT_CAPACITY;
-    void *buffer = ckit_malloc(allocator, alloc_size);
+    size_t alloc_size = elem_size * CK_VECTOR_DEFAULT_CAPACITY;
+    void *buffer = ck_malloc(allocator, alloc_size);
 
     vector->buffer = buffer;
     vector->size = 0;
     vector->elem_size = elem_size;
-    vector->capacity = CKIT_VECTOR_DEFAULT_CAPACITY;
+    vector->capacity = CK_VECTOR_DEFAULT_CAPACITY;
 
     return vector;
 }
 
-void ckit_vector_push(ckit_vector *vector, const void *element) {
-    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_push invalid arguments");
-    CKIT_ASSERT(element != NULL, "fatal: ckit_vector_push invalid arguments");
+void ck_vector_push(ck_vector *vector, const void *element) {
+    CK_ASSERT(vector != NULL, "fatal: ck_vector_push invalid arguments");
+    CK_ASSERT(element != NULL, "fatal: ck_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
         size_t new_capacity = vector->capacity * 2;
         size_t alloc_size = new_capacity * vector->elem_size;
 
-        void *tmp = ckit_realloc(vector->allocator, vector->buffer, alloc_size);
+        void *tmp = ck_realloc(vector->allocator, vector->buffer, alloc_size);
         vector->buffer = tmp;
         vector->capacity = new_capacity;
     }
@@ -51,8 +51,8 @@ void ckit_vector_push(ckit_vector *vector, const void *element) {
     vector->size += 1;
 }
 
-void *ckit_vector_pop(ckit_vector *vector) {
-    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_pop invalid arguments");
+void *ck_vector_pop(ck_vector *vector) {
+    CK_ASSERT(vector != NULL, "fatal: ck_vector_pop invalid arguments");
 
     if (vector->size == 0) {
         return NULL;
@@ -64,7 +64,7 @@ void *ckit_vector_pop(ckit_vector *vector) {
     return base + (vector->size * vector->elem_size);
 }
 
-void *ckit_vector_get(ckit_vector *vector, size_t index) {
+void *ck_vector_get(ck_vector *vector, size_t index) {
     if (vector == NULL || index >= vector->size) {
         return NULL;
     }
@@ -73,7 +73,7 @@ void *ckit_vector_get(ckit_vector *vector, size_t index) {
     return base + (index * vector->elem_size);
 }
 
-const void *ckit_vector_get_const(const ckit_vector *vector, size_t index) {
+const void *ck_vector_get_const(const ck_vector *vector, size_t index) {
     if (vector == NULL || index >= vector->size) {
         return NULL;
     }
@@ -82,14 +82,14 @@ const void *ckit_vector_get_const(const ckit_vector *vector, size_t index) {
     return base + (index * vector->elem_size);
 }
 
-size_t ckit_vector_elem_size(const ckit_vector *vector) {
-    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_elem_size invalid arguments");
+size_t ck_vector_elem_size(const ck_vector *vector) {
+    CK_ASSERT(vector != NULL, "fatal: ck_vector_elem_size invalid arguments");
 
     return vector->elem_size;
 }
 
-void *ckit_vector_swap_remove(ckit_vector *vector, size_t index) {
-    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_swap_remove invalid arguments");
+void *ck_vector_swap_remove(ck_vector *vector, size_t index) {
+    CK_ASSERT(vector != NULL, "fatal: ck_vector_swap_remove invalid arguments");
 
     if (index >= vector->size) {
         return NULL;
@@ -108,16 +108,16 @@ void *ckit_vector_swap_remove(ckit_vector *vector, size_t index) {
     return slot;
 }
 
-size_t ckit_vector_size(const ckit_vector *vector) {
-    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_size invalid arguments");
+size_t ck_vector_size(const ck_vector *vector) {
+    CK_ASSERT(vector != NULL, "fatal: ck_vector_size invalid arguments");
 
     return vector->size;
 }
 
-void ckit_vector_deinit(ckit_vector *vector) {
-    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_deinit invalid arguments");
+void ck_vector_deinit(ck_vector *vector) {
+    CK_ASSERT(vector != NULL, "fatal: ck_vector_deinit invalid arguments");
 
-    ckit_allocator *allocator = vector->allocator;
-    ckit_dealloc(vector->allocator, vector->buffer);
-    ckit_dealloc(allocator, vector);
+    ck_allocator *allocator = vector->allocator;
+    ck_dealloc(vector->allocator, vector->buffer);
+    ck_dealloc(allocator, vector);
 }

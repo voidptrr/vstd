@@ -5,15 +5,17 @@
 #include "ckit/datastruct/hashmap.h"
 
 int main(void) {
-    ckit_hashmap *map;
+    int status = 0;
+    ck_hashmap *map;
 
-    map = ckit_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
-    if (ckit_hashmap_size(map) != 0) {
+    map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
+    if (ck_hashmap_size(map) != 0) {
         fprintf(stderr, "new hashmap should be empty\n");
-        ckit_hashmap_deinit(map);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_hashmap_deinit(map);
-    return 0;
+cleanup:
+    ck_hashmap_deinit(map);
+    return status;
 }

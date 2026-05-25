@@ -9,84 +9,84 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ckit_vector_init
+### ck_vector_init
 
 ```c
-ckit_vector *ckit_vector_init(size_t elem_size, ckit_allocator *allocator);
+ck_vector *ck_vector_init(size_t elem_size, ck_allocator *allocator);
 ```
 
 - Parameters: `elem_size`, `allocator`
 - Returns: opaque vector handle.
-- Notes: when `allocator` is `NULL`, vector uses the C library heap through `ckit_malloc`/`ckit_realloc`.
+- Notes: when `allocator` is `NULL`, vector uses the C library heap through `ck_malloc`/`ck_realloc`.
 
-### ckit_vector_push
+### ck_vector_push
 
 ```c
-void ckit_vector_push(ckit_vector *vector, const void *element);
+void ck_vector_push(ck_vector *vector, const void *element);
 ```
 
 - Parameters: `vector`, `element`
 - Returns: none.
 
-### ckit_vector_pop
+### ck_vector_pop
 
 ```c
-void *ckit_vector_pop(ckit_vector *vector);
+void *ck_vector_pop(ck_vector *vector);
 ```
 
 - Parameters: `vector`
 - Returns: pointer to the removed element within vector-managed storage, or `NULL` when the vector is empty.
 
-### ckit_vector_get
+### ck_vector_get
 
 ```c
-void *ckit_vector_get(ckit_vector *vector, size_t index);
+void *ck_vector_get(ck_vector *vector, size_t index);
 ```
 
 - Parameters: `vector`, `index`
 - Returns: pointer to item at `index`, or `NULL` when out of range.
 
-### ckit_vector_get_const
+### ck_vector_get_const
 
 ```c
-const void *ckit_vector_get_const(const ckit_vector *vector, size_t index);
+const void *ck_vector_get_const(const ck_vector *vector, size_t index);
 ```
 
 - Parameters: `vector`, `index`
 - Returns: const pointer to item at `index`, or `NULL` when out of range.
 
-### ckit_vector_elem_size
+### ck_vector_elem_size
 
 ```c
-size_t ckit_vector_elem_size(const ckit_vector *vector);
+size_t ck_vector_elem_size(const ck_vector *vector);
 ```
 
 - Parameters: `vector`
 - Returns: configured element size.
 
-### ckit_vector_swap_remove
+### ck_vector_swap_remove
 
 ```c
-void *ckit_vector_swap_remove(ckit_vector *vector, size_t index);
+void *ck_vector_swap_remove(ck_vector *vector, size_t index);
 ```
 
 - Parameters: `vector`, `index`
 - Returns: pointer to the slot where the removed item lived, or `NULL` when out of range.
 - Notes: removal does not preserve order; the last item is moved into `index`.
 
-### ckit_vector_size
+### ck_vector_size
 
 ```c
-size_t ckit_vector_size(const ckit_vector *vector);
+size_t ck_vector_size(const ck_vector *vector);
 ```
 
 - Parameters: `vector`
 - Returns: current element count.
 
-### ckit_vector_deinit
+### ck_vector_deinit
 
 ```c
-void ckit_vector_deinit(ckit_vector *vector);
+void ck_vector_deinit(ck_vector *vector);
 ```
 
 - Parameters: `vector`
@@ -99,26 +99,28 @@ void ckit_vector_deinit(ckit_vector *vector);
 #include <ckit/datastruct/vector.h>
 
 int main(void) {
-    ckit_vector *vector = ckit_vector_init(sizeof(int), NULL);
+    int status = 0;
+    ck_vector *vector = ck_vector_init(sizeof(int), NULL);
     int first = 10;
     int second = 20;
 
-    ckit_vector_push(vector, &first);
-    ckit_vector_push(vector, &second);
+    ck_vector_push(vector, &first);
+    ck_vector_push(vector, &second);
 
-    int *item = (int *)ckit_vector_get(vector, 1);
+    int *item = (int *)ck_vector_get(vector, 1);
     if (item == NULL || *item != second) {
-        ckit_vector_deinit(vector);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    int *popped = (int *)ckit_vector_pop(vector);
+    int *popped = (int *)ck_vector_pop(vector);
     if (popped == NULL || *popped != second) {
-        ckit_vector_deinit(vector);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_vector_deinit(vector);
-    return 0;
+cleanup:
+    ck_vector_deinit(vector);
+    return status;
 }
 ```

@@ -4,30 +4,32 @@
 #include "ckit/memory/allocators/general_heap.h"
 
 int main(void) {
-    ckit_heap *heap = ckit_heap_init(4096);
+    int status = 0;
+    ck_heap *heap = ck_heap_init(4096);
     char *ptr;
 
-    ptr = (char *)ckit_heap_realloc(heap, NULL, 32);
+    ptr = (char *)ck_heap_realloc(heap, NULL, 32);
     if (ptr == NULL) {
         fprintf(stderr, "realloc with NULL should allocate\n");
-        ckit_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
     memcpy(ptr, "hello", 6);
-    ptr = (char *)ckit_heap_realloc(heap, ptr, 128);
+    ptr = (char *)ck_heap_realloc(heap, ptr, 128);
     if (ptr == NULL || memcmp(ptr, "hello", 6) != 0) {
         fprintf(stderr, "realloc should preserve existing bytes\n");
-        ckit_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    if (ckit_heap_realloc(heap, ptr, 0) != NULL) {
+    if (ck_heap_realloc(heap, ptr, 0) != NULL) {
         fprintf(stderr, "realloc size 0 should return NULL\n");
-        ckit_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_heap_deinit(heap);
-    return 0;
+cleanup:
+    ck_heap_deinit(heap);
+    return status;
 }

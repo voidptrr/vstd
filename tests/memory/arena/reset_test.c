@@ -3,31 +3,33 @@
 #include "ckit/memory/allocators/arena.h"
 
 int main(void) {
-    ckit_arena *arena = ckit_arena_init(128);
+    int status = 0;
+    ck_arena *arena = ck_arena_init(128);
     void *before;
     void *after;
 
-    before = ckit_arena_alloc(arena, 8);
-    if (before == NULL || ckit_arena_used(arena) == 0) {
+    before = ck_arena_alloc(arena, 8);
+    if (before == NULL || ck_arena_used(arena) == 0) {
         fprintf(stderr, "arena alloc should consume capacity\n");
-        ckit_arena_deinit(arena);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_arena_reset(arena);
-    if (ckit_arena_used(arena) != 0) {
+    ck_arena_reset(arena);
+    if (ck_arena_used(arena) != 0) {
         fprintf(stderr, "arena reset should clear used bytes\n");
-        ckit_arena_deinit(arena);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    after = ckit_arena_alloc(arena, 8);
+    after = ck_arena_alloc(arena, 8);
     if (after != before) {
         fprintf(stderr, "arena reset should allow memory reuse\n");
-        ckit_arena_deinit(arena);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_arena_deinit(arena);
-    return 0;
+cleanup:
+    ck_arena_deinit(arena);
+    return status;
 }

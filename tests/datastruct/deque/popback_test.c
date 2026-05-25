@@ -3,22 +3,24 @@
 #include "ckit/datastruct/deque.h"
 
 int main(void) {
-    ckit_deque *q;
+    int status = 0;
+    ck_deque *q;
     int first = 1;
     int second = 2;
     int *out;
 
-    q = ckit_deque_init(sizeof(int), NULL);
-    ckit_deque_push(q, &first);
-    ckit_deque_push(q, &second);
+    q = ck_deque_init(sizeof(int), NULL);
+    ck_deque_push(q, &first);
+    ck_deque_push(q, &second);
 
-    out = (int *)ckit_deque_popback(q);
+    out = (int *)ck_deque_popback(q);
     if (out == NULL || *out != second) {
         fprintf(stderr, "popback should remove back element\n");
-        ckit_deque_deinit(q);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_deque_deinit(q);
-    return 0;
+cleanup:
+    ck_deque_deinit(q);
+    return status;
 }

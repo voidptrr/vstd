@@ -3,35 +3,37 @@
 #include "ckit/datastruct/vector.h"
 
 int main(void) {
-    ckit_vector *v;
+    int status = 0;
+    ck_vector *v;
     int first = 7;
     int second = 11;
     int *popped;
 
-    v = ckit_vector_init(sizeof(int), NULL);
-    if (ckit_vector_pop(v) != NULL) {
+    v = ck_vector_init(sizeof(int), NULL);
+    if (ck_vector_pop(v) != NULL) {
         fprintf(stderr, "empty vector pop should return NULL\n");
-        ckit_vector_deinit(v);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_vector_push(v, &first);
-    ckit_vector_push(v, &second);
+    ck_vector_push(v, &first);
+    ck_vector_push(v, &second);
 
-    popped = (int *)ckit_vector_pop(v);
+    popped = (int *)ck_vector_pop(v);
     if (popped == NULL || *popped != second) {
         fprintf(stderr, "vector pop should return last value\n");
-        ckit_vector_deinit(v);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    popped = (int *)ckit_vector_pop(v);
+    popped = (int *)ck_vector_pop(v);
     if (popped == NULL || *popped != first) {
         fprintf(stderr, "vector pop should preserve LIFO order\n");
-        ckit_vector_deinit(v);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_vector_deinit(v);
-    return 0;
+cleanup:
+    ck_vector_deinit(v);
+    return status;
 }

@@ -5,31 +5,32 @@
 #include "ckit/memory/utils.h"
 
 int main(void) {
-    ckit_arena *arena = ckit_arena_init(128);
+    int status = 0;
+    ck_arena *arena = ck_arena_init(128);
     void *first;
     void *second;
 
-    first = ckit_arena_alloc(arena, 8);
-    second = ckit_arena_alloc(arena, 8);
+    first = ck_arena_alloc(arena, 8);
+    second = ck_arena_alloc(arena, 8);
     if (first == NULL || second == NULL || first == second) {
         fprintf(stderr, "arena alloc should return distinct allocations\n");
-        ckit_arena_deinit(arena);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    if (((uintptr_t)first % CKIT_MEMORY_ALIGN) != 0 ||
-        ((uintptr_t)second % CKIT_MEMORY_ALIGN) != 0) {
+    if (((uintptr_t)first % CK_MEMORY_ALIGN) != 0 || ((uintptr_t)second % CK_MEMORY_ALIGN) != 0) {
         fprintf(stderr, "arena alloc should return aligned pointers\n");
-        ckit_arena_deinit(arena);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    if (ckit_arena_alloc(arena, ckit_arena_capacity(arena)) != NULL) {
+    if (ck_arena_alloc(arena, ck_arena_capacity(arena)) != NULL) {
         fprintf(stderr, "arena alloc should return NULL when capacity is exceeded\n");
-        ckit_arena_deinit(arena);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_arena_deinit(arena);
-    return 0;
+cleanup:
+    ck_arena_deinit(arena);
+    return status;
 }

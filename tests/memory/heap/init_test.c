@@ -3,14 +3,16 @@
 #include "ckit/memory/allocators/general_heap.h"
 
 int main(void) {
-    ckit_heap *heap = ckit_heap_init(1024);
+    int status = 0;
+    ck_heap *heap = ck_heap_init(1024);
 
-    if (ckit_heap_capacity(heap) == 0 || ckit_heap_available(heap) == 0) {
+    if (ck_heap_capacity(heap) == 0 || ck_heap_available(heap) == 0) {
         fprintf(stderr, "heap should init with capacity and free space\n");
-        ckit_heap_deinit(heap);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_heap_deinit(heap);
-    return 0;
+cleanup:
+    ck_heap_deinit(heap);
+    return status;
 }

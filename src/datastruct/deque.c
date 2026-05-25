@@ -5,25 +5,25 @@
 #include "ckit/datastruct/deque.h"
 #include "ckit/memory/allocators/allocator.h"
 
-#define CKIT_DEQUE_DEFAULT_CAPACITY 16
+#define CK_DEQUE_DEFAULT_CAPACITY 16
 
-struct ckit_deque {
+struct ck_deque {
     size_t size;
     size_t elem_size;
     size_t capacity;
     size_t head;
     size_t tail;
     void *buffer;
-    ckit_allocator *allocator;
+    ck_allocator *allocator;
 };
 
-static void ckit_deque_grow(ckit_deque *deque) {
+static void ck_deque_grow(ck_deque *deque) {
     size_t old_capacity = deque->capacity;
     size_t new_capacity = old_capacity * 2;
     uint8_t *old_buffer = (uint8_t *)deque->buffer;
 
     size_t alloc_size = new_capacity * deque->elem_size;
-    uint8_t *new_buffer = ckit_malloc(deque->allocator, alloc_size);
+    uint8_t *new_buffer = ck_malloc(deque->allocator, alloc_size);
 
     if (deque->size > 0) {
         if (deque->head < deque->tail) {
@@ -42,25 +42,25 @@ static void ckit_deque_grow(ckit_deque *deque) {
         }
     }
 
-    ckit_dealloc(deque->allocator, deque->buffer);
+    ck_dealloc(deque->allocator, deque->buffer);
     deque->buffer = new_buffer;
     deque->capacity = new_capacity;
     deque->head = 0;
     deque->tail = deque->size;
 }
 
-ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator) {
-    CKIT_ASSERT(elem_size > 0, "fatal: ckit_deque_init invalid arguments");
+ck_deque *ck_deque_init(size_t elem_size, ck_allocator *allocator) {
+    CK_ASSERT(elem_size > 0, "fatal: ck_deque_init invalid arguments");
 
-    ckit_deque *deque = ckit_malloc(allocator, sizeof(*deque));
+    ck_deque *deque = ck_malloc(allocator, sizeof(ck_deque));
     deque->allocator = allocator;
 
-    size_t alloc_size = elem_size * CKIT_DEQUE_DEFAULT_CAPACITY;
-    void *buffer = ckit_malloc(allocator, alloc_size);
+    size_t alloc_size = elem_size * CK_DEQUE_DEFAULT_CAPACITY;
+    void *buffer = ck_malloc(allocator, alloc_size);
 
     deque->size = 0;
     deque->elem_size = elem_size;
-    deque->capacity = CKIT_DEQUE_DEFAULT_CAPACITY;
+    deque->capacity = CK_DEQUE_DEFAULT_CAPACITY;
     deque->head = 0;
     deque->tail = 0;
     deque->buffer = buffer;
@@ -68,13 +68,13 @@ ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator) {
     return deque;
 }
 
-void ckit_deque_push(ckit_deque *deque, const void *element) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_push invalid arguments");
-    CKIT_ASSERT(element != NULL, "fatal: ckit_deque_push invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_push invalid state");
+void ck_deque_push(ck_deque *deque, const void *element) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_push invalid arguments");
+    CK_ASSERT(element != NULL, "fatal: ck_deque_push invalid arguments");
+    CK_ASSERT(deque->capacity > 0, "fatal: ck_deque_push invalid state");
 
     if (deque->size == deque->capacity) {
-        ckit_deque_grow(deque);
+        ck_deque_grow(deque);
     }
 
     uint8_t *base = (uint8_t *)deque->buffer;
@@ -84,13 +84,13 @@ void ckit_deque_push(ckit_deque *deque, const void *element) {
     deque->tail = (deque->tail + 1) % deque->capacity;
 }
 
-void ckit_deque_pushfront(ckit_deque *deque, const void *element) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_pushfront invalid arguments");
-    CKIT_ASSERT(element != NULL, "fatal: ckit_deque_pushfront invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_pushfront invalid state");
+void ck_deque_pushfront(ck_deque *deque, const void *element) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_pushfront invalid arguments");
+    CK_ASSERT(element != NULL, "fatal: ck_deque_pushfront invalid arguments");
+    CK_ASSERT(deque->capacity > 0, "fatal: ck_deque_pushfront invalid state");
 
     if (deque->size == deque->capacity) {
-        ckit_deque_grow(deque);
+        ck_deque_grow(deque);
     }
 
     deque->head = (deque->head + deque->capacity - 1) % deque->capacity;
@@ -101,9 +101,9 @@ void ckit_deque_pushfront(ckit_deque *deque, const void *element) {
     deque->size += 1;
 }
 
-void *ckit_deque_popleft(ckit_deque *deque) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_popleft invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_popleft invalid state");
+void *ck_deque_popleft(ck_deque *deque) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_popleft invalid arguments");
+    CK_ASSERT(deque->capacity > 0, "fatal: ck_deque_popleft invalid state");
 
     if (deque->size == 0) {
         return NULL;
@@ -117,9 +117,9 @@ void *ckit_deque_popleft(ckit_deque *deque) {
     return src;
 }
 
-void *ckit_deque_popback(ckit_deque *deque) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_popback invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_popback invalid state");
+void *ck_deque_popback(ck_deque *deque) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_popback invalid arguments");
+    CK_ASSERT(deque->capacity > 0, "fatal: ck_deque_popback invalid state");
 
     if (deque->size == 0) {
         return NULL;
@@ -134,8 +134,8 @@ void *ckit_deque_popback(ckit_deque *deque) {
     return src;
 }
 
-const void *ckit_deque_peekleft(const ckit_deque *deque) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_peekleft invalid arguments");
+const void *ck_deque_peekleft(const ck_deque *deque) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_peekleft invalid arguments");
 
     if (deque->size == 0) {
         return NULL;
@@ -145,9 +145,9 @@ const void *ckit_deque_peekleft(const ckit_deque *deque) {
     return base + (deque->head * deque->elem_size);
 }
 
-const void *ckit_deque_peekback(const ckit_deque *deque) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_peekback invalid arguments");
-    CKIT_ASSERT(deque->capacity > 0, "fatal: ckit_deque_peekback invalid state");
+const void *ck_deque_peekback(const ck_deque *deque) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_peekback invalid arguments");
+    CK_ASSERT(deque->capacity > 0, "fatal: ck_deque_peekback invalid state");
 
     if (deque->size == 0) {
         return NULL;
@@ -158,16 +158,16 @@ const void *ckit_deque_peekback(const ckit_deque *deque) {
     return base + (last_index * deque->elem_size);
 }
 
-size_t ckit_deque_size(const ckit_deque *deque) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_size invalid arguments");
+size_t ck_deque_size(const ck_deque *deque) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_size invalid arguments");
 
     return deque->size;
 }
 
-void ckit_deque_deinit(ckit_deque *deque) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_deinit invalid arguments");
+void ck_deque_deinit(ck_deque *deque) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_deinit invalid arguments");
 
-    ckit_allocator *allocator = deque->allocator;
-    ckit_dealloc(deque->allocator, deque->buffer);
-    ckit_dealloc(allocator, deque);
+    ck_allocator *allocator = deque->allocator;
+    ck_dealloc(deque->allocator, deque->buffer);
+    ck_dealloc(allocator, deque);
 }

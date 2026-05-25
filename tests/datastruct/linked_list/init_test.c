@@ -3,15 +3,17 @@
 #include "ckit/datastruct/linked_list.h"
 
 int main(void) {
-    ckit_linked_list *list;
-    list = ckit_linked_list_init(NULL);
+    int status = 0;
+    ck_linked_list *list;
+    list = ck_linked_list_init(NULL);
 
-    if (ckit_linked_list_size(list) != 0) {
+    if (ck_linked_list_size(list) != 0) {
         fprintf(stderr, "linked list should initialize empty\n");
-        ckit_linked_list_deinit(list);
-        return 1;
+        status = 1;
+        goto cleanup;
     }
 
-    ckit_linked_list_deinit(list);
-    return 0;
+cleanup:
+    ck_linked_list_deinit(list);
+    return status;
 }

@@ -1,12 +1,12 @@
-#ifndef CKIT_COMMON_PANIC_H
-#define CKIT_COMMON_PANIC_H
+#ifndef CK_COMMON_PANIC_H
+#define CK_COMMON_PANIC_H
 
-_Noreturn void ckit_panic(const char *message);
+_Noreturn void ck_panic(const char *message);
 
-#define CKIT_ASSERT(cond, message)                                                                 \
+#define CK_ASSERT(cond, message)                                                                   \
     do {                                                                                           \
         if (!(cond)) {                                                                             \
-            ckit_panic(message);                                                                   \
+            ck_panic(message);                                                                     \
         }                                                                                          \
     } while (0)
 

@@ -5,25 +5,25 @@
 #include "ckit/datastruct/string.h"
 #include "ckit/memory/allocators/allocator.h"
 
-#define CKIT_STRING_DEFAULT_CAPACITY 16
+#define CK_STRING_DEFAULT_CAPACITY 16
 
-typedef struct ckit_string_header {
+typedef struct ck_string_header {
     size_t len;
     size_t capacity;
-    ckit_allocator *allocator;
+    ck_allocator *allocator;
     char buf[];
-} ckit_string_header;
+} ck_string_header;
 
-static ckit_string_header *ckit_string_header_from_buf(ckit_string string) {
+static ck_string_header *ck_string_header_from_buf(ck_string string) {
     if (string == NULL) {
         return NULL;
     }
 
-    return (ckit_string_header *)((uint8_t *)string - offsetof(ckit_string_header, buf));
+    return (ck_string_header *)((uint8_t *)string - offsetof(ck_string_header, buf));
 }
 
-static size_t ckit_string_capacity_for(size_t len) {
-    size_t capacity = CKIT_STRING_DEFAULT_CAPACITY;
+static size_t ck_string_capacity_for(size_t len) {
+    size_t capacity = CK_STRING_DEFAULT_CAPACITY;
 
     while (capacity <= len) {
         capacity *= 2;
@@ -32,27 +32,27 @@ static size_t ckit_string_capacity_for(size_t len) {
     return capacity;
 }
 
-static ckit_string_header *ckit_string_ensure_capacity(ckit_string *string, size_t len) {
-    ckit_string_header *header = ckit_string_header_from_buf(*string);
+static ck_string_header *ck_string_ensure_capacity(ck_string *string, size_t len) {
+    ck_string_header *header = ck_string_header_from_buf(*string);
     if (len < header->capacity) {
         return header;
     }
 
-    size_t new_capacity = ckit_string_capacity_for(len);
-    size_t alloc_size = sizeof(*header) + new_capacity;
+    size_t new_capacity = ck_string_capacity_for(len);
+    size_t alloc_size = sizeof(ck_string_header) + new_capacity;
 
-    ckit_string_header *tmp = ckit_realloc(header->allocator, header, alloc_size);
+    ck_string_header *tmp = ck_realloc(header->allocator, header, alloc_size);
     tmp->capacity = new_capacity;
     *string = tmp->buf;
     return tmp;
 }
 
-ckit_string ckit_string_init(const char *initial, ckit_allocator *allocator) {
+ck_string ck_string_init(const char *initial, ck_allocator *allocator) {
     size_t len = initial == NULL ? 0 : strlen(initial);
-    size_t capacity = ckit_string_capacity_for(len);
-    size_t alloc_size = sizeof(ckit_string_header) + capacity;
+    size_t capacity = ck_string_capacity_for(len);
+    size_t alloc_size = sizeof(ck_string_header) + capacity;
 
-    ckit_string_header *header = ckit_malloc(allocator, alloc_size);
+    ck_string_header *header = ck_malloc(allocator, alloc_size);
     header->len = len;
     header->capacity = capacity;
     header->allocator = allocator;
@@ -65,46 +65,46 @@ ckit_string ckit_string_init(const char *initial, ckit_allocator *allocator) {
     return header->buf;
 }
 
-void ckit_string_append(ckit_string *string, const char *suffix) {
-    CKIT_ASSERT(string != NULL, "fatal: ckit_string_append invalid arguments");
-    CKIT_ASSERT(*string != NULL, "fatal: ckit_string_append invalid arguments");
-    CKIT_ASSERT(suffix != NULL, "fatal: ckit_string_append invalid arguments");
+void ck_string_append(ck_string *string, const char *suffix) {
+    CK_ASSERT(string != NULL, "fatal: ck_string_append invalid arguments");
+    CK_ASSERT(*string != NULL, "fatal: ck_string_append invalid arguments");
+    CK_ASSERT(suffix != NULL, "fatal: ck_string_append invalid arguments");
 
     size_t suffix_len = strlen(suffix);
     if (suffix_len == 0) {
         return;
     }
 
-    ckit_string_header *header = ckit_string_header_from_buf(*string);
+    ck_string_header *header = ck_string_header_from_buf(*string);
     size_t new_len = header->len + suffix_len;
-    header = ckit_string_ensure_capacity(string, new_len);
+    header = ck_string_ensure_capacity(string, new_len);
 
     memcpy(header->buf + header->len, suffix, suffix_len);
     header->len = new_len;
     header->buf[header->len] = '\0';
 }
 
-void ckit_string_prepend(ckit_string *string, const char *prefix) {
-    CKIT_ASSERT(string != NULL, "fatal: ckit_string_prepend invalid arguments");
-    CKIT_ASSERT(*string != NULL, "fatal: ckit_string_prepend invalid arguments");
-    CKIT_ASSERT(prefix != NULL, "fatal: ckit_string_prepend invalid arguments");
+void ck_string_prepend(ck_string *string, const char *prefix) {
+    CK_ASSERT(string != NULL, "fatal: ck_string_prepend invalid arguments");
+    CK_ASSERT(*string != NULL, "fatal: ck_string_prepend invalid arguments");
+    CK_ASSERT(prefix != NULL, "fatal: ck_string_prepend invalid arguments");
 
     size_t prefix_len = strlen(prefix);
     if (prefix_len == 0) {
         return;
     }
 
-    ckit_string_header *header = ckit_string_header_from_buf(*string);
+    ck_string_header *header = ck_string_header_from_buf(*string);
     size_t old_len = header->len;
     size_t new_len = old_len + prefix_len;
-    header = ckit_string_ensure_capacity(string, new_len);
+    header = ck_string_ensure_capacity(string, new_len);
 
     memmove(header->buf + prefix_len, header->buf, old_len + 1);
     memcpy(header->buf, prefix, prefix_len);
     header->len = new_len;
 }
 
-bool ckit_string_contains(const ckit_string string, const char *needle) {
+bool ck_string_contains(const ck_string string, const char *needle) {
     if (string == NULL || needle == NULL) {
         return false;
     }
@@ -112,7 +112,7 @@ bool ckit_string_contains(const ckit_string string, const char *needle) {
     return strstr(string, needle) != NULL;
 }
 
-bool ckit_string_starts_with(const ckit_string string, const char *prefix) {
+bool ck_string_starts_with(const ck_string string, const char *prefix) {
     if (string == NULL || prefix == NULL) {
         return false;
     }
@@ -121,12 +121,12 @@ bool ckit_string_starts_with(const ckit_string string, const char *prefix) {
     return strncmp(string, prefix, prefix_len) == 0;
 }
 
-bool ckit_string_ends_with(const ckit_string string, const char *suffix) {
+bool ck_string_ends_with(const ck_string string, const char *suffix) {
     if (string == NULL || suffix == NULL) {
         return false;
     }
 
-    size_t string_len = ckit_string_len(string);
+    size_t string_len = ck_string_len(string);
     size_t suffix_len = strlen(suffix);
     if (suffix_len > string_len) {
         return false;
@@ -135,26 +135,26 @@ bool ckit_string_ends_with(const ckit_string string, const char *suffix) {
     return memcmp(string + string_len - suffix_len, suffix, suffix_len) == 0;
 }
 
-void ckit_string_clear(ckit_string string) {
-    CKIT_ASSERT(string != NULL, "fatal: ckit_string_clear invalid arguments");
+void ck_string_clear(ck_string string) {
+    CK_ASSERT(string != NULL, "fatal: ck_string_clear invalid arguments");
 
-    ckit_string_header *header = ckit_string_header_from_buf(string);
+    ck_string_header *header = ck_string_header_from_buf(string);
     header->len = 0;
     header->buf[0] = '\0';
 }
 
-size_t ckit_string_len(const ckit_string string) {
-    CKIT_ASSERT(string != NULL, "fatal: ckit_string_len invalid arguments");
+size_t ck_string_len(const ck_string string) {
+    CK_ASSERT(string != NULL, "fatal: ck_string_len invalid arguments");
 
-    ckit_string_header *header = ckit_string_header_from_buf(string);
+    ck_string_header *header = ck_string_header_from_buf(string);
     return header->len;
 }
 
-void ckit_string_deinit(ckit_string string) {
-    ckit_string_header *header = ckit_string_header_from_buf(string);
+void ck_string_deinit(ck_string string) {
+    ck_string_header *header = ck_string_header_from_buf(string);
     if (header == NULL) {
         return;
     }
 
-    ckit_dealloc(header->allocator, header);
+    ck_dealloc(header->allocator, header);
 }

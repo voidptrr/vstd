@@ -6,10 +6,10 @@ The bytes module provides low-level byte-region helpers.
 
 ## FUNCTIONS
 
-### ckit_memswap
+### ck_memswap
 
 ```c
-void ckit_memswap(void *a, void *b, size_t size);
+void ck_memswap(void *a, void *b, size_t size);
 ```
 
 - Parameters: `a`, `b`, `size`
