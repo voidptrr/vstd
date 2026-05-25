@@ -34,7 +34,16 @@ void ckit_hashmap_put(ckit_hashmap *map, const void *key, const void *value);
 ### ckit_hashmap_get
 
 ```c
-const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key);
+void *ckit_hashmap_get(ckit_hashmap *map, const void *key);
+```
+
+- Parameters: `map`, `key`
+- Returns: pointer to stored value in map-managed storage, or `NULL` when key is missing.
+
+### ckit_hashmap_get_const
+
+```c
+const void *ckit_hashmap_get_const(const ckit_hashmap *map, const void *key);
 ```
 
 - Parameters: `map`, `key`
@@ -43,11 +52,12 @@ const void *ckit_hashmap_get(const ckit_hashmap *map, const void *key);
 ### ckit_hashmap_remove
 
 ```c
-void *ckit_hashmap_remove(ckit_hashmap *map, const void *key);
+void ckit_hashmap_remove(ckit_hashmap *map, const void *key);
 ```
 
 - Parameters: `map`, `key`
-- Returns: pointer to removed value, or `NULL` when key is missing.
+- Returns: none.
+- Notes: missing keys are ignored.
 
 ### ckit_hashmap_free
 
@@ -79,20 +89,19 @@ int main(void) {
     ckit_hashmap *map;
     uint64_t key = 42;
     uint64_t value = 9001;
-    const uint64_t *found = NULL;
-    uint64_t *removed = NULL;
+    uint64_t *found = NULL;
 
     map = ckit_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
     ckit_hashmap_put(map, &key, &value);
 
-    found = (const uint64_t *)ckit_hashmap_get(map, &key);
+    found = (uint64_t *)ckit_hashmap_get(map, &key);
     if (found == NULL || *found != value) {
         ckit_hashmap_free(map);
         return 1;
     }
 
-    removed = (uint64_t *)ckit_hashmap_remove(map, &key);
-    if (removed == NULL || *removed != value) {
+    ckit_hashmap_remove(map, &key);
+    if (ckit_hashmap_get(map, &key) != NULL) {
         ckit_hashmap_free(map);
         return 1;
     }

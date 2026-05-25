@@ -25,6 +25,9 @@ ckit_linked_list **ckit_hash_buckets_rehash(ckit_linked_list **buckets, size_t c
 ckit_linked_list_node *ckit_hash_bucket_find(ckit_linked_list *bucket, const void *value,
                                              size_t value_size, ckit_eq_fn value_eq,
                                              ckit_hash_entry_value_fn entry_value);
+ckit_linked_list_node *ckit_hash_bucket_remove(ckit_linked_list *bucket, const void *value,
+                                               size_t value_size, ckit_eq_fn value_eq,
+                                               ckit_hash_entry_value_fn entry_value);
 
 static inline size_t ckit_hash_bucket_index(const void *value, size_t value_size, size_t capacity) {
     return ckit_internal_fnv1a_hash(value, value_size) % capacity;

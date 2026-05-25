@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "ckit/compare.h"
 #include "ckit/datastruct/hashmap.h"
@@ -23,20 +22,12 @@ int main(void) {
 
     {
         uint64_t key = 128;
-        uint64_t *removed = (uint64_t *)ckit_hashmap_remove(map, &key);
-        if (removed == NULL || *removed != key * 3) {
-            fprintf(stderr, "remove should return removed value\n");
-            ckit_hashmap_free(map);
-            return 1;
-        }
+        ckit_hashmap_remove(map, &key);
         if (ckit_hashmap_get(map, &key) != NULL) {
             fprintf(stderr, "removed key should not be found\n");
-            free(removed);
             ckit_hashmap_free(map);
             return 1;
         }
-
-        free(removed);
     }
 
     ckit_hashmap_free(map);

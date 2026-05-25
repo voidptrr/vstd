@@ -53,6 +53,16 @@ void ckit_hashset_insert(ckit_hashset *set, const void *elem);
 bool ckit_hashset_contains(const ckit_hashset *set, const void *elem);
 
 /*
+ * Lookup element and return stored element pointer, or NULL when missing.
+ */
+void *ckit_hashset_get(ckit_hashset *set, const void *elem);
+
+/*
+ * Lookup element and return const stored element pointer, or NULL when missing.
+ */
+const void *ckit_hashset_get_const(const ckit_hashset *set, const void *elem);
+
+/*
  * Remove element from set.
  */
 void ckit_hashset_remove(ckit_hashset *set, const void *elem);
