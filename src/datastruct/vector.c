@@ -108,16 +108,16 @@ void *ckit_vector_swap_remove(ckit_vector *vector, size_t index) {
     return slot;
 }
 
-void ckit_vector_free(ckit_vector *vector) {
-    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_free invalid arguments");
-
-    ckit_allocator *allocator = vector->allocator;
-    ckit_dealloc(vector->allocator, vector->buffer);
-    ckit_dealloc(allocator, vector);
-}
-
 size_t ckit_vector_size(const ckit_vector *vector) {
     CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_size invalid arguments");
 
     return vector->size;
+}
+
+void ckit_vector_deinit(ckit_vector *vector) {
+    CKIT_ASSERT(vector != NULL, "fatal: ckit_vector_deinit invalid arguments");
+
+    ckit_allocator *allocator = vector->allocator;
+    ckit_dealloc(vector->allocator, vector->buffer);
+    ckit_dealloc(allocator, vector);
 }

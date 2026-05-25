@@ -14,7 +14,7 @@ int main(void) {
     ckit_hashset_insert(set, &first);
     if (ckit_hashset_size(set) != 1) {
         fprintf(stderr, "hashset insert should ignore duplicates\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
@@ -24,10 +24,10 @@ int main(void) {
 
     if (ckit_hashset_size(set) != 256) {
         fprintf(stderr, "hashset size should match unique inserted values\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
-    ckit_hashset_free(set);
+    ckit_hashset_deinit(set);
     return 0;
 }

@@ -67,12 +67,12 @@ const void *ckit_hashset_get_const(const ckit_hashset *set, const void *elem);
  */
 void ckit_hashset_remove(ckit_hashset *set, const void *elem);
 
+/* Return the number of stored elements. */
+size_t ckit_hashset_size(const ckit_hashset *set);
+
 /*
  * Release all entries and the hashset handle.
  */
-void ckit_hashset_free(ckit_hashset *set);
-
-/* Return the number of stored elements. */
-size_t ckit_hashset_size(const ckit_hashset *set);
+void ckit_hashset_deinit(ckit_hashset *set);
 
 #endif

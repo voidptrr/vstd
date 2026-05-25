@@ -88,16 +88,6 @@ void ckit_string_clear(ckit_string string);
 - Returns: none.
 - Notes: resets length to zero without releasing storage.
 
-### ckit_string_free
-
-```c
-void ckit_string_free(ckit_string string);
-```
-
-- Parameters: `string`
-- Returns: none.
-- Notes: releases the string allocation. Do not use `string` after this call.
-
 ### ckit_string_len
 
 ```c
@@ -106,6 +96,16 @@ size_t ckit_string_len(const ckit_string string);
 
 - Parameters: `string`
 - Returns: number of bytes before the terminating NUL.
+
+### ckit_string_deinit
+
+```c
+void ckit_string_deinit(ckit_string string);
+```
+
+- Parameters: `string`
+- Returns: none.
+- Notes: releases the string allocation. Do not use `string` after this call.
 
 ## EXAMPLE
 
@@ -119,11 +119,11 @@ int main(void) {
     ckit_string_append(&value, " world");
     ckit_string_prepend(&value, "say ");
     if (strcmp(value, "say hello world") != 0) {
-        ckit_string_free(value);
+        ckit_string_deinit(value);
         return 1;
     }
 
-    ckit_string_free(value);
+    ckit_string_deinit(value);
     return 0;
 }
 ```

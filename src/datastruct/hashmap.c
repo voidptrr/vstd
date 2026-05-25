@@ -23,7 +23,7 @@ struct ckit_hashmap {
     ckit_allocator *allocator;
 };
 
-static void ckit_hashmap_entry_free(ckit_linked_list_node *node, ckit_allocator *allocator) {
+static void ckit_hashmap_entry_deinit(ckit_linked_list_node *node, ckit_allocator *allocator) {
     ckit_hashmap_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashmap_entry, node);
     ckit_dealloc(allocator, entry->key);
     ckit_dealloc(allocator, entry->value);
@@ -136,16 +136,16 @@ void ckit_hashmap_remove(ckit_hashmap *map, const void *key) {
     }
 }
 
-void ckit_hashmap_free(ckit_hashmap *map) {
-    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_free invalid arguments");
-
-    ckit_allocator *allocator = map->allocator;
-    ckit_hash_buckets_free(map->buckets, map->capacity, allocator, ckit_hashmap_entry_free);
-    ckit_dealloc(allocator, map);
-}
-
 size_t ckit_hashmap_size(const ckit_hashmap *map) {
     CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_size invalid arguments");
 
     return map->size;
+}
+
+void ckit_hashmap_deinit(ckit_hashmap *map) {
+    CKIT_ASSERT(map != NULL, "fatal: ckit_hashmap_deinit invalid arguments");
+
+    ckit_allocator *allocator = map->allocator;
+    ckit_hash_buckets_deinit(map->buckets, map->capacity, allocator, ckit_hashmap_entry_deinit);
+    ckit_dealloc(allocator, map);
 }

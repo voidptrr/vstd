@@ -20,7 +20,7 @@ int main(void) {
     ckit_linked_list_node *out_first_node = ckit_linked_list_popleft(list);
     if (out_second_node == NULL || out_first_node == NULL || ckit_linked_list_size(list) != 0) {
         fprintf(stderr, "pushfront should return two nodes\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
@@ -28,10 +28,10 @@ int main(void) {
     test_item *out_first = CKIT_CONTAINER_OF(out_first_node, test_item, node);
     if (out_second->value != second.value || out_first->value != first.value) {
         fprintf(stderr, "pushfront should prepend\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
-    ckit_linked_list_free(list);
+    ckit_linked_list_deinit(list);
     return 0;
 }

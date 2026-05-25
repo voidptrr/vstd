@@ -22,7 +22,7 @@
  */
 typedef struct ckit_vector ckit_vector;
 
-/* Create a vector with element size elem_size. */
+/* Initialize a vector with element size elem_size. */
 ckit_vector *ckit_vector_init(size_t elem_size, ckit_allocator *allocator);
 
 /* Append one element by copying elem_size bytes from element. */
@@ -43,10 +43,10 @@ size_t ckit_vector_elem_size(const ckit_vector *vector);
 /* Remove item at index by moving the last item into its slot. */
 void *ckit_vector_swap_remove(ckit_vector *vector, size_t index);
 
-/* Release owned storage and the vector handle. */
-void ckit_vector_free(ckit_vector *vector);
-
 /* Return the number of stored elements. */
 size_t ckit_vector_size(const ckit_vector *vector);
+
+/* Deinitialize and release owned storage. */
+void ckit_vector_deinit(ckit_vector *vector);
 
 #endif

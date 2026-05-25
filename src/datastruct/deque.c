@@ -158,16 +158,16 @@ const void *ckit_deque_peekback(const ckit_deque *deque) {
     return base + (last_index * deque->elem_size);
 }
 
-void ckit_deque_free(ckit_deque *deque) {
-    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_free invalid arguments");
-
-    ckit_allocator *allocator = deque->allocator;
-    ckit_dealloc(deque->allocator, deque->buffer);
-    ckit_dealloc(allocator, deque);
-}
-
 size_t ckit_deque_size(const ckit_deque *deque) {
     CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_size invalid arguments");
 
     return deque->size;
+}
+
+void ckit_deque_deinit(ckit_deque *deque) {
+    CKIT_ASSERT(deque != NULL, "fatal: ckit_deque_deinit invalid arguments");
+
+    ckit_allocator *allocator = deque->allocator;
+    ckit_dealloc(deque->allocator, deque->buffer);
+    ckit_dealloc(allocator, deque);
 }

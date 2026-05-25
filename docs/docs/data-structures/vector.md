@@ -74,16 +74,6 @@ void *ckit_vector_swap_remove(ckit_vector *vector, size_t index);
 - Returns: pointer to the slot where the removed item lived, or `NULL` when out of range.
 - Notes: removal does not preserve order; the last item is moved into `index`.
 
-### ckit_vector_free
-
-```c
-void ckit_vector_free(ckit_vector *vector);
-```
-
-- Parameters: `vector`
-- Returns: none.
-- Notes: releases vector storage and the opaque handle. Do not use `vector` after this call.
-
 ### ckit_vector_size
 
 ```c
@@ -92,6 +82,16 @@ size_t ckit_vector_size(const ckit_vector *vector);
 
 - Parameters: `vector`
 - Returns: current element count.
+
+### ckit_vector_deinit
+
+```c
+void ckit_vector_deinit(ckit_vector *vector);
+```
+
+- Parameters: `vector`
+- Returns: none.
+- Notes: releases vector storage and the opaque handle. Do not use `vector` after this call.
 
 ## EXAMPLE
 
@@ -108,17 +108,17 @@ int main(void) {
 
     int *item = (int *)ckit_vector_get(vector, 1);
     if (item == NULL || *item != second) {
-        ckit_vector_free(vector);
+        ckit_vector_deinit(vector);
         return 1;
     }
 
     int *popped = (int *)ckit_vector_pop(vector);
     if (popped == NULL || *popped != second) {
-        ckit_vector_free(vector);
+        ckit_vector_deinit(vector);
         return 1;
     }
 
-    ckit_vector_free(vector);
+    ckit_vector_deinit(vector);
     return 0;
 }
 ```

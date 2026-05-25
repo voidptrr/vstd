@@ -13,7 +13,7 @@ int main(void) {
 
     list = ckit_linked_list_init(NULL);
     ckit_linked_list_push(list, &item.node);
-    ckit_linked_list_free(list);
+    ckit_linked_list_deinit(list);
 
     return 0;
 }

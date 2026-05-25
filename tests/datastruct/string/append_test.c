@@ -11,7 +11,7 @@ int main(void) {
     ckit_string_append(&value, "");
     if (ckit_string_len(value) != 12 || strcmp(value, "hello, world") != 0) {
         fprintf(stderr, "string should append short suffixes\n");
-        ckit_string_free(value);
+        ckit_string_deinit(value);
         return 1;
     }
 
@@ -19,10 +19,10 @@ int main(void) {
     if (ckit_string_len(value) != 42 ||
         strcmp(value, "hello, world012345678901234567890123456789") != 0) {
         fprintf(stderr, "string should append across capacity growth\n");
-        ckit_string_free(value);
+        ckit_string_deinit(value);
         return 1;
     }
 
-    ckit_string_free(value);
+    ckit_string_deinit(value);
     return 0;
 }

@@ -16,7 +16,7 @@ int main(void) {
 
     if (ckit_hashset_get(set, &value) != NULL) {
         fprintf(stderr, "missing element should return NULL\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
@@ -25,7 +25,7 @@ int main(void) {
     found = (uint64_t *)ckit_hashset_get(set, &value);
     if (found == NULL || *found != value) {
         fprintf(stderr, "get should return inserted element\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
@@ -33,16 +33,16 @@ int main(void) {
     const_found = (const uint64_t *)ckit_hashset_get_const(const_set, &value);
     if (const_found == NULL || *const_found != value) {
         fprintf(stderr, "get_const should return inserted element\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
     if (ckit_hashset_get(set, &missing) != NULL) {
         fprintf(stderr, "get should return NULL for missing element\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
-    ckit_hashset_free(set);
+    ckit_hashset_deinit(set);
     return 0;
 }

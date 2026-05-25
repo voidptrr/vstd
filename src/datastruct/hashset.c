@@ -21,7 +21,7 @@ struct ckit_hashset {
     ckit_allocator *allocator;
 };
 
-static void ckit_hashset_entry_free(ckit_linked_list_node *node, ckit_allocator *allocator) {
+static void ckit_hashset_entry_deinit(ckit_linked_list_node *node, ckit_allocator *allocator) {
     ckit_hashset_entry *entry = CKIT_CONTAINER_OF(node, ckit_hashset_entry, node);
     ckit_dealloc(allocator, entry->elem);
     ckit_dealloc(allocator, entry);
@@ -131,16 +131,16 @@ void ckit_hashset_remove(ckit_hashset *set, const void *elem) {
     }
 }
 
-void ckit_hashset_free(ckit_hashset *set) {
-    CKIT_ASSERT(set != NULL, "fatal: ckit_hashset_free invalid arguments");
-
-    ckit_allocator *allocator = set->allocator;
-    ckit_hash_buckets_free(set->buckets, set->capacity, allocator, ckit_hashset_entry_free);
-    ckit_dealloc(allocator, set);
-}
-
 size_t ckit_hashset_size(const ckit_hashset *set) {
     CKIT_ASSERT(set != NULL, "fatal: ckit_hashset_size invalid arguments");
 
     return set->size;
+}
+
+void ckit_hashset_deinit(ckit_hashset *set) {
+    CKIT_ASSERT(set != NULL, "fatal: ckit_hashset_deinit invalid arguments");
+
+    ckit_allocator *allocator = set->allocator;
+    ckit_hash_buckets_deinit(set->buckets, set->capacity, allocator, ckit_hashset_entry_deinit);
+    ckit_dealloc(allocator, set);
 }

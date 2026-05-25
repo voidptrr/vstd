@@ -34,7 +34,7 @@ typedef struct ckit_linked_list_node {
 
 typedef struct ckit_linked_list ckit_linked_list;
 
-/* Create an intrusive linked list. */
+/* Initialize an intrusive linked list. */
 ckit_linked_list *ckit_linked_list_init(ckit_allocator *allocator);
 
 /* Append node at the tail. */
@@ -50,13 +50,13 @@ ckit_linked_list_node *ckit_linked_list_popleft(ckit_linked_list *list);
 ckit_linked_list_node *ckit_linked_list_remove_after(ckit_linked_list *list,
                                                      ckit_linked_list_node *prev);
 
-/* Release the linked-list handle. Nodes remain caller-owned. */
-void ckit_linked_list_free(ckit_linked_list *list);
-
 /* Return the number of stored elements. */
 size_t ckit_linked_list_size(const ckit_linked_list *list);
 
 /* Return the head node, or NULL when empty. */
 ckit_linked_list_node *ckit_linked_list_head(const ckit_linked_list *list);
+
+/* Release the linked-list handle. Nodes remain caller-owned. */
+void ckit_linked_list_deinit(ckit_linked_list *list);
 
 #endif

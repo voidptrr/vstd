@@ -14,17 +14,17 @@ int main(void) {
     list = ckit_linked_list_init(NULL);
     if (ckit_linked_list_head(list) != NULL) {
         fprintf(stderr, "empty list head should be null\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
     ckit_linked_list_push(list, &first.node);
     if (ckit_linked_list_head(list) != &first.node) {
         fprintf(stderr, "list head should return first node\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
-    ckit_linked_list_free(list);
+    ckit_linked_list_deinit(list);
     return 0;
 }

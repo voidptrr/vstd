@@ -15,10 +15,10 @@ int main(void) {
     out = (const int *)ckit_deque_peekback(q);
     if (out == NULL || *out != second) {
         fprintf(stderr, "peekback should return back\n");
-        ckit_deque_free(q);
+        ckit_deque_deinit(q);
         return 1;
     }
 
-    ckit_deque_free(q);
+    ckit_deque_deinit(q);
     return 0;
 }

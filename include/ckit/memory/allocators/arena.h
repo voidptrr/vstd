@@ -6,13 +6,13 @@
 #include "ckit/memory/allocators/allocator.h"
 
 /*
- * Arena memory model (inside arena->buffer):
+ * Arena memory model:
  *
  * +----------------------+----------------------+
  * | used bytes           | available bytes      |
  * +----------------------+----------------------+
  *                        ^
- *                        arena->offset
+ *                        current allocation offset
  *
  * Allocation strategy:
  * - bump offset forward on alloc
@@ -21,25 +21,17 @@
  * - small internal allocation headers are stored before payloads so realloc can
  *   preserve existing bytes
  */
-typedef struct ckit_arena {
-    /* Base address of the arena-owned contiguous memory region. */
-    void *buffer;
-    /* Total bytes managed by this arena region. */
-    size_t capacity;
-    /* Number of bytes currently consumed from buffer. */
-    size_t offset;
-} ckit_arena;
+typedef struct ckit_arena ckit_arena;
 
 /*
  * Initialize an arena with `capacity` bytes of internal storage.
- * Returns an allocator adapter that routes through this arena.
  */
-ckit_allocator ckit_arena_init(ckit_arena *arena, size_t capacity);
+ckit_arena *ckit_arena_init(size_t capacity);
 
 /*
- * Release arena resources and reset arena state.
+ * Return an allocator adapter that routes through this arena.
  */
-void ckit_arena_free(ckit_arena *arena);
+ckit_allocator ckit_arena_allocator(ckit_arena *arena);
 
 /*
  * Allocate `size` bytes from arena.
@@ -67,5 +59,10 @@ size_t ckit_arena_used(const ckit_arena *arena);
 
 /* Number of bytes still available. */
 size_t ckit_arena_available(const ckit_arena *arena);
+
+/*
+ * Deinitialize and release arena resources.
+ */
+void ckit_arena_deinit(ckit_arena *arena);
 
 #endif

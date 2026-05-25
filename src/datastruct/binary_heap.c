@@ -108,15 +108,15 @@ const void *ckit_binary_heap_peek(const ckit_binary_heap *heap) {
     return ckit_vector_get_const(heap->root, 0);
 }
 
-void ckit_binary_heap_free(ckit_binary_heap *heap) {
-    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_free invalid arguments");
-    ckit_allocator *allocator = heap->allocator;
-    ckit_vector_free(heap->root);
-    ckit_dealloc(allocator, heap);
-}
-
 size_t ckit_binary_heap_size(const ckit_binary_heap *heap) {
     CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_size invalid arguments");
 
     return ckit_vector_size(heap->root);
+}
+
+void ckit_binary_heap_deinit(ckit_binary_heap *heap) {
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_binary_heap_deinit invalid arguments");
+    ckit_allocator *allocator = heap->allocator;
+    ckit_vector_deinit(heap->root);
+    ckit_dealloc(allocator, heap);
 }

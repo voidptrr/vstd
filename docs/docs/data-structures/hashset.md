@@ -73,16 +73,6 @@ void ckit_hashset_remove(ckit_hashset *set, const void *elem);
 - Returns: none.
 - Notes: removes an equal element when present. Missing elements are ignored.
 
-### ckit_hashset_free
-
-```c
-void ckit_hashset_free(ckit_hashset *set);
-```
-
-- Parameters: `set`
-- Returns: none.
-- Notes: releases entries, buckets, and the opaque handle. Do not use `set` after this call.
-
 ### ckit_hashset_size
 
 ```c
@@ -91,6 +81,16 @@ size_t ckit_hashset_size(const ckit_hashset *set);
 
 - Parameters: `set`
 - Returns: current element count.
+
+### ckit_hashset_deinit
+
+```c
+void ckit_hashset_deinit(ckit_hashset *set);
+```
+
+- Parameters: `set`
+- Returns: none.
+- Notes: releases entries, buckets, and the opaque handle. Do not use `set` after this call.
 
 ## EXAMPLE
 
@@ -109,17 +109,17 @@ int main(void) {
 
     found = (const uint64_t *)ckit_hashset_get_const(set, &value);
     if (found == NULL || *found != value) {
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
     ckit_hashset_remove(set, &value);
     if (ckit_hashset_contains(set, &value) || ckit_hashset_size(set) != 0) {
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
-    ckit_hashset_free(set);
+    ckit_hashset_deinit(set);
     return 0;
 }
 ```

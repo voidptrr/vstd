@@ -11,7 +11,7 @@ int main(void) {
     v = ckit_vector_init(sizeof(int), NULL);
     if (ckit_vector_pop(v) != NULL) {
         fprintf(stderr, "empty vector pop should return NULL\n");
-        ckit_vector_free(v);
+        ckit_vector_deinit(v);
         return 1;
     }
 
@@ -21,17 +21,17 @@ int main(void) {
     popped = (int *)ckit_vector_pop(v);
     if (popped == NULL || *popped != second) {
         fprintf(stderr, "vector pop should return last value\n");
-        ckit_vector_free(v);
+        ckit_vector_deinit(v);
         return 1;
     }
 
     popped = (int *)ckit_vector_pop(v);
     if (popped == NULL || *popped != first) {
         fprintf(stderr, "vector pop should preserve LIFO order\n");
-        ckit_vector_free(v);
+        ckit_vector_deinit(v);
         return 1;
     }
 
-    ckit_vector_free(v);
+    ckit_vector_deinit(v);
     return 0;
 }

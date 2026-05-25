@@ -16,7 +16,7 @@ int main(void) {
 
     if (ckit_hashmap_get(map, &key) != NULL) {
         fprintf(stderr, "missing key should return NULL\n");
-        ckit_hashmap_free(map);
+        ckit_hashmap_deinit(map);
         return 1;
     }
 
@@ -24,7 +24,7 @@ int main(void) {
     out = (uint64_t *)ckit_hashmap_get(map, &key);
     if (out == NULL || *out != value) {
         fprintf(stderr, "get should return inserted value\n");
-        ckit_hashmap_free(map);
+        ckit_hashmap_deinit(map);
         return 1;
     }
 
@@ -32,7 +32,7 @@ int main(void) {
     out = (const uint64_t *)ckit_hashmap_get_const(const_map, &key);
     if (out == NULL || *out != value) {
         fprintf(stderr, "get_const should return inserted value\n");
-        ckit_hashmap_free(map);
+        ckit_hashmap_deinit(map);
         return 1;
     }
 
@@ -40,10 +40,10 @@ int main(void) {
     out = (uint64_t *)ckit_hashmap_get(map, &key);
     if (out == NULL || *out != value2 || ckit_hashmap_size(map) != 1) {
         fprintf(stderr, "put should update existing key in place\n");
-        ckit_hashmap_free(map);
+        ckit_hashmap_deinit(map);
         return 1;
     }
 
-    ckit_hashmap_free(map);
+    ckit_hashmap_deinit(map);
     return 0;
 }

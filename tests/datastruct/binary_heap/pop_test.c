@@ -21,17 +21,17 @@ int main(void) {
         int *out = (int *)ckit_binary_heap_pop(heap);
         if (out == NULL) {
             fprintf(stderr, "pop should return non-NULL while heap has items\n");
-            ckit_binary_heap_free(heap);
+            ckit_binary_heap_deinit(heap);
             return 1;
         }
     }
 
     if (ckit_binary_heap_pop(heap) != NULL) {
         fprintf(stderr, "pop on empty heap should return NULL\n");
-        ckit_binary_heap_free(heap);
+        ckit_binary_heap_deinit(heap);
         return 1;
     }
 
-    ckit_binary_heap_free(heap);
+    ckit_binary_heap_deinit(heap);
     return 0;
 }

@@ -17,14 +17,14 @@ int main(void) {
     ckit_hashset_remove(set, &removed);
     if (ckit_hashset_contains(set, &removed) || ckit_hashset_size(set) != 255) {
         fprintf(stderr, "hashset remove should delete existing value\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
     ckit_hashset_remove(set, &removed);
     if (ckit_hashset_size(set) != 255) {
         fprintf(stderr, "hashset remove should ignore missing value\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
@@ -35,10 +35,10 @@ int main(void) {
     if (ckit_hashset_contains(set, &first) || ckit_hashset_contains(set, &last) ||
         ckit_hashset_size(set) != 253) {
         fprintf(stderr, "hashset remove should handle bucket head and chain nodes\n");
-        ckit_hashset_free(set);
+        ckit_hashset_deinit(set);
         return 1;
     }
 
-    ckit_hashset_free(set);
+    ckit_hashset_deinit(set);
     return 0;
 }

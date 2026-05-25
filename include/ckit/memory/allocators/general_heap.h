@@ -3,11 +3,10 @@
 
 #include <stddef.h>
 
-#include "ckit/datastruct/doubly_linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
 
 /*
- * Free-list heap memory model (inside heap->buffer):
+ * Free-list heap memory model:
  *
  * +----------------------+----------------------+----------------------+----------------------+
  * | block header (A)     | payload (A)          | block header (B)     | payload (B)          |
@@ -20,32 +19,24 @@
  *
  * Linked-list view of blocks:
  *
- *   heap->blocks -> [A free] <-> [B used] <-> [C free] -> NULL
+ *   blocks -> [A free] <-> [B used] <-> [C free] -> NULL
  *
  * Allocation strategy:
  * - first-fit scan from head
  * - split large free blocks
  * - coalesce neighboring free blocks on dealloc
  */
-typedef struct ckit_heap {
-    /* Base address of the heap-owned contiguous memory region. */
-    void *buffer;
-    /* Total bytes managed by this heap region. */
-    size_t capacity;
-    /* Internal list of block headers in address order. */
-    ckit_doubly_linked_list *blocks;
-} ckit_heap;
+typedef struct ckit_heap ckit_heap;
 
 /*
  * Initialize a heap with `capacity` bytes of internal storage.
- * Returns an allocator adapter that routes through this heap.
  */
-ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity);
+ckit_heap *ckit_heap_init(size_t capacity);
 
 /*
- * Release heap resources and reset heap state.
+ * Return an allocator adapter that routes through this heap.
  */
-void ckit_heap_free(ckit_heap *heap);
+ckit_allocator ckit_heap_allocator(ckit_heap *heap);
 
 /*
  * Allocate `size` bytes from heap.
@@ -69,5 +60,10 @@ size_t ckit_heap_capacity(const ckit_heap *heap);
 
 /* Sum of currently free payload bytes. */
 size_t ckit_heap_available(const ckit_heap *heap);
+
+/*
+ * Deinitialize and release heap resources.
+ */
+void ckit_heap_deinit(ckit_heap *heap);
 
 #endif

@@ -108,16 +108,6 @@ void ckit_doubly_linked_list_remove(ckit_doubly_linked_list *list,
 - Returns: none.
 - Notes: unlinks a known node in `O(1)`.
 
-### ckit_doubly_linked_list_free
-
-```c
-void ckit_doubly_linked_list_free(ckit_doubly_linked_list *list);
-```
-
-- Parameters: `list`
-- Returns: none.
-- Notes: releases only the opaque list handle. Nodes remain caller-owned. Do not use `list` after this call.
-
 ### ckit_doubly_linked_list_size
 
 ```c
@@ -145,6 +135,16 @@ ckit_doubly_linked_list_node *ckit_doubly_linked_list_tail(const ckit_doubly_lin
 - Parameters: `list`
 - Returns: current tail node, or `NULL` when list is empty.
 
+### ckit_doubly_linked_list_deinit
+
+```c
+void ckit_doubly_linked_list_deinit(ckit_doubly_linked_list *list);
+```
+
+- Parameters: `list`
+- Returns: none.
+- Notes: releases only the opaque list handle. Nodes remain caller-owned. Do not use `list` after this call.
+
 ## EXAMPLE
 
 ```c
@@ -170,7 +170,7 @@ int main(void) {
     ckit_doubly_linked_list_node *node = ckit_doubly_linked_list_popback(list);
     job *out = CKIT_CONTAINER_OF(node, job, node);
 
-    ckit_doubly_linked_list_free(list);
+    ckit_doubly_linked_list_deinit(list);
     return out->id == 3 ? 0 : 1;
 }
 ```

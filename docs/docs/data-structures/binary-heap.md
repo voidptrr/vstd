@@ -48,16 +48,6 @@ const void *ckit_binary_heap_peek(const ckit_binary_heap *heap);
 - Parameters: `heap`
 - Returns: pointer to top element in heap-managed storage, or `NULL` when empty.
 
-### ckit_binary_heap_free
-
-```c
-void ckit_binary_heap_free(ckit_binary_heap *heap);
-```
-
-- Parameters: `heap`
-- Returns: none.
-- Notes: releases heap storage and the opaque handle. Do not use `heap` after this call.
-
 ### ckit_binary_heap_size
 
 ```c
@@ -66,6 +56,16 @@ size_t ckit_binary_heap_size(const ckit_binary_heap *heap);
 
 - Parameters: `heap`
 - Returns: current element count.
+
+### ckit_binary_heap_deinit
+
+```c
+void ckit_binary_heap_deinit(ckit_binary_heap *heap);
+```
+
+- Parameters: `heap`
+- Returns: none.
+- Notes: releases heap storage and the opaque handle. Do not use `heap` after this call.
 
 ## EXAMPLE
 
@@ -84,17 +84,17 @@ int main(void) {
 
     const int32_t *top = (const int32_t *)ckit_binary_heap_peek(heap);
     if (top == NULL || *top != 1) {
-        ckit_binary_heap_free(heap);
+        ckit_binary_heap_deinit(heap);
         return 1;
     }
 
     int32_t *popped = (int32_t *)ckit_binary_heap_pop(heap);
     if (popped == NULL || *popped != 1) {
-        ckit_binary_heap_free(heap);
+        ckit_binary_heap_deinit(heap);
         return 1;
     }
 
-    ckit_binary_heap_free(heap);
+    ckit_binary_heap_deinit(heap);
     return 0;
 }
 ```

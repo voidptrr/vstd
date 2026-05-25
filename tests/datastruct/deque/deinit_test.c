@@ -8,7 +8,7 @@ int main(void) {
 
     q = ckit_deque_init(sizeof(int), NULL);
     ckit_deque_push(q, &value);
-    ckit_deque_free(q);
+    ckit_deque_deinit(q);
 
     return 0;
 }

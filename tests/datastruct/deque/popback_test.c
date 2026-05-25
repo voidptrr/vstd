@@ -15,10 +15,10 @@ int main(void) {
     out = (int *)ckit_deque_popback(q);
     if (out == NULL || *out != second) {
         fprintf(stderr, "popback should remove back element\n");
-        ckit_deque_free(q);
+        ckit_deque_deinit(q);
         return 1;
     }
 
-    ckit_deque_free(q);
+    ckit_deque_deinit(q);
     return 0;
 }

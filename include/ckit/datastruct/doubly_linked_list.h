@@ -36,7 +36,7 @@ typedef struct ckit_doubly_linked_list_node {
 
 typedef struct ckit_doubly_linked_list ckit_doubly_linked_list;
 
-/* Create an intrusive doubly linked list. */
+/* Initialize an intrusive doubly linked list. */
 ckit_doubly_linked_list *ckit_doubly_linked_list_init(ckit_allocator *allocator);
 
 /* Append node at the tail. */
@@ -62,9 +62,6 @@ ckit_doubly_linked_list_node *ckit_doubly_linked_list_popback(ckit_doubly_linked
 void ckit_doubly_linked_list_remove(ckit_doubly_linked_list *list,
                                     ckit_doubly_linked_list_node *node);
 
-/* Release the linked-list handle. Nodes remain caller-owned. */
-void ckit_doubly_linked_list_free(ckit_doubly_linked_list *list);
-
 /* Return the number of stored elements. */
 size_t ckit_doubly_linked_list_size(const ckit_doubly_linked_list *list);
 
@@ -73,5 +70,8 @@ ckit_doubly_linked_list_node *ckit_doubly_linked_list_head(const ckit_doubly_lin
 
 /* Return the tail node, or NULL when empty. */
 ckit_doubly_linked_list_node *ckit_doubly_linked_list_tail(const ckit_doubly_linked_list *list);
+
+/* Release the linked-list handle. Nodes remain caller-owned. */
+void ckit_doubly_linked_list_deinit(ckit_doubly_linked_list *list);
 
 #endif

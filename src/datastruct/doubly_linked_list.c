@@ -145,13 +145,6 @@ void ckit_doubly_linked_list_remove(ckit_doubly_linked_list *list,
     list->size -= 1;
 }
 
-void ckit_doubly_linked_list_free(ckit_doubly_linked_list *list) {
-    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_free invalid arguments");
-
-    ckit_allocator *allocator = list->allocator;
-    ckit_dealloc(allocator, list);
-}
-
 size_t ckit_doubly_linked_list_size(const ckit_doubly_linked_list *list) {
     CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_size invalid arguments");
 
@@ -168,4 +161,11 @@ ckit_doubly_linked_list_node *ckit_doubly_linked_list_tail(const ckit_doubly_lin
     CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_tail invalid arguments");
 
     return list->tail;
+}
+
+void ckit_doubly_linked_list_deinit(ckit_doubly_linked_list *list) {
+    CKIT_ASSERT(list != NULL, "fatal: ckit_doubly_linked_list_deinit invalid arguments");
+
+    ckit_allocator *allocator = list->allocator;
+    ckit_dealloc(allocator, list);
 }
