@@ -16,7 +16,7 @@ int main(void) {
 
     if (ckit_hashmap_size(map) != 256) {
         fprintf(stderr, "hashmap size should match inserted count\n");
-        ckit_hashmap_free(map);
+        ckit_hashmap_deinit(map);
         return 1;
     }
 
@@ -25,11 +25,11 @@ int main(void) {
         ckit_hashmap_remove(map, &key);
         if (ckit_hashmap_get(map, &key) != NULL) {
             fprintf(stderr, "removed key should not be found\n");
-            ckit_hashmap_free(map);
+            ckit_hashmap_deinit(map);
             return 1;
         }
     }
 
-    ckit_hashmap_free(map);
+    ckit_hashmap_deinit(map);
     return 0;
 }

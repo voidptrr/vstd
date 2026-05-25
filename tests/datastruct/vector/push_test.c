@@ -14,10 +14,10 @@ int main(void) {
 
     if (ckit_vector_size(v) != 17) {
         fprintf(stderr, "vector should store all pushed elements\n");
-        ckit_vector_free(v);
+        ckit_vector_deinit(v);
         return 1;
     }
 
-    ckit_vector_free(v);
+    ckit_vector_deinit(v);
     return 0;
 }

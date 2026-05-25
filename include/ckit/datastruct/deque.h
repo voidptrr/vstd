@@ -26,7 +26,7 @@
  */
 typedef struct ckit_deque ckit_deque;
 
-/* Create a deque with element size elem_size. */
+/* Initialize a deque with element size elem_size. */
 ckit_deque *ckit_deque_init(size_t elem_size, ckit_allocator *allocator);
 
 /* Enqueue one element by copying elem_size bytes from element. */
@@ -47,10 +47,10 @@ const void *ckit_deque_peekleft(const ckit_deque *deque);
 /* Return the back element pointer without removing it, or NULL when empty. */
 const void *ckit_deque_peekback(const ckit_deque *deque);
 
-/* Release owned storage and the deque handle. */
-void ckit_deque_free(ckit_deque *deque);
-
 /* Return the number of stored elements. */
 size_t ckit_deque_size(const ckit_deque *deque);
+
+/* Deinitialize and release owned storage. */
+void ckit_deque_deinit(ckit_deque *deque);
 
 #endif

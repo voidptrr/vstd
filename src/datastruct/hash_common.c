@@ -19,24 +19,6 @@ ckit_linked_list **ckit_hash_buckets_init(size_t capacity, ckit_allocator *alloc
     return buckets;
 }
 
-void ckit_hash_buckets_free(ckit_linked_list **buckets, size_t capacity, ckit_allocator *allocator,
-                            ckit_hash_entry_free_fn entry_free) {
-    CKIT_ASSERT(buckets != NULL, "fatal: ckit_hash_buckets_free invalid arguments");
-    CKIT_ASSERT(entry_free != NULL, "fatal: ckit_hash_buckets_free invalid arguments");
-
-    for (size_t i = 0; i < capacity; i++) {
-        ckit_linked_list_node *node = ckit_linked_list_head(buckets[i]);
-        while (node != NULL) {
-            ckit_linked_list_node *next = node->next;
-            entry_free(node, allocator);
-            node = next;
-        }
-        ckit_linked_list_free(buckets[i]);
-    }
-
-    ckit_dealloc(allocator, (void *)buckets);
-}
-
 ckit_linked_list **ckit_hash_buckets_rehash(ckit_linked_list **buckets, size_t capacity,
                                             size_t new_capacity, size_t value_size,
                                             ckit_allocator *allocator,
@@ -58,7 +40,7 @@ ckit_linked_list **ckit_hash_buckets_rehash(ckit_linked_list **buckets, size_t c
             ckit_linked_list_pushfront(new_buckets[bucket], node);
             node = next;
         }
-        ckit_linked_list_free(buckets[i]);
+        ckit_linked_list_deinit(buckets[i]);
     }
 
     ckit_dealloc(allocator, (void *)buckets);
@@ -106,4 +88,22 @@ ckit_linked_list_node *ckit_hash_bucket_remove(ckit_linked_list *bucket, const v
     }
 
     return NULL;
+}
+
+void ckit_hash_buckets_deinit(ckit_linked_list **buckets, size_t capacity,
+                              ckit_allocator *allocator, ckit_hash_entry_deinit_fn entry_deinit) {
+    CKIT_ASSERT(buckets != NULL, "fatal: ckit_hash_buckets_deinit invalid arguments");
+    CKIT_ASSERT(entry_deinit != NULL, "fatal: ckit_hash_buckets_deinit invalid arguments");
+
+    for (size_t i = 0; i < capacity; i++) {
+        ckit_linked_list_node *node = ckit_linked_list_head(buckets[i]);
+        while (node != NULL) {
+            ckit_linked_list_node *next = node->next;
+            entry_deinit(node, allocator);
+            node = next;
+        }
+        ckit_linked_list_deinit(buckets[i]);
+    }
+
+    ckit_dealloc(allocator, (void *)buckets);
 }

@@ -10,10 +10,10 @@ int main(void) {
     map = ckit_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ckit_eq_u64, NULL);
     if (ckit_hashmap_size(map) != 0) {
         fprintf(stderr, "new hashmap should be empty\n");
-        ckit_hashmap_free(map);
+        ckit_hashmap_deinit(map);
         return 1;
     }
 
-    ckit_hashmap_free(map);
+    ckit_hashmap_deinit(map);
     return 0;
 }

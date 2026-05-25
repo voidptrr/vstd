@@ -16,6 +16,12 @@ typedef struct ckit_heap_block {
     bool is_free;
 } ckit_heap_block;
 
+struct ckit_heap {
+    void *buffer;
+    size_t capacity;
+    ckit_doubly_linked_list *blocks;
+};
+
 static ckit_heap_block *ckit_heap_head(const ckit_heap *heap) {
     ckit_doubly_linked_list_node *head = ckit_doubly_linked_list_head(heap->blocks);
     if (head == NULL) {
@@ -73,13 +79,14 @@ static ckit_heap_block *ckit_heap_coalesce(ckit_heap *heap, ckit_heap_block *blo
     return block;
 }
 
-ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
-    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_init invalid arguments");
+ckit_heap *ckit_heap_init(size_t capacity) {
+    ckit_heap *heap;
 
     capacity = ckit_align_up(capacity, CKIT_MEMORY_ALIGN);
     CKIT_ASSERT(capacity > sizeof(ckit_heap_block) + CKIT_MEMORY_ALIGN,
                 "fatal: ckit_heap_init invalid capacity");
 
+    heap = ckit_malloc(NULL, sizeof(*heap));
     heap->buffer = ckit_malloc(NULL, capacity);
     heap->capacity = capacity;
     heap->blocks = ckit_doubly_linked_list_init(NULL);
@@ -89,6 +96,14 @@ ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
     block->is_free = true;
     ckit_doubly_linked_list_push(heap->blocks, &block->node);
 
+    return heap;
+}
+
+ckit_allocator ckit_heap_allocator(ckit_heap *heap) {
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_allocator invalid arguments");
+    CKIT_ASSERT(heap->buffer != NULL, "fatal: ckit_heap_allocator invalid heap");
+    CKIT_ASSERT(heap->blocks != NULL, "fatal: ckit_heap_allocator invalid heap");
+
     ckit_allocator allocator;
     allocator.ctx = heap;
     allocator.features = CKIT_ALLOCATOR_FEATURE_DEALLOC | CKIT_ALLOCATOR_FEATURE_REALLOC;
@@ -97,19 +112,6 @@ ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity) {
     allocator.dealloc = (ckit_dealloc_fn)ckit_heap_dealloc;
 
     return allocator;
-}
-
-void ckit_heap_free(ckit_heap *heap) {
-    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_free invalid arguments");
-
-    if (heap->blocks != NULL) {
-        ckit_doubly_linked_list_free(heap->blocks);
-    }
-
-    free(heap->buffer);
-    heap->buffer = NULL;
-    heap->capacity = 0;
-    heap->blocks = NULL;
 }
 
 void *ckit_heap_alloc(ckit_heap *heap, size_t size) {
@@ -214,4 +216,15 @@ size_t ckit_heap_available(const ckit_heap *heap) {
     }
 
     return total;
+}
+
+void ckit_heap_deinit(ckit_heap *heap) {
+    CKIT_ASSERT(heap != NULL, "fatal: ckit_heap_deinit invalid arguments");
+
+    if (heap->blocks != NULL) {
+        ckit_doubly_linked_list_deinit(heap->blocks);
+    }
+
+    free(heap->buffer);
+    free(heap);
 }

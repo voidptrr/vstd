@@ -81,16 +81,6 @@ ckit_linked_list_node *ckit_linked_list_remove_after(ckit_linked_list *list,
 - Returns: removed node after `prev`, or removed head node when `prev` is `NULL`.
 - Notes: returns `NULL` when there is no node to remove.
 
-### ckit_linked_list_free
-
-```c
-void ckit_linked_list_free(ckit_linked_list *list);
-```
-
-- Parameters: `list`
-- Returns: none.
-- Notes: releases only the opaque list handle. Nodes remain caller-owned. Do not use `list` after this call.
-
 ### ckit_linked_list_size
 
 ```c
@@ -108,6 +98,16 @@ ckit_linked_list_node *ckit_linked_list_head(const ckit_linked_list *list);
 
 - Parameters: `list`
 - Returns: current head node, or `NULL` when list is empty.
+
+### ckit_linked_list_deinit
+
+```c
+void ckit_linked_list_deinit(ckit_linked_list *list);
+```
+
+- Parameters: `list`
+- Returns: none.
+- Notes: releases only the opaque list handle. Nodes remain caller-owned. Do not use `list` after this call.
 
 ## EXAMPLE
 
@@ -130,7 +130,7 @@ int main(void) {
     ckit_linked_list_node *node = ckit_linked_list_popleft(list);
     job *out = CKIT_CONTAINER_OF(node, job, node);
 
-    ckit_linked_list_free(list);
+    ckit_linked_list_deinit(list);
     return out->id == 1 ? 0 : 1;
 }
 ```

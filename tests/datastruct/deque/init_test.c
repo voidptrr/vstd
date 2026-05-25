@@ -8,10 +8,10 @@ int main(void) {
     q = ckit_deque_init(sizeof(int), NULL);
     if (ckit_deque_size(q) != 0) {
         fprintf(stderr, "deque should initialize empty\n");
-        ckit_deque_free(q);
+        ckit_deque_deinit(q);
         return 1;
     }
 
-    ckit_deque_free(q);
+    ckit_deque_deinit(q);
     return 0;
 }

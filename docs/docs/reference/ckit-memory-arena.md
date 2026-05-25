@@ -13,55 +13,38 @@ callback.
 
 This API is fail-fast for required initialization/teardown preconditions.
 
-## MEMORY MODEL
-
-```text
-+----------------------+----------------------+
-| used bytes           | available bytes      |
-+----------------------+----------------------+
-                       ^
-                       arena->offset
-```
-
-Each allocation stores a small internal header before the returned pointer so
-`ckit_arena_realloc` can preserve existing bytes when growing an allocation.
-
 ## TYPES
 
 ### ckit_arena
 
 ```c
-typedef struct ckit_arena {
-    void *buffer;
-    size_t capacity;
-    size_t offset;
-} ckit_arena;
+typedef struct ckit_arena ckit_arena;
 ```
 
-- Fields: `buffer`, `capacity`, `offset`
-- Notes: treat these fields as implementation details outside low-level allocator code.
+- Notes: `ckit_arena` is opaque. Use the functions below to inspect or mutate
+  arena state.
 
 ## FUNCTIONS
 
 ### ckit_arena_init
 
 ```c
-ckit_allocator ckit_arena_init(ckit_arena *arena, size_t capacity);
+ckit_arena *ckit_arena_init(size_t capacity);
 ```
 
-- Parameters: `arena`, `capacity`
-- Returns: allocator adapter bound to `arena`.
-- Notes: capacity is aligned up to `CKIT_MEMORY_ALIGN`. The returned allocator advertises `CKIT_ALLOCATOR_FEATURE_REALLOC | CKIT_ALLOCATOR_FEATURE_RESET`.
+- Parameters: `capacity`
+- Returns: arena pointer.
+- Notes: capacity is aligned up to `CKIT_MEMORY_ALIGN`.
 
-### ckit_arena_free
+### ckit_arena_allocator
 
 ```c
-void ckit_arena_free(ckit_arena *arena);
+ckit_allocator ckit_arena_allocator(ckit_arena *arena);
 ```
 
 - Parameters: `arena`
-- Returns: none.
-- Behavior: releases the backing buffer and clears arena state.
+- Returns: allocator adapter bound to `arena`.
+- Notes: the returned allocator advertises `CKIT_ALLOCATOR_FEATURE_REALLOC | CKIT_ALLOCATOR_FEATURE_RESET`.
 
 ### ckit_arena_alloc
 
@@ -121,6 +104,16 @@ size_t ckit_arena_available(const ckit_arena *arena);
 - Parameters: `arena`
 - Returns: number of bytes still available.
 
+### ckit_arena_deinit
+
+```c
+void ckit_arena_deinit(ckit_arena *arena);
+```
+
+- Parameters: `arena`
+- Returns: none.
+- Behavior: releases the backing buffer and arena handle.
+
 ## EXAMPLE
 
 ```c
@@ -129,19 +122,19 @@ size_t ckit_arena_available(const ckit_arena *arena);
 #include <ckit/memory/allocators/arena.h>
 
 int main(void) {
-    ckit_arena arena;
-    ckit_allocator allocator = ckit_arena_init(&arena, 1024);
+    ckit_arena *arena = ckit_arena_init(1024);
+    ckit_allocator allocator = ckit_arena_allocator(arena);
 
-    uint64_t *value = ckit_arena_alloc(&arena, sizeof(*value));
+    uint64_t *value = ckit_arena_alloc(arena, sizeof(*value));
     if (value == NULL) {
-        ckit_arena_free(&arena);
+        ckit_arena_deinit(arena);
         return 1;
     }
 
     *value = 42;
 
-    ckit_arena_reset(&arena);
-    ckit_arena_free(&arena);
+    ckit_arena_reset(arena);
+    ckit_arena_deinit(arena);
 
     (void)allocator;
     return 0;

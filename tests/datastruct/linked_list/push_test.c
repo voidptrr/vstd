@@ -20,7 +20,7 @@ int main(void) {
     ckit_linked_list_node *out_second_node = ckit_linked_list_popleft(list);
     if (out_first_node == NULL || out_second_node == NULL || ckit_linked_list_size(list) != 0) {
         fprintf(stderr, "push should return two nodes\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
@@ -28,10 +28,10 @@ int main(void) {
     test_item *out_second = CKIT_CONTAINER_OF(out_second_node, test_item, node);
     if (out_first->value != first.value || out_second->value != second.value) {
         fprintf(stderr, "push should append and preserve order\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
-    ckit_linked_list_free(list);
+    ckit_linked_list_deinit(list);
     return 0;
 }

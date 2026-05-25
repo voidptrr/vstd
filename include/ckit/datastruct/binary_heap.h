@@ -35,7 +35,7 @@ typedef ckit_cmp_fn ckit_heap_cmp_fn;
 
 typedef struct ckit_binary_heap ckit_binary_heap;
 
-/* Create a heap for elements of size elem_size using cmp ordering. */
+/* Initialize a heap for elements of size elem_size using cmp ordering. */
 ckit_binary_heap *ckit_binary_heap_init(size_t elem_size, ckit_heap_cmp_fn cmp,
                                         ckit_allocator *allocator);
 
@@ -48,10 +48,10 @@ void *ckit_binary_heap_pop(ckit_binary_heap *heap);
 /* Return the top element pointer without removing it, or NULL when empty. */
 const void *ckit_binary_heap_peek(const ckit_binary_heap *heap);
 
-/* Release owned storage and the heap handle. */
-void ckit_binary_heap_free(ckit_binary_heap *heap);
-
 /* Return the number of stored elements. */
 size_t ckit_binary_heap_size(const ckit_binary_heap *heap);
+
+/* Deinitialize and release owned storage. */
+void ckit_binary_heap_deinit(ckit_binary_heap *heap);
 
 #endif

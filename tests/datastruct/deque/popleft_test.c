@@ -10,7 +10,7 @@ int main(void) {
     q = ckit_deque_init(sizeof(int), NULL);
     if (ckit_deque_popleft(q) != NULL) {
         fprintf(stderr, "popleft on empty deque should return NULL\n");
-        ckit_deque_free(q);
+        ckit_deque_deinit(q);
         return 1;
     }
 
@@ -19,10 +19,10 @@ int main(void) {
     out = (int *)ckit_deque_popleft(q);
     if (out == NULL || *out != values[0]) {
         fprintf(stderr, "popleft should dequeue FIFO\n");
-        ckit_deque_free(q);
+        ckit_deque_deinit(q);
         return 1;
     }
 
-    ckit_deque_free(q);
+    ckit_deque_deinit(q);
     return 0;
 }

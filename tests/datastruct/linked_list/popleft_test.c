@@ -15,7 +15,7 @@ int main(void) {
     list = ckit_linked_list_init(NULL);
     if (ckit_linked_list_popleft(list) != NULL) {
         fprintf(stderr, "popleft on empty list should return NULL\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
@@ -25,31 +25,31 @@ int main(void) {
     ckit_linked_list_node *out_node = ckit_linked_list_popleft(list);
     if (out_node == NULL) {
         fprintf(stderr, "popleft should return head node\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
     test_item *out = CKIT_CONTAINER_OF(out_node, test_item, node);
     if (out->value != first.value) {
         fprintf(stderr, "popleft should return head value\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
     out_node = ckit_linked_list_popleft(list);
     if (out_node == NULL) {
         fprintf(stderr, "popleft should return second node\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
     out = CKIT_CONTAINER_OF(out_node, test_item, node);
     if (out->value != second.value) {
         fprintf(stderr, "popleft should preserve FIFO order\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
-    ckit_linked_list_free(list);
+    ckit_linked_list_deinit(list);
     return 0;
 }

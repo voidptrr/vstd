@@ -17,7 +17,7 @@ int main(void) {
 
     if (ckit_binary_heap_peek(heap) != NULL) {
         fprintf(stderr, "peek on empty heap should return NULL\n");
-        ckit_binary_heap_free(heap);
+        ckit_binary_heap_deinit(heap);
         return 1;
     }
 
@@ -25,10 +25,10 @@ int main(void) {
     out = (const int *)ckit_binary_heap_peek(heap);
     if (out == NULL || *out != 3) {
         fprintf(stderr, "peek should return current top\n");
-        ckit_binary_heap_free(heap);
+        ckit_binary_heap_deinit(heap);
         return 1;
     }
 
-    ckit_binary_heap_free(heap);
+    ckit_binary_heap_deinit(heap);
     return 0;
 }

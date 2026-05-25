@@ -15,7 +15,7 @@ int main(void) {
     heap = ckit_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
 
     ckit_binary_heap_push(heap, &value);
-    ckit_binary_heap_free(heap);
+    ckit_binary_heap_deinit(heap);
 
     return 0;
 }

@@ -12,10 +12,10 @@ int main(void) {
     const int *out = ckit_deque_peekback(q);
     if (ckit_deque_size(q) != 1 || out == NULL || *out != value) {
         fprintf(stderr, "push should append element\n");
-        ckit_deque_free(q);
+        ckit_deque_deinit(q);
         return 1;
     }
 
-    ckit_deque_free(q);
+    ckit_deque_deinit(q);
     return 0;
 }

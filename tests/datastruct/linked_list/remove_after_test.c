@@ -23,7 +23,7 @@ int main(void) {
     test_item *removed_item = CKIT_CONTAINER_OF(removed, test_item, node);
     if (removed_item->value != 2 || ckit_linked_list_size(list) != 2) {
         fprintf(stderr, "remove_after should remove node after prev\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
@@ -31,17 +31,17 @@ int main(void) {
     removed_item = CKIT_CONTAINER_OF(removed, test_item, node);
     if (removed_item->value != 1 || ckit_linked_list_head(list) != &third.node) {
         fprintf(stderr, "remove_after with null prev should remove head\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
     removed = ckit_linked_list_remove_after(list, &third.node);
     if (removed != NULL || ckit_linked_list_size(list) != 1) {
         fprintf(stderr, "remove_after should return null when prev is tail\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
-    ckit_linked_list_free(list);
+    ckit_linked_list_deinit(list);
     return 0;
 }

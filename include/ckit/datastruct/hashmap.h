@@ -62,12 +62,12 @@ const void *ckit_hashmap_get_const(const ckit_hashmap *map, const void *key);
  */
 void ckit_hashmap_remove(ckit_hashmap *map, const void *key);
 
+/* Return the number of stored entries. */
+size_t ckit_hashmap_size(const ckit_hashmap *map);
+
 /*
  * Release all entries, bucket storage, and the hashmap handle.
  */
-void ckit_hashmap_free(ckit_hashmap *map);
-
-/* Return the number of stored entries. */
-size_t ckit_hashmap_size(const ckit_hashmap *map);
+void ckit_hashmap_deinit(ckit_hashmap *map);
 
 #endif

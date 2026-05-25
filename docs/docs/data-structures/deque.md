@@ -73,16 +73,6 @@ const void *ckit_deque_peekback(const ckit_deque *deque);
 - Parameters: `deque`
 - Returns: pointer to back element in deque-managed storage, or `NULL` when empty.
 
-### ckit_deque_free
-
-```c
-void ckit_deque_free(ckit_deque *deque);
-```
-
-- Parameters: `deque`
-- Returns: none.
-- Notes: releases deque storage and the opaque handle. Do not use `deque` after this call.
-
 ### ckit_deque_size
 
 ```c
@@ -91,6 +81,16 @@ size_t ckit_deque_size(const ckit_deque *deque);
 
 - Parameters: `deque`
 - Returns: current element count.
+
+### ckit_deque_deinit
+
+```c
+void ckit_deque_deinit(ckit_deque *deque);
+```
+
+- Parameters: `deque`
+- Returns: none.
+- Notes: releases deque storage and the opaque handle. Do not use `deque` after this call.
 
 ## EXAMPLE
 
@@ -108,17 +108,17 @@ int main(void) {
     const int *left = (const int *)ckit_deque_peekleft(deque);
     const int *right = (const int *)ckit_deque_peekback(deque);
     if (left == NULL || right == NULL || *left != front || *right != back) {
-        ckit_deque_free(deque);
+        ckit_deque_deinit(deque);
         return 1;
     }
 
     int *out = (int *)ckit_deque_popleft(deque);
     if (out == NULL || *out != front) {
-        ckit_deque_free(deque);
+        ckit_deque_deinit(deque);
         return 1;
     }
 
-    ckit_deque_free(deque);
+    ckit_deque_deinit(deque);
     return 0;
 }
 ```

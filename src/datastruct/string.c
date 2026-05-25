@@ -143,18 +143,18 @@ void ckit_string_clear(ckit_string string) {
     header->buf[0] = '\0';
 }
 
-void ckit_string_free(ckit_string string) {
+size_t ckit_string_len(const ckit_string string) {
+    CKIT_ASSERT(string != NULL, "fatal: ckit_string_len invalid arguments");
+
+    ckit_string_header *header = ckit_string_header_from_buf(string);
+    return header->len;
+}
+
+void ckit_string_deinit(ckit_string string) {
     ckit_string_header *header = ckit_string_header_from_buf(string);
     if (header == NULL) {
         return;
     }
 
     ckit_dealloc(header->allocator, header);
-}
-
-size_t ckit_string_len(const ckit_string string) {
-    CKIT_ASSERT(string != NULL, "fatal: ckit_string_len invalid arguments");
-
-    ckit_string_header *header = ckit_string_header_from_buf(string);
-    return header->len;
 }

@@ -59,16 +59,6 @@ void ckit_hashmap_remove(ckit_hashmap *map, const void *key);
 - Returns: none.
 - Notes: missing keys are ignored.
 
-### ckit_hashmap_free
-
-```c
-void ckit_hashmap_free(ckit_hashmap *map);
-```
-
-- Parameters: `map`
-- Returns: none.
-- Notes: releases entries, buckets, and the opaque handle. Do not use `map` after this call.
-
 ### ckit_hashmap_size
 
 ```c
@@ -77,6 +67,16 @@ size_t ckit_hashmap_size(const ckit_hashmap *map);
 
 - Parameters: `map`
 - Returns: current entry count.
+
+### ckit_hashmap_deinit
+
+```c
+void ckit_hashmap_deinit(ckit_hashmap *map);
+```
+
+- Parameters: `map`
+- Returns: none.
+- Notes: releases entries, buckets, and the opaque handle. Do not use `map` after this call.
 
 ## EXAMPLE
 
@@ -96,17 +96,17 @@ int main(void) {
 
     found = (uint64_t *)ckit_hashmap_get(map, &key);
     if (found == NULL || *found != value) {
-        ckit_hashmap_free(map);
+        ckit_hashmap_deinit(map);
         return 1;
     }
 
     ckit_hashmap_remove(map, &key);
     if (ckit_hashmap_get(map, &key) != NULL) {
-        ckit_hashmap_free(map);
+        ckit_hashmap_deinit(map);
         return 1;
     }
 
-    ckit_hashmap_free(map);
+    ckit_hashmap_deinit(map);
     return 0;
 }
 ```

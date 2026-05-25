@@ -11,15 +11,29 @@ typedef struct ckit_arena_alloc_header {
     size_t size;
 } ckit_arena_alloc_header;
 
-ckit_allocator ckit_arena_init(ckit_arena *arena, size_t capacity) {
-    CKIT_ASSERT(arena != NULL, "fatal: ckit_arena_init invalid arguments");
+struct ckit_arena {
+    void *buffer;
+    size_t capacity;
+    size_t offset;
+};
+
+ckit_arena *ckit_arena_init(size_t capacity) {
+    ckit_arena *arena;
 
     capacity = ckit_align_up(capacity, CKIT_MEMORY_ALIGN);
     CKIT_ASSERT(capacity > 0, "fatal: ckit_arena_init invalid capacity");
 
+    arena = ckit_malloc(NULL, sizeof(*arena));
     arena->buffer = ckit_malloc(NULL, capacity);
     arena->capacity = capacity;
     arena->offset = 0;
+
+    return arena;
+}
+
+ckit_allocator ckit_arena_allocator(ckit_arena *arena) {
+    CKIT_ASSERT(arena != NULL, "fatal: ckit_arena_allocator invalid arguments");
+    CKIT_ASSERT(arena->buffer != NULL, "fatal: ckit_arena_allocator invalid arena");
 
     ckit_allocator allocator;
     allocator.ctx = arena;
@@ -49,15 +63,6 @@ void *ckit_arena_alloc(ckit_arena *arena, size_t size) {
 
     arena->offset += header_size + size;
     return ptr + header_size;
-}
-
-void ckit_arena_free(ckit_arena *arena) {
-    CKIT_ASSERT(arena != NULL, "fatal: ckit_arena_free invalid arguments");
-
-    free(arena->buffer);
-    arena->buffer = NULL;
-    arena->capacity = 0;
-    arena->offset = 0;
 }
 
 void *ckit_arena_realloc(ckit_arena *arena, void *ptr, size_t size) {
@@ -116,4 +121,11 @@ size_t ckit_arena_available(const ckit_arena *arena) {
     CKIT_ASSERT(arena->buffer != NULL, "fatal: ckit_arena_available invalid arena");
 
     return arena->capacity - arena->offset;
+}
+
+void ckit_arena_deinit(ckit_arena *arena) {
+    CKIT_ASSERT(arena != NULL, "fatal: ckit_arena_deinit invalid arguments");
+
+    free(arena->buffer);
+    free(arena);
 }

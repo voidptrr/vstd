@@ -8,25 +8,36 @@ using a coalescing free-list strategy.
 
 This API is fail-fast for required initialization/teardown preconditions.
 
+## TYPES
+
+### ckit_heap
+
+```c
+typedef struct ckit_heap ckit_heap;
+```
+
+- Notes: `ckit_heap` is opaque. Use the functions below to inspect or mutate
+  heap state.
+
 ## FUNCTIONS
 
 ### ckit_heap_init
 
 ```c
-ckit_allocator ckit_heap_init(ckit_heap *heap, size_t capacity);
+ckit_heap *ckit_heap_init(size_t capacity);
 ```
 
-- Parameters: `heap`, `capacity`
-- Returns: allocator adapter bound to `heap`.
+- Parameters: `capacity`
+- Returns: heap pointer.
 
-### ckit_heap_free
+### ckit_heap_allocator
 
 ```c
-void ckit_heap_free(ckit_heap *heap);
+ckit_allocator ckit_heap_allocator(ckit_heap *heap);
 ```
 
 - Parameters: `heap`
-- Returns: none.
+- Returns: allocator adapter bound to `heap`.
 
 ### ckit_heap_alloc
 
@@ -73,3 +84,13 @@ size_t ckit_heap_available(const ckit_heap *heap);
 
 - Parameters: `heap`
 - Returns: sum of currently free payload bytes.
+
+### ckit_heap_deinit
+
+```c
+void ckit_heap_deinit(ckit_heap *heap);
+```
+
+- Parameters: `heap`
+- Returns: none.
+- Behavior: releases the backing buffer and heap handle.

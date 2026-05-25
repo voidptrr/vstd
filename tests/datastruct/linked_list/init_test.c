@@ -8,10 +8,10 @@ int main(void) {
 
     if (ckit_linked_list_size(list) != 0) {
         fprintf(stderr, "linked list should initialize empty\n");
-        ckit_linked_list_free(list);
+        ckit_linked_list_deinit(list);
         return 1;
     }
 
-    ckit_linked_list_free(list);
+    ckit_linked_list_deinit(list);
     return 0;
 }

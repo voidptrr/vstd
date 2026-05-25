@@ -42,24 +42,24 @@ int main(void) {
     ckit_string value = ckit_string_init("abc", &allocator);
     if (ctx.alloc_count != 1 || ctx.realloc_count != 0 || ctx.dealloc_count != 0) {
         fprintf(stderr, "string should initialize through custom allocator\n");
-        ckit_string_free(value);
+        ckit_string_deinit(value);
         return 1;
     }
 
     ckit_string_append(&value, "012345678901234567890123456789");
     if (ctx.realloc_count != 1) {
         fprintf(stderr, "string growth should use custom realloc\n");
-        ckit_string_free(value);
+        ckit_string_deinit(value);
         return 1;
     }
 
     if (ckit_string_len(value) != 33 || strcmp(value, "abc012345678901234567890123456789") != 0) {
         fprintf(stderr, "string should keep contents after allocator-backed growth\n");
-        ckit_string_free(value);
+        ckit_string_deinit(value);
         return 1;
     }
 
-    ckit_string_free(value);
+    ckit_string_deinit(value);
     if (ctx.dealloc_count != 1) {
         fprintf(stderr, "string should free through custom deallocator\n");
         return 1;

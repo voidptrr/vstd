@@ -15,11 +15,11 @@ int main(void) {
 
     if (ckit_binary_heap_size(heap) != 0) {
         fprintf(stderr, "newly initialized heap should be empty\n");
-        ckit_binary_heap_free(heap);
+        ckit_binary_heap_deinit(heap);
         return 1;
     }
 
-    ckit_binary_heap_free(heap);
+    ckit_binary_heap_deinit(heap);
 
     return 0;
 }

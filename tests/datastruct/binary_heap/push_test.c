@@ -21,10 +21,10 @@ int main(void) {
     top = (const int *)ckit_binary_heap_peek(heap);
     if (top == NULL || *top != 1 || ckit_binary_heap_size(heap) != 4) {
         fprintf(stderr, "push should maintain heap invariant\n");
-        ckit_binary_heap_free(heap);
+        ckit_binary_heap_deinit(heap);
         return 1;
     }
 
-    ckit_binary_heap_free(heap);
+    ckit_binary_heap_deinit(heap);
     return 0;
 }

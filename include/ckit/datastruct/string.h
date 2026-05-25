@@ -48,10 +48,10 @@ bool ckit_string_ends_with(const ckit_string string, const char *suffix);
 /* Reset string to empty without releasing storage. */
 void ckit_string_clear(ckit_string string);
 
-/* Release owned storage. */
-void ckit_string_free(ckit_string string);
-
 /* Return the number of bytes before the terminating NUL. */
 size_t ckit_string_len(const ckit_string string);
+
+/* Deinitialize and release owned storage. */
+void ckit_string_deinit(ckit_string string);
 
 #endif
