@@ -41,7 +41,7 @@ void *ck_arena_alloc(ck_arena *arena, size_t size);
 
 /*
  * Grow an arena allocation.
- * NULL ptr allocates. Size 0 is treated like dealloc and returns NULL.
+ * NULL ptr allocates. Size 0 with an existing ptr returns NULL.
  * Shrinking an existing allocation is invalid.
  */
 void *ck_arena_realloc(ck_arena *arena, void *ptr, size_t size);

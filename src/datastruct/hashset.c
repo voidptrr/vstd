@@ -1,15 +1,18 @@
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "ckit/common/panic.h"
 #include "ckit/datastruct/hashset.h"
 #include "ckit/datastruct/linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/utils.h"
 #include "datastruct/hash_common.h"
+#include "memory/utils.h"
 
 typedef struct ck_hashset_entry {
     ck_linked_list_node node;
-    void *elem;
+    max_align_t align;
+    uint8_t data[];
 } ck_hashset_entry;
 
 struct ck_hashset {
@@ -23,13 +26,12 @@ struct ck_hashset {
 
 static void ck_hashset_entry_deinit(ck_linked_list_node *node, ck_allocator *allocator) {
     ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
-    ck_dealloc(allocator, entry->elem);
     ck_dealloc(allocator, entry);
 }
 
 static const void *ck_hashset_entry_elem(const ck_linked_list_node *node) {
     const ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
-    return entry->elem;
+    return entry->data;
 }
 
 static ck_hashset_entry *ck_hashset_entry_get(const ck_hashset *set, const void *elem) {
@@ -79,9 +81,8 @@ void ck_hashset_insert(ck_hashset *set, const void *elem) {
         bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     }
 
-    ck_hashset_entry *entry = ck_malloc(set->allocator, sizeof(ck_hashset_entry));
-    entry->elem = ck_malloc(set->allocator, set->elem_size);
-    memcpy(entry->elem, elem, set->elem_size);
+    ck_hashset_entry *entry = ck_malloc(set->allocator, sizeof(ck_hashset_entry) + set->elem_size);
+    memcpy(entry->data, elem, set->elem_size);
 
     ck_linked_list_pushfront(set->buckets[bucket], &entry->node);
     set->size += 1;
@@ -100,7 +101,7 @@ void *ck_hashset_get(ck_hashset *set, const void *elem) {
 
     ck_hashset_entry *entry = ck_hashset_entry_get(set, elem);
     if (entry != NULL) {
-        return entry->elem;
+        return entry->data;
     }
     return NULL;
 }
@@ -111,7 +112,7 @@ const void *ck_hashset_get_const(const ck_hashset *set, const void *elem) {
 
     ck_hashset_entry *entry = ck_hashset_entry_get(set, elem);
     if (entry != NULL) {
-        return entry->elem;
+        return entry->data;
     }
     return NULL;
 }
@@ -125,7 +126,6 @@ void ck_hashset_remove(ck_hashset *set, const void *elem) {
         set->buckets[bucket], elem, set->elem_size, set->elem_eq, ck_hashset_entry_elem);
     if (node != NULL) {
         ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
-        ck_dealloc(set->allocator, entry->elem);
         ck_dealloc(set->allocator, entry);
         set->size -= 1;
     }

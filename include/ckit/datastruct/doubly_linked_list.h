@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 #include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/utils.h"
+#include "ckit/utils.h"
 
 /*
  * Opaque intrusive doubly linked list.

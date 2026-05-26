@@ -26,7 +26,7 @@ ck_string ck_string_init(const char *initial, ck_allocator *allocator);
 
 - Parameters: `initial`, `allocator`
 - Returns: initialized string.
-- Notes: when `initial` is `NULL`, creates an empty string. When `allocator` is `NULL`, uses the C library heap through `ck_malloc`.
+- Notes: when `initial` is `NULL`, creates an empty string. When `allocator` is `NULL`, uses the C library heap through `ck_malloc`/`ck_realloc`.
 
 ### ck_string_append
 

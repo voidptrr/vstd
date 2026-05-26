@@ -44,6 +44,7 @@ plugins:
 
 nav:
   - Overview: index.md
+  - Utilities: reference/ckit-utils.md
   - Compare: reference/ckit-compare.md
   - Memory:
       - Allocators:

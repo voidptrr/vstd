@@ -1,10 +1,11 @@
-#ifndef CK_MEMORY_UTILS_H
-#define CK_MEMORY_UTILS_H
+#ifndef CK_INTERNAL_MEMORY_UTILS_H
+#define CK_INTERNAL_MEMORY_UTILS_H
 
 #include <stddef.h>
 #include <stdint.h>
 
-#define CK_CONTAINER_OF(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
+#include "ckit/utils.h"
+
 #define CK_MEMORY_ALIGN (sizeof(max_align_t))
 
 /*

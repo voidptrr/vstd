@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "ckit/datastruct/linked_list.h"
-#include "ckit/memory/utils.h"
+#include "ckit/utils.h"
 
 typedef struct test_item {
     int value;

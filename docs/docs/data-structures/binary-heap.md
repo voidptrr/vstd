@@ -19,7 +19,7 @@ ck_binary_heap *ck_binary_heap_init(size_t elem_size,
 
 - Parameters: `elem_size`, `cmp`, `allocator`
 - Returns: opaque binary-heap handle.
-- Notes: when `allocator` is `NULL`, binary heap storage uses the C library heap through `ck_malloc`.
+- Notes: when `allocator` is `NULL`, binary heap storage uses the C library heap through `ck_malloc`/`ck_realloc`.
 
 ### ck_binary_heap_push
 

@@ -6,7 +6,7 @@
 #include "ckit/datastruct/doubly_linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
 #include "ckit/memory/allocators/general_heap.h"
-#include "ckit/memory/utils.h"
+#include "memory/utils.h"
 
 /* Header stored immediately before each heap-managed payload block. */
 typedef struct ck_heap_block {

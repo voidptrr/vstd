@@ -149,6 +149,7 @@ void ck_doubly_linked_list_deinit(ck_doubly_linked_list *list);
 
 ```c
 #include <ckit/datastruct/doubly_linked_list.h>
+#include <ckit/utils.h>
 
 typedef struct job {
     int id;

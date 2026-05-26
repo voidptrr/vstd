@@ -34,7 +34,7 @@ ck_arena *ck_arena_init(size_t capacity);
 
 - Parameters: `capacity`
 - Returns: arena pointer.
-- Notes: capacity is aligned up to `CK_MEMORY_ALIGN`.
+- Notes: capacity is aligned up to the allocator's internal memory alignment.
 
 ### ck_arena_allocator
 
@@ -54,7 +54,7 @@ void *ck_arena_alloc(ck_arena *arena, size_t size);
 
 - Parameters: `arena`, `size`
 - Returns: allocated pointer, or `NULL` when allocation cannot be satisfied.
-- Notes: returned pointers are aligned to `CK_MEMORY_ALIGN`.
+- Notes: returned pointers are aligned to the allocator's internal memory alignment.
 
 ### ck_arena_realloc
 
@@ -64,7 +64,7 @@ void *ck_arena_realloc(ck_arena *arena, void *ptr, size_t size);
 
 - Parameters: `arena`, `ptr`, `size`
 - Returns: grown pointer, original pointer when the aligned size is unchanged, or `NULL` on failure.
-- Notes: `ptr == NULL` behaves like allocation. `size == 0` returns `NULL`. Shrinking an existing allocation is invalid.
+- Notes: `ptr == NULL` behaves like allocation. `size == 0` with an existing pointer returns `NULL`. Shrinking an existing allocation is invalid.
 
 ### ck_arena_reset
 

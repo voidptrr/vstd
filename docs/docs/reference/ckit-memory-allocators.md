@@ -47,7 +47,7 @@ void *ck_malloc(ck_allocator *allocator, size_t size);
 - Parameters: `allocator`, `size`
 - Returns: pointer to allocated memory.
 - Behavior: prints a fatal message and aborts on out-of-memory.
-- Notes: when `allocator` is `NULL`, uses the C library heap.
+- Notes: when `allocator` is `NULL` or has no `alloc` callback, uses the C library heap.
 
 ### ck_realloc
 
@@ -58,7 +58,7 @@ void *ck_realloc(ck_allocator *allocator, void *ptr, size_t size);
 - Parameters: `allocator`, `ptr`, `size`
 - Returns: pointer to resized memory.
 - Behavior: prints a fatal message and aborts on allocation failure.
-- Notes: when `allocator` is `NULL`, uses the C library heap. When `size == 0`, frees `ptr` and returns `NULL`.
+- Notes: when `allocator` is `NULL` or has no `realloc` callback, uses the C library heap. When `size == 0`, deallocates `ptr` and returns `NULL`.
 
 ### ck_dealloc
 
@@ -68,4 +68,4 @@ void ck_dealloc(ck_allocator *allocator, void *ptr);
 
 - Parameters: `allocator`, `ptr`
 - Returns: none.
-- Notes: when `allocator` is `NULL`, uses the C library heap. `NULL` pointers are ignored. If a custom allocator does not advertise `CK_ALLOCATOR_FEATURE_DEALLOC`, this function returns without calling a dealloc callback.
+- Notes: when `allocator` is `NULL`, uses the C library heap. If a custom allocator does not advertise `CK_ALLOCATOR_FEATURE_DEALLOC`, this function returns without calling a dealloc callback.

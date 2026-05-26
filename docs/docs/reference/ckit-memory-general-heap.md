@@ -38,6 +38,7 @@ ck_allocator ck_heap_allocator(ck_heap *heap);
 
 - Parameters: `heap`
 - Returns: allocator adapter bound to `heap`.
+- Notes: the returned allocator advertises `CK_ALLOCATOR_FEATURE_DEALLOC | CK_ALLOCATOR_FEATURE_REALLOC`.
 
 ### ck_heap_alloc
 

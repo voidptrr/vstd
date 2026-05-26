@@ -17,7 +17,7 @@ ck_deque *ck_deque_init(size_t elem_size, ck_allocator *allocator);
 
 - Parameters: `elem_size`, `allocator`
 - Returns: opaque deque handle.
-- Notes: when `allocator` is `NULL`, deque uses the C library heap through `ck_malloc`.
+- Notes: when `allocator` is `NULL`, deque uses the C library heap through `ck_malloc`/`ck_realloc`.
 
 ### ck_deque_push
 

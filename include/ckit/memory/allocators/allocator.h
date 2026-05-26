@@ -27,13 +27,13 @@ typedef struct ck_allocator {
     ck_dealloc_fn dealloc;
 } ck_allocator;
 
-/* Allocate size bytes through allocator when provided, otherwise malloc. */
+/* Allocate size bytes through allocator->alloc when provided, otherwise malloc. */
 void *ck_malloc(ck_allocator *allocator, size_t size);
 
-/* Resize ptr through allocator when provided, otherwise realloc. */
+/* Resize ptr through allocator->realloc when provided, otherwise realloc. */
 void *ck_realloc(ck_allocator *allocator, void *ptr, size_t size);
 
-/* Release ptr through allocator when provided, otherwise free. */
+/* Release ptr through allocator->dealloc when advertised, otherwise free for NULL allocator. */
 void ck_dealloc(ck_allocator *allocator, void *ptr);
 
 #endif

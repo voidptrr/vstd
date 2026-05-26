@@ -113,6 +113,7 @@ void ck_linked_list_deinit(ck_linked_list *list);
 
 ```c
 #include <ckit/datastruct/linked_list.h>
+#include <ckit/utils.h>
 
 typedef struct job {
     int id;

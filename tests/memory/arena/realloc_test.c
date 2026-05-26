@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "ckit/memory/allocators/arena.h"
-#include "ckit/memory/utils.h"
+#include "memory/utils.h"
 
 int main(void) {
     int status = 0;

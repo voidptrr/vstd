@@ -1,16 +1,18 @@
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "ckit/common/panic.h"
 #include "ckit/datastruct/hashmap.h"
 #include "ckit/datastruct/linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/utils.h"
 #include "datastruct/hash_common.h"
+#include "memory/utils.h"
 
 typedef struct ck_hashmap_entry {
     ck_linked_list_node node;
-    void *key;
-    void *value;
+    max_align_t align;
+    uint8_t data[];
 } ck_hashmap_entry;
 
 struct ck_hashmap {
@@ -25,14 +27,23 @@ struct ck_hashmap {
 
 static void ck_hashmap_entry_deinit(ck_linked_list_node *node, ck_allocator *allocator) {
     ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
-    ck_dealloc(allocator, entry->key);
-    ck_dealloc(allocator, entry->value);
     ck_dealloc(allocator, entry);
 }
 
 static const void *ck_hashmap_entry_key(const ck_linked_list_node *node) {
     const ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
-    return entry->key;
+    return entry->data;
+}
+
+static void *ck_hashmap_entry_value(const ck_hashmap *map, ck_hashmap_entry *entry) {
+    size_t value_offset = ck_align_up(map->key_size, CK_MEMORY_ALIGN);
+    return entry->data + value_offset;
+}
+
+static const void *ck_hashmap_entry_value_const(const ck_hashmap *map,
+                                                const ck_hashmap_entry *entry) {
+    size_t value_offset = ck_align_up(map->key_size, CK_MEMORY_ALIGN);
+    return entry->data + value_offset;
 }
 
 static ck_hashmap_entry *ck_hashmap_entry_get(const ck_hashmap *map, const void *key) {
@@ -74,7 +85,7 @@ void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value) {
                                                            map->key_eq, ck_hashmap_entry_key);
     if (node != NULL) {
         ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
-        memcpy(entry->value, value, map->value_size);
+        memcpy(ck_hashmap_entry_value(map, entry), value, map->value_size);
         return;
     }
 
@@ -87,12 +98,12 @@ void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value) {
         bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
     }
 
-    ck_hashmap_entry *entry = ck_malloc(map->allocator, sizeof(ck_hashmap_entry));
-    entry->key = ck_malloc(map->allocator, map->key_size);
-    entry->value = ck_malloc(map->allocator, map->value_size);
+    size_t value_offset = ck_align_up(map->key_size, CK_MEMORY_ALIGN);
+    size_t alloc_size = sizeof(ck_hashmap_entry) + value_offset + map->value_size;
+    ck_hashmap_entry *entry = ck_malloc(map->allocator, alloc_size);
 
-    memcpy(entry->key, key, map->key_size);
-    memcpy(entry->value, value, map->value_size);
+    memcpy(entry->data, key, map->key_size);
+    memcpy(ck_hashmap_entry_value(map, entry), value, map->value_size);
 
     ck_linked_list_pushfront(map->buckets[bucket], &entry->node);
     map->size += 1;
@@ -104,7 +115,7 @@ void *ck_hashmap_get(ck_hashmap *map, const void *key) {
 
     ck_hashmap_entry *entry = ck_hashmap_entry_get(map, key);
     if (entry != NULL) {
-        return entry->value;
+        return ck_hashmap_entry_value(map, entry);
     }
     return NULL;
 }
@@ -115,7 +126,7 @@ const void *ck_hashmap_get_const(const ck_hashmap *map, const void *key) {
 
     ck_hashmap_entry *entry = ck_hashmap_entry_get(map, key);
     if (entry != NULL) {
-        return entry->value;
+        return ck_hashmap_entry_value_const(map, entry);
     }
     return NULL;
 }
@@ -129,8 +140,6 @@ void ck_hashmap_remove(ck_hashmap *map, const void *key) {
         map->buckets[bucket], key, map->key_size, map->key_eq, ck_hashmap_entry_key);
     if (node != NULL) {
         ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
-        ck_dealloc(map->allocator, entry->key);
-        ck_dealloc(map->allocator, entry->value);
         ck_dealloc(map->allocator, entry);
         map->size -= 1;
     }
