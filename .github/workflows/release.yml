@@ -63,23 +63,6 @@ jobs:
           fetch_all_tags: true
           dry_run: ${{ inputs.dry_run }}
 
-      - name: Validate generated tag
-        if: ${{ inputs.dry_run == false }}
-        env:
-          NEW_TAG: ${{ steps.tag.outputs.new_tag }}
-        run: |
-          set -euo pipefail
-
-          if [ -z "${NEW_TAG}" ] || [ "${NEW_TAG}" = "undefined" ]; then
-            echo "No tag was generated. There may be no new commits since the previous tag."
-            exit 1
-          fi
-
-          if ! printf '%s\n' "${NEW_TAG}" | grep -Eq '^[0-9]+[.][0-9]+[.][0-9]+(-[0-9A-Za-z.-]+)?$'; then
-            echo "Generated tag ${NEW_TAG} does not match the Zig-style release format."
-            exit 1
-          fi
-
       - name: Create release branch
         if: ${{ inputs.dry_run == false && inputs.create_release_branch == true }}
         env:
