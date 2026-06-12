@@ -22,10 +22,15 @@ on:
         required: true
         default: false
         type: boolean
+      create_release_branch:
+        description: Create the MAJOR.MINOR.x release branch when missing
+        required: true
+        default: true
+        type: boolean
       release_branches:
         description: Comma-separated branch patterns allowed to create release tags
         required: true
-        default: main,release.*
+        default: 'main,[0-9]+\.[0-9]+\.x'
         type: string
 
 permissions:
@@ -52,7 +57,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           default_bump: ${{ inputs.bump }}
-          tag_prefix: v
+          tag_prefix: ""
           release_branches: ${{ inputs.release_branches }}
           create_annotated_tag: true
           fetch_all_tags: true
@@ -69,6 +74,32 @@ jobs:
             echo "No tag was generated. There may be no new commits since the previous tag."
             exit 1
           fi
+
+          if ! printf '%s\n' "${NEW_TAG}" | grep -Eq '^[0-9]+[.][0-9]+[.][0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "Generated tag ${NEW_TAG} does not match the Zig-style release format."
+            exit 1
+          fi
+
+      - name: Create release branch
+        if: ${{ inputs.dry_run == false && inputs.create_release_branch == true }}
+        env:
+          NEW_VERSION: ${{ steps.tag.outputs.new_version }}
+        run: |
+          set -euo pipefail
+
+          release_branch="$(printf '%s\n' "${NEW_VERSION}" | sed -nE 's/^([0-9]+)[.]([0-9]+)[.][0-9]+.*$/\1.\2.x/p')"
+
+          if [ -z "${release_branch}" ]; then
+            echo "Could not derive a release branch from version ${NEW_VERSION}."
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --heads origin "refs/heads/${release_branch}" >/dev/null 2>&1; then
+            echo "Release branch ${release_branch} already exists."
+            exit 0
+          fi
+
+          git push origin "HEAD:refs/heads/${release_branch}"
 
       - name: Create GitHub Release
         if: ${{ inputs.dry_run == false }}
