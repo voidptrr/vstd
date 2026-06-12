@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(algorithms_and_data_structures_c C)
+project(ckit C)
 
 include(CTest)
 enable_testing()
