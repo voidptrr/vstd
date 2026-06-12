@@ -17,9 +17,9 @@ cmake \
 
 cmake --build build/hardened
 
-for file in $(find src -type f -name '*.c' | sort); do
+run_clang_tidy() {
   status=0
-  output="$(clang-tidy -p build/hardened --quiet "$file" 2>&1)" || status=$?
+  output="$(clang-tidy --quiet "$@" 2>&1)" || status=$?
   if [ -n "$output" ]; then
     filtered_output="$(printf '%s\n' "$output" |
       sed \
@@ -34,6 +34,14 @@ for file in $(find src -type f -name '*.c' | sort); do
   if [ "$status" -ne 0 ]; then
     exit "$status"
   fi
+}
+
+for file in $(find src -type f -name '*.c' | sort); do
+  run_clang_tidy -p build/hardened "$file"
+done
+
+for file in $(find include -type f -name '*.h' | sort); do
+  run_clang_tidy "$file" -- -Iinclude -std=c17 -x c-header
 done
 
 ctest --test-dir build/hardened --output-on-failure
