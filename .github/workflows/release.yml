@@ -1,0 +1,96 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version without the leading v, for example 0.1.0
+        required: true
+        type: string
+      prerelease:
+        description: Mark this GitHub Release as a prerelease
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release v${{ inputs.version }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate release version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          tag="v${VERSION}"
+
+          case "${VERSION}" in
+            v*)
+              echo "Use a plain version like 0.1.0, not ${VERSION}."
+              exit 1
+              ;;
+          esac
+
+          if ! printf '%s\n' "${VERSION}" | grep -Eq '^[0-9]+[.][0-9]+[.][0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "Version must look like 0.1.0 or 0.1.0-rc.1."
+            exit 1
+          fi
+
+          cmake_version="$(sed -nE 's/^project[(]ckit VERSION ([^ ]+) LANGUAGES C[)]$/\1/p' CMakeLists.txt)"
+          nix_version="$(sed -nE 's/^  version = "([^"]+)";$/\1/p' tools/nix/package.nix)"
+
+          if [ "${cmake_version}" != "${VERSION}" ]; then
+            echo "CMakeLists.txt has version ${cmake_version}, expected ${VERSION}."
+            exit 1
+          fi
+
+          if [ "${nix_version}" != "${VERSION}" ]; then
+            echo "tools/nix/package.nix has version ${nix_version}, expected ${VERSION}."
+            exit 1
+          fi
+
+          if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
+            echo "Tag ${tag} already exists locally."
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag}" >/dev/null 2>&1; then
+            echo "Tag ${tag} already exists on origin."
+            exit 1
+          fi
+
+      - name: Create tag
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          tag="v${VERSION}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${tag}" -m "Release ${tag}"
+          git push origin "refs/tags/${tag}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          generate_release_notes: true
+          prerelease: ${{ inputs.prerelease }}
