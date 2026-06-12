@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - "docs/**"
+      - "scripts/code-check"
+      - "scripts/format-check"
       - "src/**"
       - "tests/**"
       - "tooling/**"
