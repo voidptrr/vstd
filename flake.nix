@@ -48,7 +48,6 @@
         nixDirs = ["flake.nix" "tools/nix"];
         sourceDirs = ["src" "tests"];
         headerDirs = ["include"];
-        headerIncludeFlags = ["-Iinclude"];
       });
   };
 }
