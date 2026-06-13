@@ -2,7 +2,7 @@
 
 ## Commands
 - Docs build: `scripts/docs-build`
-- Formatting: `scripts/format`
+- Formatting: `format-code`
 - Checks: `nix flake check`
 
 ## Directory Structure
