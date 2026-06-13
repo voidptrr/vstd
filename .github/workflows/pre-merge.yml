@@ -20,9 +20,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  - uses: voidptrr/ctools/.github/workflows/checks.yml@02d4c66dbfdc952255a3a28298f5963d219234c8
+  flake:
+    name: flake
+    uses: voidptrr/ctools/.github/workflows/checks.yml@02d4c66dbfdc952255a3a28298f5963d219234c8
 
   docs:
+    name: docs
     runs-on: ubuntu-latest
 
     steps:
