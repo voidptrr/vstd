@@ -25,10 +25,10 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/memory/allocators/allocator.h"
 #include "ckit/memory/allocators/arena.h"
-#include "memory/utils.h"
+#include "ckit/memory/utils.h"
+#include "ckit/panic.h"
 
 typedef struct ck_arena_alloc_header {
     size_t size;

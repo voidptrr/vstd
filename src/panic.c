@@ -22,16 +22,14 @@
  * SOFTWARE.
  */
 
-#ifndef CK_COMMON_PANIC_H
-#define CK_COMMON_PANIC_H
+#include <stdio.h>
+#include <stdlib.h>
 
-_Noreturn void ck_panic(const char *message);
+#include "ckit/panic.h"
 
-#define CK_ASSERT(cond, message)                                                                   \
-    do {                                                                                           \
-        if (!(cond)) {                                                                             \
-            ck_panic(message);                                                                     \
-        }                                                                                          \
-    } while (0)
-
-#endif
+_Noreturn void ck_panic(const char *message) {
+    if (message != NULL) {
+        fprintf(stderr, "%s\n", message);
+    }
+    abort();
+}

@@ -25,9 +25,9 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/vector.h"
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/panic.h"
 
 #define CK_VECTOR_DEFAULT_CAPACITY 16
 
@@ -61,10 +61,11 @@ void ck_vector_push(ck_vector *vector, const void *element) {
     CK_ASSERT(element != NULL, "fatal: ck_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
+        ck_allocator *allocator = vector->allocator;
         size_t new_capacity = vector->capacity * 2;
         size_t alloc_size = new_capacity * vector->elem_size;
 
-        void *tmp = ck_realloc(vector->allocator, vector->buffer, alloc_size);
+        void *tmp = ck_realloc(allocator, vector->buffer, alloc_size);
         vector->buffer = tmp;
         vector->capacity = new_capacity;
     }
@@ -142,6 +143,6 @@ void ck_vector_destroy(ck_vector *vector) {
     CK_ASSERT(vector != NULL, "fatal: ck_vector_destroy invalid arguments");
 
     ck_allocator *allocator = vector->allocator;
-    ck_dealloc(vector->allocator, vector->buffer);
+    ck_dealloc(allocator, vector->buffer);
     ck_dealloc(allocator, vector);
 }

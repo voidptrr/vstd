@@ -24,8 +24,8 @@
 
 #include <stdlib.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/panic.h"
 
 void *ck_malloc(ck_allocator *allocator, size_t size) {
     void *ptr = NULL;

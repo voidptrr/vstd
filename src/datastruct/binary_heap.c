@@ -24,11 +24,11 @@
 
 #include <string.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/binary_heap.h"
 #include "ckit/datastruct/vector.h"
 #include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/bytes.h"
+#include "ckit/memory/utils.h"
+#include "ckit/panic.h"
 
 struct ck_binary_heap {
     ck_vector *root;

@@ -25,9 +25,9 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/deque.h"
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/panic.h"
 
 #define CK_DEQUE_DEFAULT_CAPACITY 16
 
@@ -42,12 +42,13 @@ struct ck_deque {
 };
 
 static void ck_deque_grow(ck_deque *deque) {
+    ck_allocator *allocator = deque->allocator;
     size_t old_capacity = deque->capacity;
     size_t new_capacity = old_capacity * 2;
     uint8_t *old_buffer = (uint8_t *)deque->buffer;
 
     size_t alloc_size = new_capacity * deque->elem_size;
-    uint8_t *new_buffer = ck_malloc(deque->allocator, alloc_size);
+    uint8_t *new_buffer = ck_malloc(allocator, alloc_size);
 
     if (deque->size > 0) {
         if (deque->head < deque->tail) {
@@ -66,7 +67,7 @@ static void ck_deque_grow(ck_deque *deque) {
         }
     }
 
-    ck_dealloc(deque->allocator, deque->buffer);
+    ck_dealloc(allocator, deque->buffer);
     deque->buffer = new_buffer;
     deque->capacity = new_capacity;
     deque->head = 0;
@@ -192,6 +193,6 @@ void ck_deque_destroy(ck_deque *deque) {
     CK_ASSERT(deque != NULL, "fatal: ck_deque_destroy invalid arguments");
 
     ck_allocator *allocator = deque->allocator;
-    ck_dealloc(deque->allocator, deque->buffer);
+    ck_dealloc(allocator, deque->buffer);
     ck_dealloc(allocator, deque);
 }

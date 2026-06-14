@@ -26,9 +26,9 @@
 #include <string.h>
 
 #include "ckit/compare.h"
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/panic.h"
 #include "datastruct/hash_common.h"
 
 ck_linked_list **ck_hash_common_buckets_create(size_t capacity, ck_allocator *allocator) {

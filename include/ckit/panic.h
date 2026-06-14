@@ -22,12 +22,16 @@
  * SOFTWARE.
  */
 
-#ifndef CK_UTILS_H
-#define CK_UTILS_H
+#ifndef CK_PANIC_H
+#define CK_PANIC_H
 
-#include <stddef.h>
-#include <stdint.h> /* IWYU pragma: keep */
+_Noreturn void ck_panic(const char *message);
 
-#define CK_CONTAINER_OF(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
+#define CK_ASSERT(cond, message)                                                                   \
+    do {                                                                                           \
+        if (!(cond)) {                                                                             \
+            ck_panic(message);                                                                     \
+        }                                                                                          \
+    } while (0)
 
 #endif

@@ -26,9 +26,9 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/string.h"
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/panic.h"
 
 #define CK_STRING_DEFAULT_CAPACITY 16
 
@@ -66,7 +66,8 @@ static ck_string_header *ck_string_ensure_capacity(ck_string *string, size_t len
     size_t new_capacity = ck_string_capacity_for(len);
     size_t alloc_size = sizeof(ck_string_header) + new_capacity;
 
-    ck_string_header *tmp = ck_realloc(header->allocator, header, alloc_size);
+    ck_allocator *allocator = header->allocator;
+    ck_string_header *tmp = ck_realloc(allocator, header, alloc_size);
     tmp->capacity = new_capacity;
     *string = tmp->buf;
     return tmp;
@@ -181,5 +182,6 @@ void ck_string_destroy(ck_string string) {
         return;
     }
 
-    ck_dealloc(header->allocator, header);
+    ck_allocator *allocator = header->allocator;
+    ck_dealloc(allocator, header);
 }
