@@ -5,9 +5,45 @@
 The testing module provides small helpers for C tests that return `0` on success
 and non-zero on failure.
 
-It includes assertion macros and a malloc-backed tracking allocator for checking
-that allocator-aware APIs allocate, reallocate, and release through the expected
-adapter.
+It includes assertion macros and failure-reporting helpers. The malloc-backed
+tracking allocator lives in `ckit/memory/allocators/test_allocator.h`.
+
+## TEST CASES
+
+### CK_TEST
+
+```c
+#include <ckit/testing.h>
+
+#define CK_TEST(name)
+```
+
+- Parameters: `name`
+- Behavior: defines a named test-case function that returns `0` on success and
+  non-zero on failure.
+
+### CK_TEST_CASE
+
+```c
+#include <ckit/testing.h>
+
+#define CK_TEST_CASE(name)
+```
+
+- Parameters: `name`
+- Behavior: creates an entry for a `CK_TEST(name)` function.
+
+### CK_TEST_MAIN
+
+```c
+#include <ckit/testing.h>
+
+#define CK_TEST_MAIN(...)
+```
+
+- Parameters: one or more `CK_TEST_CASE(name)` entries.
+- Behavior: defines `main`, runs every listed case, prints the failed case name,
+  and returns `1` if any case fails.
 
 ## ASSERTIONS
 
@@ -102,87 +138,16 @@ adapter.
 - Behavior: compares two C strings and prints both values on failure. Two
   `NULL` strings compare equal.
 
-## TRACKING ALLOCATOR
-
-### ck_test_allocator
-
-```c
-#include <ckit/testing.h>
-
-typedef struct ck_test_allocator {
-    size_t alloc_count;
-    size_t realloc_count;
-    size_t dealloc_count;
-    size_t outstanding_allocations;
-    size_t failed_allocations;
-    size_t fail_after;
-    ck_allocator allocator;
-} ck_test_allocator;
-```
-
-Tracks allocation events:
-
-- `alloc_count`
-- `realloc_count`
-- `dealloc_count`
-- `outstanding_allocations`
-- `failed_allocations`
-- `fail_after`
-
-`fail_after` defaults to `CK_TEST_ALLOCATOR_NO_FAILURE`. Setting it to `0`
-makes the next allocation or reallocation attempt fail. Setting it to `N` allows
-`N` allocation or reallocation attempts before failures begin.
-
-### ck_test_allocator_init
-
-```c
-void ck_test_allocator_init(ck_test_allocator *test_allocator);
-```
-
-Initializes a malloc-backed tracking allocator.
-
-### ck_test_allocator_allocator
-
-```c
-ck_allocator *ck_test_allocator_allocator(ck_test_allocator *test_allocator);
-```
-
-Returns the allocator adapter to pass into ckit APIs.
-
-### ck_test_allocator_reset_counts
-
-```c
-void ck_test_allocator_reset_counts(ck_test_allocator *test_allocator);
-```
-
-Resets allocation event counters while preserving outstanding allocation state.
-
-### ck_test_allocator_is_clean
-
-```c
-bool ck_test_allocator_is_clean(const ck_test_allocator *test_allocator);
-```
-
-Returns whether every tracked allocation has been released.
-
 ## EXAMPLE
 
 ```c
-#include <ckit/datastruct/vector.h>
 #include <ckit/testing.h>
 
-int main(void) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-
-    ck_vector *vector = ck_vector_create(sizeof(int), ck_test_allocator_allocator(&test_allocator));
+CK_TEST(value_matches_expected) {
     int value = 7;
-
-    ck_vector_push(vector, &value);
-    CK_TEST_ASSERT_EQ(ck_vector_size(vector), 1);
-
-    ck_vector_destroy(vector);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    CK_TEST_ASSERT_EQ(value, 7);
     return 0;
 }
+
+CK_TEST_MAIN(CK_TEST_CASE(value_matches_expected))
 ```

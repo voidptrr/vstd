@@ -27,6 +27,7 @@
 #include "ckit/compare.h"
 #include "ckit/datastruct/hashmap.h"
 #include "ckit/testing.h"
+#include "ckit/memory/allocators/test_allocator.h"
 
 int main(void) {
     ck_test_allocator test_allocator;
@@ -35,7 +36,7 @@ int main(void) {
 
     ck_test_allocator_init(&test_allocator);
     ck_hashmap *map = ck_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64,
-                                        ck_test_allocator_allocator(&test_allocator));
+                                        ck_test_allocator_adapter(&test_allocator));
     ck_test_allocator_reset_counts(&test_allocator);
 
     ck_hashmap_put(map, &key, &value);

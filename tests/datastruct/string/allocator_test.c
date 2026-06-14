@@ -24,12 +24,13 @@
 
 #include "ckit/datastruct/string.h"
 #include "ckit/testing.h"
+#include "ckit/memory/allocators/test_allocator.h"
 
 int main(void) {
     ck_test_allocator test_allocator;
 
     ck_test_allocator_init(&test_allocator);
-    ck_string value = ck_string_create("abc", ck_test_allocator_allocator(&test_allocator));
+    ck_string value = ck_string_create("abc", ck_test_allocator_adapter(&test_allocator));
     CK_TEST_ASSERT_EQ(test_allocator.alloc_count, 1);
     CK_TEST_ASSERT_EQ(test_allocator.realloc_count, 0);
     CK_TEST_ASSERT_EQ(test_allocator.dealloc_count, 0);

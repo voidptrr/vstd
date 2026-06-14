@@ -60,7 +60,7 @@ ck_heap *ck_heap_create(size_t capacity);
 /*
  * Return an allocator adapter that routes through this heap.
  */
-ck_allocator ck_heap_allocator(ck_heap *heap);
+ck_allocator ck_heap_adapter(ck_heap *heap);
 
 /*
  * Allocate `size` bytes from heap.

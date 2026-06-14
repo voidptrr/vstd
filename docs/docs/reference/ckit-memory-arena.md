@@ -36,10 +36,10 @@ ck_arena *ck_arena_create(size_t capacity);
 - Returns: arena pointer.
 - Notes: capacity is aligned up to the allocator's internal memory alignment.
 
-### ck_arena_allocator
+### ck_arena_adapter
 
 ```c
-ck_allocator ck_arena_allocator(ck_arena *arena);
+ck_allocator ck_arena_adapter(ck_arena *arena);
 ```
 
 - Parameters: `arena`
@@ -124,7 +124,7 @@ void ck_arena_destroy(ck_arena *arena);
 int main(void) {
     int status = 0;
     ck_arena *arena = ck_arena_create(1024);
-    ck_allocator allocator = ck_arena_allocator(arena);
+    ck_allocator allocator = ck_arena_adapter(arena);
 
     uint64_t *value = ck_arena_alloc(arena, sizeof(uint64_t));
     if (value == NULL) {

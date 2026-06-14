@@ -55,7 +55,7 @@ ck_arena *ck_arena_create(size_t capacity);
 /*
  * Return an allocator adapter that routes through this arena.
  */
-ck_allocator ck_arena_allocator(ck_arena *arena);
+ck_allocator ck_arena_adapter(ck_arena *arena);
 
 /*
  * Allocate `size` bytes from arena.

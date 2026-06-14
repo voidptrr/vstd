@@ -22,26 +22,36 @@
  * SOFTWARE.
  */
 
-#include <stdint.h>
+#ifndef CK_MEMORY_TEST_ALLOCATOR_H
+#define CK_MEMORY_TEST_ALLOCATOR_H
 
-#include "ckit/compare.h"
-#include "ckit/datastruct/hashset.h"
-#include "ckit/testing.h"
-#include "ckit/memory/allocators/test_allocator.h"
+#include <stdbool.h>
+#include <stddef.h>
 
-int main(void) {
-    ck_test_allocator test_allocator;
-    uint64_t value = 11;
+#include "ckit/memory/allocators/allocator.h"
 
-    ck_test_allocator_init(&test_allocator);
-    ck_hashset *set =
-        ck_hashset_create(sizeof(uint64_t), ck_eq_u64, ck_test_allocator_adapter(&test_allocator));
-    ck_test_allocator_reset_counts(&test_allocator);
+#define CK_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
 
-    ck_hashset_insert(set, &value);
-    CK_TEST_ASSERT_EQ(test_allocator.alloc_count, 1);
+typedef struct ck_test_allocator {
+    size_t alloc_count;
+    size_t realloc_count;
+    size_t dealloc_count;
+    size_t outstanding_allocations;
+    size_t failed_allocations;
+    size_t fail_after;
+    ck_allocator allocator;
+} ck_test_allocator;
 
-    ck_hashset_destroy(set);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
-    return 0;
-}
+/* Initialize a malloc-backed tracking allocator. */
+void ck_test_allocator_init(ck_test_allocator *test_allocator);
+
+/* Return the allocator adapter for APIs that accept ck_allocator. */
+ck_allocator *ck_test_allocator_adapter(ck_test_allocator *test_allocator);
+
+/* Reset event counters while keeping outstanding allocation state and fail_after. */
+void ck_test_allocator_reset_counts(ck_test_allocator *test_allocator);
+
+/* Return whether every tracked allocation has been released. */
+bool ck_test_allocator_is_clean(const ck_test_allocator *test_allocator);
+
+#endif

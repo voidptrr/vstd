@@ -123,10 +123,10 @@ ck_heap *ck_heap_create(size_t capacity) {
     return heap;
 }
 
-ck_allocator ck_heap_allocator(ck_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_allocator invalid arguments");
-    CK_ASSERT(heap->buffer != NULL, "fatal: ck_heap_allocator invalid heap");
-    CK_ASSERT(heap->blocks != NULL, "fatal: ck_heap_allocator invalid heap");
+ck_allocator ck_heap_adapter(ck_heap *heap) {
+    CK_ASSERT(heap != NULL, "fatal: ck_heap_adapter invalid arguments");
+    CK_ASSERT(heap->buffer != NULL, "fatal: ck_heap_adapter invalid heap");
+    CK_ASSERT(heap->blocks != NULL, "fatal: ck_heap_adapter invalid heap");
 
     ck_allocator allocator;
     allocator.ctx = heap;
