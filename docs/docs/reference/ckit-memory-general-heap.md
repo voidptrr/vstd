@@ -30,10 +30,10 @@ ck_heap *ck_heap_create(size_t capacity);
 - Parameters: `capacity`
 - Returns: heap pointer.
 
-### ck_heap_allocator
+### ck_heap_adapter
 
 ```c
-ck_allocator ck_heap_allocator(ck_heap *heap);
+ck_allocator ck_heap_adapter(ck_heap *heap);
 ```
 
 - Parameters: `heap`

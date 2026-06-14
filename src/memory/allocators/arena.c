@@ -54,9 +54,9 @@ ck_arena *ck_arena_create(size_t capacity) {
     return arena;
 }
 
-ck_allocator ck_arena_allocator(ck_arena *arena) {
-    CK_ASSERT(arena != NULL, "fatal: ck_arena_allocator invalid arguments");
-    CK_ASSERT(arena->buffer != NULL, "fatal: ck_arena_allocator invalid arena");
+ck_allocator ck_arena_adapter(ck_arena *arena) {
+    CK_ASSERT(arena != NULL, "fatal: ck_arena_adapter invalid arguments");
+    CK_ASSERT(arena->buffer != NULL, "fatal: ck_arena_adapter invalid arena");
 
     ck_allocator allocator;
     allocator.ctx = arena;

@@ -52,6 +52,7 @@ nav:
           - Overview: reference/ckit-memory-allocators.md
           - Arena allocator: reference/ckit-memory-arena.md
           - Free-list allocator: reference/ckit-memory-general-heap.md
+          - Test allocator: reference/ckit-memory-test-allocator.md
       - Bytes: reference/ckit-memory-bytes.md
   - Data structures:
       - Hashmap: data-structures/hashmap.md

@@ -28,7 +28,7 @@
 
 int main(void) {
     ck_arena *arena = ck_arena_create(128);
-    ck_allocator allocator = ck_arena_allocator(arena);
+    ck_allocator allocator = ck_arena_adapter(arena);
 
     CK_TEST_ASSERT_PTR_EQ(allocator.ctx, arena);
     CK_TEST_ASSERT(allocator.alloc != NULL);

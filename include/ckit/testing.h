@@ -28,9 +28,20 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/memory/allocators/allocator.h"
+typedef int (*ck_test_fn)(void);
 
-#define CK_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
+typedef struct ck_test_case {
+    const char *name;
+    ck_test_fn fn;
+} ck_test_case;
+
+#define CK_TEST(name) static int ck_test_case_##name(void)
+#define CK_TEST_CASE(name) {#name, ck_test_case_##name}
+#define CK_TEST_MAIN(...)                                                                          \
+    int main(void) {                                                                               \
+        static const ck_test_case ck_test_cases[] = {__VA_ARGS__};                                 \
+        return ck_test_run(ck_test_cases, sizeof(ck_test_cases) / sizeof(ck_test_cases[0]));       \
+    }
 
 #define CK_TEST_ASSERT(condition)                                                                  \
     do {                                                                                           \
@@ -98,16 +109,6 @@
         }                                                                                          \
     } while (0)
 
-typedef struct ck_test_allocator {
-    size_t alloc_count;
-    size_t realloc_count;
-    size_t dealloc_count;
-    size_t outstanding_allocations;
-    size_t failed_allocations;
-    size_t fail_after;
-    ck_allocator allocator;
-} ck_test_allocator;
-
 /* Print an assertion failure and return 1 for direct use from test main. */
 int ck_test_fail(const char *file, int line, const char *condition, const char *message);
 
@@ -128,16 +129,7 @@ int ck_test_fail_str_eq(const char *file, int line, const char *actual_expr,
 /* Return whether two C strings are equal, treating two NULL pointers as equal. */
 bool ck_test_str_eq(const char *actual, const char *expected);
 
-/* Initialize a malloc-backed tracking allocator. */
-void ck_test_allocator_init(ck_test_allocator *test_allocator);
-
-/* Return the allocator adapter for APIs that accept ck_allocator. */
-ck_allocator *ck_test_allocator_allocator(ck_test_allocator *test_allocator);
-
-/* Reset event counters while keeping outstanding allocation state and fail_after. */
-void ck_test_allocator_reset_counts(ck_test_allocator *test_allocator);
-
-/* Return whether every tracked allocation has been released. */
-bool ck_test_allocator_is_clean(const ck_test_allocator *test_allocator);
+/* Run named test cases and return 1 if any case fails. */
+int ck_test_run(const ck_test_case *cases, size_t count);
 
 #endif

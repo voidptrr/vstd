@@ -22,23 +22,36 @@
  * SOFTWARE.
  */
 
-#include "ckit/testing.h"
-#include "ckit/datastruct/deque.h"
+#ifndef CK_MEMORY_TEST_ALLOCATOR_H
+#define CK_MEMORY_TEST_ALLOCATOR_H
 
-int main(void) {
-    ck_deque *q;
-    int first = 1;
-    int second = 2;
-    const int *out;
+#include <stdbool.h>
+#include <stddef.h>
 
-    q = ck_deque_create(sizeof(int), NULL);
-    ck_deque_push(q, &first);
-    ck_deque_push(q, &second);
+#include "ckit/memory/allocators/allocator.h"
 
-    out = (const int *)ck_deque_peekleft(q);
-    CK_TEST_ASSERT_PTR_NOT_NULL(out);
-    CK_TEST_ASSERT_EQ(*out, first);
+#define CK_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
 
-    ck_deque_destroy(q);
-    return 0;
-}
+typedef struct ck_test_allocator {
+    size_t alloc_count;
+    size_t realloc_count;
+    size_t dealloc_count;
+    size_t outstanding_allocations;
+    size_t failed_allocations;
+    size_t fail_after;
+    ck_allocator allocator;
+} ck_test_allocator;
+
+/* Initialize a malloc-backed tracking allocator. */
+void ck_test_allocator_init(ck_test_allocator *test_allocator);
+
+/* Return the allocator adapter for APIs that accept ck_allocator. */
+ck_allocator *ck_test_allocator_adapter(ck_test_allocator *test_allocator);
+
+/* Reset event counters while keeping outstanding allocation state and fail_after. */
+void ck_test_allocator_reset_counts(ck_test_allocator *test_allocator);
+
+/* Return whether every tracked allocation has been released. */
+bool ck_test_allocator_is_clean(const ck_test_allocator *test_allocator);
+
+#endif

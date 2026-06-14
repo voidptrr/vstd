@@ -23,83 +23,9 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include "ckit/memory/allocators/allocator.h"
 #include "ckit/testing.h"
-
-static bool ck_test_allocator_should_fail(ck_test_allocator *test_allocator) {
-    if (test_allocator->fail_after == CK_TEST_ALLOCATOR_NO_FAILURE) {
-        return false;
-    }
-
-    if (test_allocator->fail_after == 0) {
-        test_allocator->failed_allocations += 1;
-        return true;
-    }
-
-    test_allocator->fail_after -= 1;
-    return false;
-}
-
-static void *ck_test_allocator_alloc(void *ctx, size_t size) {
-    ck_test_allocator *test_allocator = ctx;
-
-    if (ck_test_allocator_should_fail(test_allocator)) {
-        return NULL;
-    }
-
-    void *ptr = malloc(size);
-    if (ptr == NULL) {
-        test_allocator->failed_allocations += 1;
-        return NULL;
-    }
-
-    test_allocator->alloc_count += 1;
-    test_allocator->outstanding_allocations += 1;
-    return ptr;
-}
-
-static void ck_test_allocator_dealloc(void *ctx, void *ptr) {
-    ck_test_allocator *test_allocator = ctx;
-
-    if (ptr == NULL) {
-        return;
-    }
-
-    test_allocator->dealloc_count += 1;
-    if (test_allocator->outstanding_allocations > 0) {
-        test_allocator->outstanding_allocations -= 1;
-    }
-    free(ptr);
-}
-
-static void *ck_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
-    ck_test_allocator *test_allocator = ctx;
-
-    if (ptr == NULL) {
-        return ck_test_allocator_alloc(ctx, size);
-    }
-
-    if (size == 0) {
-        ck_test_allocator_dealloc(ctx, ptr);
-        return NULL;
-    }
-
-    if (ck_test_allocator_should_fail(test_allocator)) {
-        return NULL;
-    }
-
-    void *new_ptr = realloc(ptr, size);
-    if (new_ptr == NULL) {
-        test_allocator->failed_allocations += 1;
-        return NULL;
-    }
-
-    test_allocator->realloc_count += 1;
-    return new_ptr;
-}
 
 int ck_test_fail(const char *file, int line, const char *condition, const char *message) {
     if (message == NULL) {
@@ -145,33 +71,16 @@ bool ck_test_str_eq(const char *actual, const char *expected) {
     return strcmp(actual, expected) == 0;
 }
 
-void ck_test_allocator_init(ck_test_allocator *test_allocator) {
-    test_allocator->alloc_count = 0;
-    test_allocator->realloc_count = 0;
-    test_allocator->dealloc_count = 0;
-    test_allocator->outstanding_allocations = 0;
-    test_allocator->failed_allocations = 0;
-    test_allocator->fail_after = CK_TEST_ALLOCATOR_NO_FAILURE;
-    test_allocator->allocator = (ck_allocator){
-        .ctx = test_allocator,
-        .features = CK_ALLOCATOR_FEATURE_DEALLOC | CK_ALLOCATOR_FEATURE_REALLOC,
-        .alloc = ck_test_allocator_alloc,
-        .realloc = ck_test_allocator_realloc,
-        .dealloc = ck_test_allocator_dealloc,
-    };
-}
+int ck_test_run(const ck_test_case *cases, size_t count) {
+    int failed = 0;
 
-ck_allocator *ck_test_allocator_allocator(ck_test_allocator *test_allocator) {
-    return &test_allocator->allocator;
-}
+    for (size_t i = 0; i < count; i++) {
+        int status = cases[i].fn();
+        if (status != 0) {
+            fprintf(stderr, "test failed: %s\n", cases[i].name);
+            failed = 1;
+        }
+    }
 
-void ck_test_allocator_reset_counts(ck_test_allocator *test_allocator) {
-    test_allocator->alloc_count = 0;
-    test_allocator->realloc_count = 0;
-    test_allocator->dealloc_count = 0;
-    test_allocator->failed_allocations = 0;
-}
-
-bool ck_test_allocator_is_clean(const ck_test_allocator *test_allocator) {
-    return test_allocator->outstanding_allocations == 0;
+    return failed;
 }
