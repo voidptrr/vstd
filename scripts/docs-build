@@ -2,4 +2,4 @@
 set -eu
 
 cd docs
-mkdocs build --strict
+zensical build --strict

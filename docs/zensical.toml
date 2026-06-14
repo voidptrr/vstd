@@ -1,0 +1,69 @@
+[project]
+site_name = "ckit"
+site_description = "Documentation for ckit"
+site_author = "voidptrr"
+copyright = """
+Copyright &copy; 2026 voidptrr
+"""
+extra_css = ["stylesheets/extra.css"]
+nav = [
+  { "Overview" = "index.md" },
+  { "Compare" = "reference/ckit-compare.md" },
+  { "Testing" = "reference/ckit-testing.md" },
+  { "Memory" = [
+    { "Utilities" = "reference/ckit-memory-utils.md" },
+    { "Allocators" = [
+      { "Overview" = "reference/ckit-memory-allocators.md" },
+      { "Arena allocator" = "reference/ckit-memory-arena.md" },
+      { "Free-list allocator" = "reference/ckit-memory-general-heap.md" },
+      { "Test allocator" = "reference/ckit-memory-test-allocator.md" },
+    ] },
+  ] },
+  { "Data structures" = [
+    { "Hashmap" = "data-structures/hashmap.md" },
+    { "Hashset" = "data-structures/hashset.md" },
+    { "Binary heap" = "data-structures/binary-heap.md" },
+    { "Vector" = "data-structures/vector.md" },
+    { "Deque" = "data-structures/deque.md" },
+    { "Linked list" = "data-structures/linked-list.md" },
+    { "Doubly linked list" = "data-structures/doubly-linked-list.md" },
+    { "String" = "data-structures/string.md" },
+  ] },
+]
+
+[project.theme]
+language = "en"
+features = [
+  "content.code.copy",
+  "navigation.footer",
+  "navigation.instant",
+  "navigation.path",
+  "navigation.sections",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
+  "search.suggest",
+  "toc.follow",
+  "toc.integrate",
+]
+
+[[project.theme.palette]]
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[project.markdown_extensions.admonition]
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+line_spans = "__span"
+pygments_lang_class = true
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.snippets]
+[project.markdown_extensions.pymdownx.superfences]
+[project.markdown_extensions.toc]
+permalink = true

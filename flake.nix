@@ -32,10 +32,7 @@
       default = ctools.lib.mkCShell {
         inherit pkgs;
         extraPackages = [
-          (pkgs.python3.withPackages (ps: [
-            ps.mkdocs
-            ps.mkdocs-material
-          ]))
+          pkgs.zensical
         ];
       };
     });
