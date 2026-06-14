@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include <stddef.h>
+
 #include "ckit/testing.h"
 #include "ckit/datastruct/vector.h"
 

@@ -112,8 +112,7 @@ typedef struct ck_test_allocator {
 int ck_test_fail(const char *file, int line, const char *condition, const char *message);
 
 /* Print an equality assertion failure and return 1 for direct use from test main. */
-int ck_test_fail_eq(const char *file, int line, const char *actual_expr,
-                    const char *expected_expr);
+int ck_test_fail_eq(const char *file, int line, const char *actual_expr, const char *expected_expr);
 
 /* Print a non-NULL pointer assertion failure and return 1 for direct use from test main. */
 int ck_test_fail_ptr_null(const char *file, int line, const char *expr, const void *ptr);

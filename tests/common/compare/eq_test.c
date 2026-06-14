@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "ckit/testing.h"

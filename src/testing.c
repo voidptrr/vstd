@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ckit/memory/allocators/allocator.h"
 #include "ckit/testing.h"
 
 static bool ck_test_allocator_should_fail(ck_test_allocator *test_allocator) {
