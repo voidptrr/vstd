@@ -26,13 +26,12 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/hashmap.h"
 #include "ckit/datastruct/linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
-#include "ckit/utils.h"
+#include "ckit/memory/utils.h"
+#include "ckit/panic.h"
 #include "datastruct/hash_common.h"
-#include "memory/utils.h"
 
 typedef struct ck_hashmap_entry {
     ck_linked_list_node node;
@@ -105,6 +104,7 @@ void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value) {
     CK_ASSERT(key != NULL, "fatal: ck_hashmap_put invalid arguments");
     CK_ASSERT(value != NULL, "fatal: ck_hashmap_put invalid arguments");
 
+    ck_allocator *allocator = map->allocator;
     size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
     ck_linked_list_node *node = ck_hash_common_bucket_find(map->buckets[bucket], key, map->key_size,
                                                            map->key_eq, ck_hashmap_entry_key);
@@ -118,14 +118,14 @@ void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value) {
         size_t new_capacity = map->capacity * 2;
         map->buckets =
             ck_hash_common_buckets_rehash(map->buckets, map->capacity, new_capacity, map->key_size,
-                                          map->allocator, ck_hashmap_entry_key);
+                                          allocator, ck_hashmap_entry_key);
         map->capacity = new_capacity;
         bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
     }
 
     size_t value_offset = ck_align_up(map->key_size, CK_MEMORY_ALIGN);
     size_t alloc_size = sizeof(ck_hashmap_entry) + value_offset + map->value_size;
-    ck_hashmap_entry *entry = ck_malloc(map->allocator, alloc_size);
+    ck_hashmap_entry *entry = ck_malloc(allocator, alloc_size);
 
     memcpy(entry->data, key, map->key_size);
     memcpy(ck_hashmap_entry_value(map, entry), value, map->value_size);
@@ -160,12 +160,13 @@ void ck_hashmap_remove(ck_hashmap *map, const void *key) {
     CK_ASSERT(map != NULL, "fatal: ck_hashmap_remove invalid arguments");
     CK_ASSERT(key != NULL, "fatal: ck_hashmap_remove invalid arguments");
 
+    ck_allocator *allocator = map->allocator;
     size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
     ck_linked_list_node *node = ck_hash_common_bucket_remove(
         map->buckets[bucket], key, map->key_size, map->key_eq, ck_hashmap_entry_key);
     if (node != NULL) {
         ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
-        ck_dealloc(map->allocator, entry);
+        ck_dealloc(allocator, entry);
         map->size -= 1;
     }
 }

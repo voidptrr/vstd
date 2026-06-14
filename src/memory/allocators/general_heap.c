@@ -26,12 +26,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/doubly_linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
 #include "ckit/memory/allocators/general_heap.h"
-#include "ckit/utils.h"
-#include "memory/utils.h"
+#include "ckit/memory/utils.h"
+#include "ckit/panic.h"
 
 /* Header stored immediately before each heap-managed payload block. */
 typedef struct ck_heap_block {

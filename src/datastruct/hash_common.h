@@ -31,7 +31,7 @@
 #include "ckit/compare.h"
 #include "ckit/datastruct/linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
-#include "crypto/fnv1a.h"
+#include "hash.h"
 
 #define CK_HASH_COMMON_DEFAULT_CAPACITY 16
 #define CK_HASH_COMMON_MAX_LOAD 0.75
@@ -56,7 +56,7 @@ void ck_hash_common_buckets_destroy(ck_linked_list **buckets, size_t capacity,
 
 static inline size_t ck_hash_common_bucket_index(const void *value, size_t value_size,
                                                  size_t capacity) {
-    return ck_internal_fnv1a_hash(value, value_size) % capacity;
+    return ck_fnv1a_hash(value, value_size) % capacity;
 }
 
 static inline bool ck_hash_common_should_grow(size_t size, size_t capacity) {

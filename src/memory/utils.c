@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "ckit/memory/bytes.h"
+#include "ckit/memory/utils.h"
 
 void ck_memswap(void *a, void *b, size_t size) {
     uint8_t *left = (uint8_t *)a;

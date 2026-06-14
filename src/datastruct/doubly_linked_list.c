@@ -24,9 +24,9 @@
 
 #include <stddef.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/doubly_linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
+#include "ckit/panic.h"
 
 struct ck_doubly_linked_list {
     size_t size;

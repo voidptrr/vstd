@@ -25,7 +25,7 @@
 #include "ckit/testing.h"
 #include "ckit/memory/allocators/test_allocator.h"
 #include "ckit/datastruct/linked_list.h"
-#include "ckit/utils.h"
+#include "ckit/memory/utils.h"
 
 typedef struct test_item {
     int value;

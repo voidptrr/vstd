@@ -26,11 +26,11 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/common/panic.h"
 #include "ckit/datastruct/hashset.h"
 #include "ckit/datastruct/linked_list.h"
 #include "ckit/memory/allocators/allocator.h"
-#include "ckit/utils.h"
+#include "ckit/memory/utils.h"
+#include "ckit/panic.h"
 #include "datastruct/hash_common.h"
 
 typedef struct ck_hashset_entry {
@@ -89,6 +89,7 @@ void ck_hashset_insert(ck_hashset *set, const void *elem) {
     CK_ASSERT(set != NULL, "fatal: ck_hashset_insert invalid arguments");
     CK_ASSERT(elem != NULL, "fatal: ck_hashset_insert invalid arguments");
 
+    ck_allocator *allocator = set->allocator;
     size_t bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     ck_linked_list_node *node = ck_hash_common_bucket_find(
         set->buckets[bucket], elem, set->elem_size, set->elem_eq, ck_hashset_entry_elem);
@@ -100,12 +101,12 @@ void ck_hashset_insert(ck_hashset *set, const void *elem) {
         size_t new_capacity = set->capacity * 2;
         set->buckets =
             ck_hash_common_buckets_rehash(set->buckets, set->capacity, new_capacity, set->elem_size,
-                                          set->allocator, ck_hashset_entry_elem);
+                                          allocator, ck_hashset_entry_elem);
         set->capacity = new_capacity;
         bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     }
 
-    ck_hashset_entry *entry = ck_malloc(set->allocator, sizeof(ck_hashset_entry) + set->elem_size);
+    ck_hashset_entry *entry = ck_malloc(allocator, sizeof(ck_hashset_entry) + set->elem_size);
     memcpy(entry->data, elem, set->elem_size);
 
     ck_linked_list_pushfront(set->buckets[bucket], &entry->node);
@@ -145,12 +146,13 @@ void ck_hashset_remove(ck_hashset *set, const void *elem) {
     CK_ASSERT(set != NULL, "fatal: ck_hashset_remove invalid arguments");
     CK_ASSERT(elem != NULL, "fatal: ck_hashset_remove invalid arguments");
 
+    ck_allocator *allocator = set->allocator;
     size_t bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     ck_linked_list_node *node = ck_hash_common_bucket_remove(
         set->buckets[bucket], elem, set->elem_size, set->elem_eq, ck_hashset_entry_elem);
     if (node != NULL) {
         ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
-        ck_dealloc(set->allocator, entry);
+        ck_dealloc(allocator, entry);
         set->size -= 1;
     }
 }
