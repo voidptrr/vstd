@@ -5,6 +5,13 @@
 The allocators module provides a generic allocator interface plus fail-fast
 allocation helpers used by `ckit` internals.
 
+Owning APIs follow a construction-time allocator convention: pass an allocator
+to `*_create`, and the created object stores that allocator pointer for later
+growth and `*_destroy`. Mutation and destroy functions do not take another
+allocator argument because freeing with a different allocator than the one used
+for allocation is unsafe. The allocator object must outlive every object that
+captures it. Passing `NULL` selects the C library heap.
+
 ## TYPES
 
 ### ck_allocator
@@ -20,7 +27,8 @@ typedef struct ck_allocator {
 ```
 
 - Fields: `ctx`, `features`, `alloc`, `realloc`, `dealloc`
-- Notes: containers can use these callbacks when a custom allocator is provided.
+- Notes: owning containers store this pointer at create time and reuse it for
+  later allocation, reallocation, and destroy work.
 
 ### ck_allocator_features
 

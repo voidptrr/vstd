@@ -58,12 +58,12 @@ typedef ck_eq_fn ck_hashmap_key_eq_fn;
 typedef struct ck_hashmap ck_hashmap;
 
 /*
- * Initialize a hash map with fixed key/value sizes.
+ * Create a hash map with fixed key/value sizes.
  * Hashing uses the internal FNV-1a implementation.
  * Initial capacity is implementation-defined.
  */
-ck_hashmap *ck_hashmap_init(size_t key_size, size_t value_size, ck_hashmap_key_eq_fn key_eq,
-                            ck_allocator *allocator);
+ck_hashmap *ck_hashmap_create(size_t key_size, size_t value_size, ck_hashmap_key_eq_fn key_eq,
+                              ck_allocator *allocator);
 
 /*
  * Insert or update an entry.
@@ -92,6 +92,6 @@ size_t ck_hashmap_size(const ck_hashmap *map);
 /*
  * Release all entries, bucket storage, and the hashmap handle.
  */
-void ck_hashmap_deinit(ck_hashmap *map);
+void ck_hashmap_destroy(ck_hashmap *map);
 
 #endif

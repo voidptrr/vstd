@@ -38,7 +38,7 @@ int main(void) {
     int values[] = {5, 2, 8, 1};
     const int *top;
 
-    heap = ck_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
+    heap = ck_binary_heap_create(sizeof(int), cmp_int_asc, NULL);
     for (size_t i = 0; i < 4; i++) {
         ck_binary_heap_push(heap, &values[i]);
     }
@@ -48,6 +48,6 @@ int main(void) {
     CK_TEST_ASSERT_EQ(*top, 1);
     CK_TEST_ASSERT_EQ(ck_binary_heap_size(heap), 4);
 
-    ck_binary_heap_deinit(heap);
+    ck_binary_heap_destroy(heap);
     return 0;
 }

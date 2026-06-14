@@ -28,7 +28,7 @@
 #include "ckit/testing.h"
 
 int main(void) {
-    ck_heap *heap = ck_heap_init(4096);
+    ck_heap *heap = ck_heap_create(4096);
     char *ptr;
 
     ptr = (char *)ck_heap_realloc(heap, NULL, 32);
@@ -41,6 +41,6 @@ int main(void) {
 
     CK_TEST_ASSERT_PTR_NULL(ck_heap_realloc(heap, ptr, 0));
 
-    ck_heap_deinit(heap);
+    ck_heap_destroy(heap);
     return 0;
 }

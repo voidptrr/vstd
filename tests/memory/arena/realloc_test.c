@@ -30,7 +30,7 @@
 #include "memory/utils.h"
 
 int main(void) {
-    ck_arena *arena = ck_arena_init(256);
+    ck_arena *arena = ck_arena_create(256);
     uint64_t *value;
     uint64_t *grown;
     size_t grown_size = CK_MEMORY_ALIGN * 2;
@@ -46,6 +46,6 @@ int main(void) {
 
     CK_TEST_ASSERT_PTR_EQ(ck_arena_realloc(arena, grown, grown_size), grown);
 
-    ck_arena_deinit(arena);
+    ck_arena_destroy(arena);
     return 0;
 }

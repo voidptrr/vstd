@@ -31,7 +31,7 @@ int main(void) {
     int second = 11;
     int *popped;
 
-    v = ck_vector_init(sizeof(int), NULL);
+    v = ck_vector_create(sizeof(int), NULL);
     CK_TEST_ASSERT_PTR_NULL(ck_vector_pop(v));
 
     ck_vector_push(v, &first);
@@ -45,6 +45,6 @@ int main(void) {
     CK_TEST_ASSERT_PTR_NOT_NULL(popped);
     CK_TEST_ASSERT_EQ(*popped, first);
 
-    ck_vector_deinit(v);
+    ck_vector_destroy(v);
     return 0;
 }

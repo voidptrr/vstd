@@ -34,12 +34,12 @@ int main(void) {
     ck_linked_list *list;
     test_item first = {.value = 1};
 
-    list = ck_linked_list_init(NULL);
+    list = ck_linked_list_create(NULL);
     CK_TEST_ASSERT_PTR_NULL(ck_linked_list_head(list));
 
     ck_linked_list_push(list, &first.node);
     CK_TEST_ASSERT_PTR_EQ(ck_linked_list_head(list), &first.node);
 
-    ck_linked_list_deinit(list);
+    ck_linked_list_destroy(list);
     return 0;
 }

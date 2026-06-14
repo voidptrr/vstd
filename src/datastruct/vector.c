@@ -39,8 +39,8 @@ struct ck_vector {
     ck_allocator *allocator;
 };
 
-ck_vector *ck_vector_init(size_t elem_size, ck_allocator *allocator) {
-    CK_ASSERT(elem_size > 0, "fatal: ck_vector_init invalid arguments");
+ck_vector *ck_vector_create(size_t elem_size, ck_allocator *allocator) {
+    CK_ASSERT(elem_size > 0, "fatal: ck_vector_create invalid arguments");
 
     ck_vector *vector = ck_malloc(allocator, sizeof(ck_vector));
     vector->allocator = allocator;
@@ -138,8 +138,8 @@ size_t ck_vector_size(const ck_vector *vector) {
     return vector->size;
 }
 
-void ck_vector_deinit(ck_vector *vector) {
-    CK_ASSERT(vector != NULL, "fatal: ck_vector_deinit invalid arguments");
+void ck_vector_destroy(ck_vector *vector) {
+    CK_ASSERT(vector != NULL, "fatal: ck_vector_destroy invalid arguments");
 
     ck_allocator *allocator = vector->allocator;
     ck_dealloc(vector->allocator, vector->buffer);

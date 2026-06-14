@@ -35,7 +35,7 @@ struct ck_linked_list {
     ck_allocator *allocator;
 };
 
-ck_linked_list *ck_linked_list_init(ck_allocator *allocator) {
+ck_linked_list *ck_linked_list_create(ck_allocator *allocator) {
     ck_linked_list *list = ck_malloc(allocator, sizeof(ck_linked_list));
     list->size = 0;
     list->head = NULL;
@@ -127,8 +127,8 @@ ck_linked_list_node *ck_linked_list_head(const ck_linked_list *list) {
     return list->head;
 }
 
-void ck_linked_list_deinit(ck_linked_list *list) {
-    CK_ASSERT(list != NULL, "fatal: ck_linked_list_deinit invalid arguments");
+void ck_linked_list_destroy(ck_linked_list *list) {
+    CK_ASSERT(list != NULL, "fatal: ck_linked_list_destroy invalid arguments");
 
     ck_allocator *allocator = list->allocator;
     ck_dealloc(allocator, list);

@@ -30,7 +30,7 @@ int main(void) {
     int values[] = {10, 20};
     int *out;
 
-    q = ck_deque_init(sizeof(int), NULL);
+    q = ck_deque_create(sizeof(int), NULL);
     CK_TEST_ASSERT_PTR_NULL(ck_deque_popleft(q));
 
     ck_deque_push(q, &values[0]);
@@ -39,6 +39,6 @@ int main(void) {
     CK_TEST_ASSERT_PTR_NOT_NULL(out);
     CK_TEST_ASSERT_EQ(*out, values[0]);
 
-    ck_deque_deinit(q);
+    ck_deque_destroy(q);
     return 0;
 }

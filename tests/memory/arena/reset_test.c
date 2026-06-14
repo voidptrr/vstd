@@ -26,7 +26,7 @@
 #include "ckit/memory/allocators/arena.h"
 
 int main(void) {
-    ck_arena *arena = ck_arena_init(128);
+    ck_arena *arena = ck_arena_create(128);
     void *before;
     void *after;
 
@@ -40,6 +40,6 @@ int main(void) {
     after = ck_arena_alloc(arena, 8);
     CK_TEST_ASSERT_PTR_EQ(after, before);
 
-    ck_arena_deinit(arena);
+    ck_arena_destroy(arena);
     return 0;
 }

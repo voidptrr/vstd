@@ -84,12 +84,13 @@ static void ck_binary_heap_sift_down(ck_binary_heap *heap, size_t idx) {
     }
 }
 
-ck_binary_heap *ck_binary_heap_init(size_t elem_size, ck_heap_cmp_fn cmp, ck_allocator *allocator) {
-    CK_ASSERT(cmp != NULL, "fatal: ck_binary_heap_init invalid arguments");
-    CK_ASSERT(elem_size > 0, "fatal: ck_binary_heap_init invalid arguments");
+ck_binary_heap *ck_binary_heap_create(size_t elem_size, ck_heap_cmp_fn cmp,
+                                      ck_allocator *allocator) {
+    CK_ASSERT(cmp != NULL, "fatal: ck_binary_heap_create invalid arguments");
+    CK_ASSERT(elem_size > 0, "fatal: ck_binary_heap_create invalid arguments");
 
     ck_binary_heap *heap = ck_malloc(allocator, sizeof(ck_binary_heap));
-    heap->root = ck_vector_init(elem_size, allocator);
+    heap->root = ck_vector_create(elem_size, allocator);
     heap->cmp = cmp;
     heap->allocator = allocator;
 
@@ -136,9 +137,9 @@ size_t ck_binary_heap_size(const ck_binary_heap *heap) {
     return ck_vector_size(heap->root);
 }
 
-void ck_binary_heap_deinit(ck_binary_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_deinit invalid arguments");
+void ck_binary_heap_destroy(ck_binary_heap *heap) {
+    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_destroy invalid arguments");
     ck_allocator *allocator = heap->allocator;
-    ck_vector_deinit(heap->root);
+    ck_vector_destroy(heap->root);
     ck_dealloc(allocator, heap);
 }

@@ -103,17 +103,17 @@ static ck_heap_block *ck_heap_coalesce(ck_heap *heap, ck_heap_block *block) {
     return block;
 }
 
-ck_heap *ck_heap_init(size_t capacity) {
+ck_heap *ck_heap_create(size_t capacity) {
     ck_heap *heap;
 
     capacity = ck_align_up(capacity, CK_MEMORY_ALIGN);
     CK_ASSERT(capacity > sizeof(ck_heap_block) + CK_MEMORY_ALIGN,
-              "fatal: ck_heap_init invalid capacity");
+              "fatal: ck_heap_create invalid capacity");
 
     heap = ck_malloc(NULL, sizeof(ck_heap));
     heap->buffer = ck_malloc(NULL, capacity);
     heap->capacity = capacity;
-    heap->blocks = ck_doubly_linked_list_init(NULL);
+    heap->blocks = ck_doubly_linked_list_create(NULL);
 
     ck_heap_block *block = (ck_heap_block *)heap->buffer;
     block->size = capacity - sizeof(ck_heap_block);
@@ -242,11 +242,11 @@ size_t ck_heap_available(const ck_heap *heap) {
     return total;
 }
 
-void ck_heap_deinit(ck_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_deinit invalid arguments");
+void ck_heap_destroy(ck_heap *heap) {
+    CK_ASSERT(heap != NULL, "fatal: ck_heap_destroy invalid arguments");
 
     if (heap->blocks != NULL) {
-        ck_doubly_linked_list_deinit(heap->blocks);
+        ck_doubly_linked_list_destroy(heap->blocks);
     }
 
     ck_dealloc(NULL, heap->buffer);

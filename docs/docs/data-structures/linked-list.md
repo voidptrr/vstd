@@ -33,15 +33,17 @@ Embed this node in the object you want to link.
 
 ## FUNCTIONS
 
-### ck_linked_list_init
+### ck_linked_list_create
 
 ```c
-ck_linked_list *ck_linked_list_init(ck_allocator *allocator);
+ck_linked_list *ck_linked_list_create(ck_allocator *allocator);
 ```
 
 - Parameters: `allocator`
 - Returns: opaque linked-list handle.
-- Notes: when `allocator` is `NULL`, the list handle uses the C library heap through `ck_malloc`.
+- Notes: the list stores `allocator` and reuses it to destroy the list handle.
+  Nodes remain caller-owned. When `allocator` is `NULL`, the handle uses the C
+  library heap through `ck_malloc`.
 
 ### ck_linked_list_push
 
@@ -99,10 +101,10 @@ ck_linked_list_node *ck_linked_list_head(const ck_linked_list *list);
 - Parameters: `list`
 - Returns: current head node, or `NULL` when list is empty.
 
-### ck_linked_list_deinit
+### ck_linked_list_destroy
 
 ```c
-void ck_linked_list_deinit(ck_linked_list *list);
+void ck_linked_list_destroy(ck_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -121,7 +123,7 @@ typedef struct job {
 } job;
 
 int main(void) {
-    ck_linked_list *list = ck_linked_list_init(NULL);
+    ck_linked_list *list = ck_linked_list_create(NULL);
     job first = {.id = 1};
     job second = {.id = 2};
 
@@ -131,7 +133,7 @@ int main(void) {
     ck_linked_list_node *node = ck_linked_list_popleft(list);
     job *out = CK_CONTAINER_OF(node, job, node);
 
-    ck_linked_list_deinit(list);
+    ck_linked_list_destroy(list);
     return out->id == 1 ? 0 : 1;
 }
 ```

@@ -48,7 +48,7 @@ struct ck_hashset {
     ck_allocator *allocator;
 };
 
-static void ck_hashset_entry_deinit(ck_linked_list_node *node, ck_allocator *allocator) {
+static void ck_hashset_entry_destroy(ck_linked_list_node *node, ck_allocator *allocator) {
     ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
     ck_dealloc(allocator, entry);
 }
@@ -68,14 +68,14 @@ static ck_hashset_entry *ck_hashset_entry_get(const ck_hashset *set, const void 
     return NULL;
 }
 
-ck_hashset *ck_hashset_init(size_t elem_size, ck_hashset_elem_eq_fn elem_eq,
-                            ck_allocator *allocator) {
-    CK_ASSERT(elem_eq != NULL, "fatal: ck_hashset_init invalid arguments");
-    CK_ASSERT(elem_size > 0, "fatal: ck_hashset_init invalid arguments");
+ck_hashset *ck_hashset_create(size_t elem_size, ck_hashset_elem_eq_fn elem_eq,
+                              ck_allocator *allocator) {
+    CK_ASSERT(elem_eq != NULL, "fatal: ck_hashset_create invalid arguments");
+    CK_ASSERT(elem_size > 0, "fatal: ck_hashset_create invalid arguments");
 
     ck_hashset *set = ck_malloc(allocator, sizeof(ck_hashset));
     set->allocator = allocator;
-    set->buckets = ck_hash_common_buckets_init(CK_HASH_COMMON_DEFAULT_CAPACITY, allocator);
+    set->buckets = ck_hash_common_buckets_create(CK_HASH_COMMON_DEFAULT_CAPACITY, allocator);
 
     set->size = 0;
     set->elem_size = elem_size;
@@ -161,10 +161,11 @@ size_t ck_hashset_size(const ck_hashset *set) {
     return set->size;
 }
 
-void ck_hashset_deinit(ck_hashset *set) {
-    CK_ASSERT(set != NULL, "fatal: ck_hashset_deinit invalid arguments");
+void ck_hashset_destroy(ck_hashset *set) {
+    CK_ASSERT(set != NULL, "fatal: ck_hashset_destroy invalid arguments");
 
     ck_allocator *allocator = set->allocator;
-    ck_hash_common_buckets_deinit(set->buckets, set->capacity, allocator, ck_hashset_entry_deinit);
+    ck_hash_common_buckets_destroy(set->buckets, set->capacity, allocator,
+                                   ck_hashset_entry_destroy);
     ck_dealloc(allocator, set);
 }

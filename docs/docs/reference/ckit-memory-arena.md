@@ -26,10 +26,10 @@ typedef struct ck_arena ck_arena;
 
 ## FUNCTIONS
 
-### ck_arena_init
+### ck_arena_create
 
 ```c
-ck_arena *ck_arena_init(size_t capacity);
+ck_arena *ck_arena_create(size_t capacity);
 ```
 
 - Parameters: `capacity`
@@ -104,10 +104,10 @@ size_t ck_arena_available(const ck_arena *arena);
 - Parameters: `arena`
 - Returns: number of bytes still available.
 
-### ck_arena_deinit
+### ck_arena_destroy
 
 ```c
-void ck_arena_deinit(ck_arena *arena);
+void ck_arena_destroy(ck_arena *arena);
 ```
 
 - Parameters: `arena`
@@ -123,7 +123,7 @@ void ck_arena_deinit(ck_arena *arena);
 
 int main(void) {
     int status = 0;
-    ck_arena *arena = ck_arena_init(1024);
+    ck_arena *arena = ck_arena_create(1024);
     ck_allocator allocator = ck_arena_allocator(arena);
 
     uint64_t *value = ck_arena_alloc(arena, sizeof(uint64_t));
@@ -137,7 +137,7 @@ int main(void) {
     ck_arena_reset(arena);
 
 cleanup:
-    ck_arena_deinit(arena);
+    ck_arena_destroy(arena);
 
     (void)allocator;
     return status;

@@ -48,9 +48,9 @@
 typedef struct ck_arena ck_arena;
 
 /*
- * Initialize an arena with `capacity` bytes of internal storage.
+ * Create an arena with `capacity` bytes of internal storage.
  */
-ck_arena *ck_arena_init(size_t capacity);
+ck_arena *ck_arena_create(size_t capacity);
 
 /*
  * Return an allocator adapter that routes through this arena.
@@ -85,8 +85,8 @@ size_t ck_arena_used(const ck_arena *arena);
 size_t ck_arena_available(const ck_arena *arena);
 
 /*
- * Deinitialize and release arena resources.
+ * Destroy and release arena resources.
  */
-void ck_arena_deinit(ck_arena *arena);
+void ck_arena_destroy(ck_arena *arena);
 
 #endif

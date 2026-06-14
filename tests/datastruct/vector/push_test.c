@@ -30,7 +30,7 @@
 int main(void) {
     ck_vector *v;
 
-    v = ck_vector_init(sizeof(int), NULL);
+    v = ck_vector_create(sizeof(int), NULL);
 
     for (size_t i = 0; i < 17; i++) {
         int value = (int)i;
@@ -39,6 +39,6 @@ int main(void) {
 
     CK_TEST_ASSERT_EQ(ck_vector_size(v), 17);
 
-    ck_vector_deinit(v);
+    ck_vector_destroy(v);
     return 0;
 }

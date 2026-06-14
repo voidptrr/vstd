@@ -35,7 +35,7 @@ struct ck_doubly_linked_list {
     ck_allocator *allocator;
 };
 
-ck_doubly_linked_list *ck_doubly_linked_list_init(ck_allocator *allocator) {
+ck_doubly_linked_list *ck_doubly_linked_list_create(ck_allocator *allocator) {
     ck_doubly_linked_list *list = ck_malloc(allocator, sizeof(ck_doubly_linked_list));
     list->size = 0;
     list->head = NULL;
@@ -187,8 +187,8 @@ ck_doubly_linked_list_node *ck_doubly_linked_list_tail(const ck_doubly_linked_li
     return list->tail;
 }
 
-void ck_doubly_linked_list_deinit(ck_doubly_linked_list *list) {
-    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_deinit invalid arguments");
+void ck_doubly_linked_list_destroy(ck_doubly_linked_list *list) {
+    CK_ASSERT(list != NULL, "fatal: ck_doubly_linked_list_destroy invalid arguments");
 
     ck_allocator *allocator = list->allocator;
     ck_dealloc(allocator, list);

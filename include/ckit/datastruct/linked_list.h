@@ -57,8 +57,8 @@ typedef struct ck_linked_list_node {
 
 typedef struct ck_linked_list ck_linked_list;
 
-/* Initialize an intrusive linked list. */
-ck_linked_list *ck_linked_list_init(ck_allocator *allocator);
+/* Create an intrusive linked list. */
+ck_linked_list *ck_linked_list_create(ck_allocator *allocator);
 
 /* Append node at the tail. */
 void ck_linked_list_push(ck_linked_list *list, ck_linked_list_node *node);
@@ -79,6 +79,6 @@ size_t ck_linked_list_size(const ck_linked_list *list);
 ck_linked_list_node *ck_linked_list_head(const ck_linked_list *list);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
-void ck_linked_list_deinit(ck_linked_list *list);
+void ck_linked_list_destroy(ck_linked_list *list);
 
 #endif

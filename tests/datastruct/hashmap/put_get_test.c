@@ -36,7 +36,7 @@ int main(void) {
     const uint64_t *out;
     const ck_hashmap *const_map;
 
-    map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
+    map = ck_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
 
     CK_TEST_ASSERT_PTR_NULL(ck_hashmap_get(map, &key));
 
@@ -56,6 +56,6 @@ int main(void) {
     CK_TEST_ASSERT_EQ(*out, value2);
     CK_TEST_ASSERT_EQ(ck_hashmap_size(map), 1);
 
-    ck_hashmap_deinit(map);
+    ck_hashmap_destroy(map);
     return 0;
 }

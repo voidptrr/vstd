@@ -9,17 +9,19 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ck_binary_heap_init
+### ck_binary_heap_create
 
 ```c
-ck_binary_heap *ck_binary_heap_init(size_t elem_size,
+ck_binary_heap *ck_binary_heap_create(size_t elem_size,
                                         ck_heap_cmp_fn cmp,
                                         ck_allocator *allocator);
 ```
 
 - Parameters: `elem_size`, `cmp`, `allocator`
 - Returns: opaque binary-heap handle.
-- Notes: when `allocator` is `NULL`, binary heap storage uses the C library heap through `ck_malloc`/`ck_realloc`.
+- Notes: the binary heap stores `allocator` and reuses it for growth and
+  destroy. When `allocator` is `NULL`, binary heap storage uses the C library
+  heap through `ck_malloc`/`ck_realloc`.
 
 ### ck_binary_heap_push
 
@@ -57,10 +59,10 @@ size_t ck_binary_heap_size(const ck_binary_heap *heap);
 - Parameters: `heap`
 - Returns: current element count.
 
-### ck_binary_heap_deinit
+### ck_binary_heap_destroy
 
 ```c
-void ck_binary_heap_deinit(ck_binary_heap *heap);
+void ck_binary_heap_destroy(ck_binary_heap *heap);
 ```
 
 - Parameters: `heap`
@@ -76,7 +78,7 @@ void ck_binary_heap_deinit(ck_binary_heap *heap);
 
 int main(void) {
     int status = 0;
-    ck_binary_heap *heap = ck_binary_heap_init(sizeof(int32_t), ck_cmp_i32, NULL);
+    ck_binary_heap *heap = ck_binary_heap_create(sizeof(int32_t), ck_cmp_i32, NULL);
     int32_t values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
@@ -96,7 +98,7 @@ int main(void) {
     }
 
 cleanup:
-    ck_binary_heap_deinit(heap);
+    ck_binary_heap_destroy(heap);
     return status;
 }
 ```

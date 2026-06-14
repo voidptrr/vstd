@@ -9,15 +9,17 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ck_deque_init
+### ck_deque_create
 
 ```c
-ck_deque *ck_deque_init(size_t elem_size, ck_allocator *allocator);
+ck_deque *ck_deque_create(size_t elem_size, ck_allocator *allocator);
 ```
 
 - Parameters: `elem_size`, `allocator`
 - Returns: opaque deque handle.
-- Notes: when `allocator` is `NULL`, deque uses the C library heap through `ck_malloc`/`ck_realloc`.
+- Notes: the deque stores `allocator` and reuses it for growth and destroy.
+  When `allocator` is `NULL`, deque uses the C library heap through
+  `ck_malloc`/`ck_realloc`.
 
 ### ck_deque_push
 
@@ -82,10 +84,10 @@ size_t ck_deque_size(const ck_deque *deque);
 - Parameters: `deque`
 - Returns: current element count.
 
-### ck_deque_deinit
+### ck_deque_destroy
 
 ```c
-void ck_deque_deinit(ck_deque *deque);
+void ck_deque_destroy(ck_deque *deque);
 ```
 
 - Parameters: `deque`
@@ -99,7 +101,7 @@ void ck_deque_deinit(ck_deque *deque);
 
 int main(void) {
     int status = 0;
-    ck_deque *deque = ck_deque_init(sizeof(int), NULL);
+    ck_deque *deque = ck_deque_create(sizeof(int), NULL);
     int front = 1;
     int back = 2;
 
@@ -120,7 +122,7 @@ int main(void) {
     }
 
 cleanup:
-    ck_deque_deinit(deque);
+    ck_deque_destroy(deque);
     return status;
 }
 ```

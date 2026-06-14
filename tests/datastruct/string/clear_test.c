@@ -26,7 +26,7 @@
 #include "ckit/testing.h"
 
 int main(void) {
-    ck_string value = ck_string_init("hello", NULL);
+    ck_string value = ck_string_create("hello", NULL);
 
     ck_string_clear(value);
     CK_TEST_ASSERT_EQ(ck_string_len(value), 0);
@@ -35,6 +35,6 @@ int main(void) {
     ck_string_append(&value, "again");
     CK_TEST_ASSERT_STR_EQ(value, "again");
 
-    ck_string_deinit(value);
+    ck_string_destroy(value);
     return 0;
 }

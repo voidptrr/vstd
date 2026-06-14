@@ -26,16 +26,16 @@
 #include "ckit/datastruct/string.h"
 
 int main(void) {
-    ck_string empty = ck_string_init(NULL, NULL);
+    ck_string empty = ck_string_create(NULL, NULL);
     CK_TEST_ASSERT_PTR_NOT_NULL(empty);
     CK_TEST_ASSERT_EQ(ck_string_len(empty), 0);
     CK_TEST_ASSERT_STR_EQ(empty, "");
-    ck_string_deinit(empty);
+    ck_string_destroy(empty);
 
-    ck_string value = ck_string_init("hello", NULL);
+    ck_string value = ck_string_create("hello", NULL);
     CK_TEST_ASSERT_PTR_NOT_NULL(value);
     CK_TEST_ASSERT_EQ(ck_string_len(value), 5);
     CK_TEST_ASSERT_STR_EQ(value, "hello");
-    ck_string_deinit(value);
+    ck_string_destroy(value);
     return 0;
 }

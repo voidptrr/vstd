@@ -27,7 +27,7 @@
 #include "ckit/memory/allocators/allocator.h"
 
 int main(void) {
-    ck_arena *arena = ck_arena_init(128);
+    ck_arena *arena = ck_arena_create(128);
     ck_allocator allocator = ck_arena_allocator(arena);
 
     CK_TEST_ASSERT_PTR_EQ(allocator.ctx, arena);
@@ -40,6 +40,6 @@ int main(void) {
     CK_TEST_ASSERT(ck_arena_capacity(arena) >= 128);
     CK_TEST_ASSERT_EQ(ck_arena_used(arena), 0);
 
-    ck_arena_deinit(arena);
+    ck_arena_destroy(arena);
     return 0;
 }

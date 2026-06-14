@@ -9,15 +9,17 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ck_vector_init
+### ck_vector_create
 
 ```c
-ck_vector *ck_vector_init(size_t elem_size, ck_allocator *allocator);
+ck_vector *ck_vector_create(size_t elem_size, ck_allocator *allocator);
 ```
 
 - Parameters: `elem_size`, `allocator`
 - Returns: opaque vector handle.
-- Notes: when `allocator` is `NULL`, vector uses the C library heap through `ck_malloc`/`ck_realloc`.
+- Notes: the vector stores `allocator` and reuses it for growth and destroy.
+  When `allocator` is `NULL`, vector uses the C library heap through
+  `ck_malloc`/`ck_realloc`.
 
 ### ck_vector_push
 
@@ -83,10 +85,10 @@ size_t ck_vector_size(const ck_vector *vector);
 - Parameters: `vector`
 - Returns: current element count.
 
-### ck_vector_deinit
+### ck_vector_destroy
 
 ```c
-void ck_vector_deinit(ck_vector *vector);
+void ck_vector_destroy(ck_vector *vector);
 ```
 
 - Parameters: `vector`
@@ -100,7 +102,7 @@ void ck_vector_deinit(ck_vector *vector);
 
 int main(void) {
     int status = 0;
-    ck_vector *vector = ck_vector_init(sizeof(int), NULL);
+    ck_vector *vector = ck_vector_create(sizeof(int), NULL);
     int first = 10;
     int second = 20;
 
@@ -120,7 +122,7 @@ int main(void) {
     }
 
 cleanup:
-    ck_vector_deinit(vector);
+    ck_vector_destroy(vector);
     return status;
 }
 ```

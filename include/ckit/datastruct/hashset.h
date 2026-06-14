@@ -58,12 +58,12 @@ typedef ck_eq_fn ck_hashset_elem_eq_fn;
 typedef struct ck_hashset ck_hashset;
 
 /*
- * Initialize a hash set with fixed element size.
+ * Create a hash set with fixed element size.
  * Hashing uses the internal FNV-1a implementation.
  * Initial capacity is implementation-defined.
  */
-ck_hashset *ck_hashset_init(size_t elem_size, ck_hashset_elem_eq_fn elem_eq,
-                            ck_allocator *allocator);
+ck_hashset *ck_hashset_create(size_t elem_size, ck_hashset_elem_eq_fn elem_eq,
+                              ck_allocator *allocator);
 
 /*
  * Insert element when it is not already present.
@@ -97,6 +97,6 @@ size_t ck_hashset_size(const ck_hashset *set);
 /*
  * Release all entries and the hashset handle.
  */
-void ck_hashset_deinit(ck_hashset *set);
+void ck_hashset_destroy(ck_hashset *set);
 
 #endif

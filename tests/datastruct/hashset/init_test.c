@@ -31,9 +31,9 @@
 int main(void) {
     ck_hashset *set;
 
-    set = ck_hashset_init(sizeof(uint64_t), ck_eq_u64, NULL);
+    set = ck_hashset_create(sizeof(uint64_t), ck_eq_u64, NULL);
     CK_TEST_ASSERT_EQ(ck_hashset_size(set), 0);
 
-    ck_hashset_deinit(set);
+    ck_hashset_destroy(set);
     return 0;
 }

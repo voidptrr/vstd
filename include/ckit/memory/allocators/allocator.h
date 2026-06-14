@@ -37,7 +37,11 @@ typedef enum ck_allocator_features {
     CK_ALLOCATOR_FEATURE_RESET = 1 << 2,
 } ck_allocator_features;
 
-/* Generic allocator callback set used by containers. */
+/*
+ * Generic allocator callback set used by containers.
+ * Owning create APIs capture the allocator pointer and reuse it for later
+ * growth and destroy calls, so the allocator must outlive those objects.
+ */
 typedef struct ck_allocator {
     /* User-supplied allocator state passed to all callbacks. */
     void *ctx;

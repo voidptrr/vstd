@@ -72,7 +72,7 @@ static ck_string_header *ck_string_ensure_capacity(ck_string *string, size_t len
     return tmp;
 }
 
-ck_string ck_string_init(const char *initial, ck_allocator *allocator) {
+ck_string ck_string_create(const char *initial, ck_allocator *allocator) {
     size_t len = initial == NULL ? 0 : strlen(initial);
     size_t capacity = ck_string_capacity_for(len);
     size_t alloc_size = sizeof(ck_string_header) + capacity;
@@ -175,7 +175,7 @@ size_t ck_string_len(const ck_string string) {
     return header->len;
 }
 
-void ck_string_deinit(ck_string string) {
+void ck_string_destroy(ck_string string) {
     ck_string_header *header = ck_string_header_from_buf(string);
     if (header == NULL) {
         return;

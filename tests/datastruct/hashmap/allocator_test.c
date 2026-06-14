@@ -34,14 +34,14 @@ int main(void) {
     uint64_t value = 11;
 
     ck_test_allocator_init(&test_allocator);
-    ck_hashmap *map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64,
-                                      ck_test_allocator_allocator(&test_allocator));
+    ck_hashmap *map = ck_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64,
+                                        ck_test_allocator_allocator(&test_allocator));
     ck_test_allocator_reset_counts(&test_allocator);
 
     ck_hashmap_put(map, &key, &value);
     CK_TEST_ASSERT_EQ(test_allocator.alloc_count, 1);
 
-    ck_hashmap_deinit(map);
+    ck_hashmap_destroy(map);
     CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
     return 0;
 }

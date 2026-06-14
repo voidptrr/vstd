@@ -34,10 +34,10 @@ static int cmp_int_asc(const void *a, const void *b) {
 int main(void) {
     ck_binary_heap *heap;
 
-    heap = ck_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
+    heap = ck_binary_heap_create(sizeof(int), cmp_int_asc, NULL);
 
     CK_TEST_ASSERT_EQ(ck_binary_heap_size(heap), 0);
 
-    ck_binary_heap_deinit(heap);
+    ck_binary_heap_destroy(heap);
     return 0;
 }

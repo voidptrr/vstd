@@ -9,10 +9,10 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ck_hashmap_init
+### ck_hashmap_create
 
 ```c
-ck_hashmap *ck_hashmap_init(size_t key_size,
+ck_hashmap *ck_hashmap_create(size_t key_size,
                                 size_t value_size,
                                 ck_hashmap_key_eq_fn key_eq,
                                 ck_allocator *allocator);
@@ -20,7 +20,9 @@ ck_hashmap *ck_hashmap_init(size_t key_size,
 
 - Parameters: `key_size`, `value_size`, `key_eq`, `allocator`
 - Returns: opaque hashmap handle.
-- Notes: when `allocator` is `NULL`, hashmap uses the C library heap through `ck_malloc`.
+- Notes: the hashmap stores `allocator` and reuses it for entries, buckets,
+  rehashing, and destroy. When `allocator` is `NULL`, hashmap uses the C
+  library heap through `ck_malloc`.
 
 ### ck_hashmap_put
 
@@ -68,10 +70,10 @@ size_t ck_hashmap_size(const ck_hashmap *map);
 - Parameters: `map`
 - Returns: current entry count.
 
-### ck_hashmap_deinit
+### ck_hashmap_destroy
 
 ```c
-void ck_hashmap_deinit(ck_hashmap *map);
+void ck_hashmap_destroy(ck_hashmap *map);
 ```
 
 - Parameters: `map`
@@ -92,7 +94,7 @@ int main(void) {
     uint64_t value = 9001;
     uint64_t *found = NULL;
 
-    map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
+    map = ck_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
     ck_hashmap_put(map, &key, &value);
 
     found = (uint64_t *)ck_hashmap_get(map, &key);
@@ -108,7 +110,7 @@ int main(void) {
     }
 
 cleanup:
-    ck_hashmap_deinit(map);
+    ck_hashmap_destroy(map);
     return status;
 }
 ```

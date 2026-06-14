@@ -28,9 +28,9 @@
 int main(void) {
     ck_deque *q;
 
-    q = ck_deque_init(sizeof(int), NULL);
+    q = ck_deque_create(sizeof(int), NULL);
     CK_TEST_ASSERT_EQ(ck_deque_size(q), 0);
 
-    ck_deque_deinit(q);
+    ck_deque_destroy(q);
     return 0;
 }

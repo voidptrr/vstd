@@ -30,7 +30,7 @@ typedef struct job {
 } job;
 
 int main(void) {
-    ck_linked_list *list = ck_linked_list_init(NULL);
+    ck_linked_list *list = ck_linked_list_create(NULL);
     job item = {.id = 7};
 
     ck_linked_list_push(list, &item.node);
@@ -38,7 +38,7 @@ int main(void) {
     ck_linked_list_node *node = ck_linked_list_popleft(list);
     job *out = CK_CONTAINER_OF(node, job, node);
 
-    ck_linked_list_deinit(list);
+    ck_linked_list_destroy(list);
     return out->id == 7 ? 0 : 1;
 }
 ```

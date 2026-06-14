@@ -37,7 +37,7 @@ int main(void) {
     ck_binary_heap *heap;
     int values[] = {4, 1, 3};
 
-    heap = ck_binary_heap_init(sizeof(int), cmp_int_asc, NULL);
+    heap = ck_binary_heap_create(sizeof(int), cmp_int_asc, NULL);
     for (size_t i = 0; i < 3; i++) {
         ck_binary_heap_push(heap, &values[i]);
     }
@@ -49,6 +49,6 @@ int main(void) {
 
     CK_TEST_ASSERT_PTR_NULL(ck_binary_heap_pop(heap));
 
-    ck_binary_heap_deinit(heap);
+    ck_binary_heap_destroy(heap);
     return 0;
 }

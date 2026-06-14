@@ -26,11 +26,11 @@
 #include "ckit/memory/allocators/general_heap.h"
 
 int main(void) {
-    ck_heap *heap = ck_heap_init(1024);
+    ck_heap *heap = ck_heap_create(1024);
 
     CK_TEST_ASSERT(ck_heap_capacity(heap) > 0);
     CK_TEST_ASSERT(ck_heap_available(heap) > 0);
 
-    ck_heap_deinit(heap);
+    ck_heap_destroy(heap);
     return 0;
 }

@@ -33,14 +33,14 @@ int main(void) {
     uint64_t value = 11;
 
     ck_test_allocator_init(&test_allocator);
-    ck_hashset *set =
-        ck_hashset_init(sizeof(uint64_t), ck_eq_u64, ck_test_allocator_allocator(&test_allocator));
+    ck_hashset *set = ck_hashset_create(sizeof(uint64_t), ck_eq_u64,
+                                        ck_test_allocator_allocator(&test_allocator));
     ck_test_allocator_reset_counts(&test_allocator);
 
     ck_hashset_insert(set, &value);
     CK_TEST_ASSERT_EQ(test_allocator.alloc_count, 1);
 
-    ck_hashset_deinit(set);
+    ck_hashset_destroy(set);
     CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
     return 0;
 }

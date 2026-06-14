@@ -53,9 +53,9 @@
 typedef struct ck_heap ck_heap;
 
 /*
- * Initialize a heap with `capacity` bytes of internal storage.
+ * Create a heap with `capacity` bytes of internal storage.
  */
-ck_heap *ck_heap_init(size_t capacity);
+ck_heap *ck_heap_create(size_t capacity);
 
 /*
  * Return an allocator adapter that routes through this heap.
@@ -86,8 +86,8 @@ size_t ck_heap_capacity(const ck_heap *heap);
 size_t ck_heap_available(const ck_heap *heap);
 
 /*
- * Deinitialize and release heap resources.
+ * Destroy and release heap resources.
  */
-void ck_heap_deinit(ck_heap *heap);
+void ck_heap_destroy(ck_heap *heap);
 
 #endif

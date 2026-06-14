@@ -29,7 +29,7 @@ int main(void) {
     ck_deque *q;
     int value = 42;
 
-    q = ck_deque_init(sizeof(int), NULL);
+    q = ck_deque_create(sizeof(int), NULL);
     ck_deque_push(q, &value);
 
     const int *out = ck_deque_peekback(q);
@@ -37,6 +37,6 @@ int main(void) {
     CK_TEST_ASSERT_PTR_NOT_NULL(out);
     CK_TEST_ASSERT_EQ(*out, value);
 
-    ck_deque_deinit(q);
+    ck_deque_destroy(q);
     return 0;
 }

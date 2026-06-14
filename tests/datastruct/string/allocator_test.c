@@ -29,7 +29,7 @@ int main(void) {
     ck_test_allocator test_allocator;
 
     ck_test_allocator_init(&test_allocator);
-    ck_string value = ck_string_init("abc", ck_test_allocator_allocator(&test_allocator));
+    ck_string value = ck_string_create("abc", ck_test_allocator_allocator(&test_allocator));
     CK_TEST_ASSERT_EQ(test_allocator.alloc_count, 1);
     CK_TEST_ASSERT_EQ(test_allocator.realloc_count, 0);
     CK_TEST_ASSERT_EQ(test_allocator.dealloc_count, 0);
@@ -39,7 +39,7 @@ int main(void) {
     CK_TEST_ASSERT_EQ(ck_string_len(value), 33);
     CK_TEST_ASSERT_STR_EQ(value, "abc012345678901234567890123456789");
 
-    ck_string_deinit(value);
+    ck_string_destroy(value);
     CK_TEST_ASSERT_EQ(test_allocator.dealloc_count, 1);
     CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
     return 0;

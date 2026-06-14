@@ -59,8 +59,9 @@ typedef ck_cmp_fn ck_heap_cmp_fn;
 
 typedef struct ck_binary_heap ck_binary_heap;
 
-/* Initialize a heap for elements of size elem_size using cmp ordering. */
-ck_binary_heap *ck_binary_heap_init(size_t elem_size, ck_heap_cmp_fn cmp, ck_allocator *allocator);
+/* Create a heap for elements of size elem_size using cmp ordering. */
+ck_binary_heap *ck_binary_heap_create(size_t elem_size, ck_heap_cmp_fn cmp,
+                                      ck_allocator *allocator);
 
 /* Insert one element by copying elem_size bytes from element. */
 void ck_binary_heap_push(ck_binary_heap *heap, const void *element);
@@ -74,7 +75,7 @@ const void *ck_binary_heap_peek(const ck_binary_heap *heap);
 /* Return the number of stored elements. */
 size_t ck_binary_heap_size(const ck_binary_heap *heap);
 
-/* Deinitialize and release owned storage. */
-void ck_binary_heap_deinit(ck_binary_heap *heap);
+/* Destroy and release owned storage. */
+void ck_binary_heap_destroy(ck_binary_heap *heap);
 
 #endif

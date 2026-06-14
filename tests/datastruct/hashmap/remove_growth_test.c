@@ -32,7 +32,7 @@ int main(void) {
     ck_hashmap *map;
     uint64_t key = 128;
 
-    map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
+    map = ck_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
 
     for (uint64_t i = 0; i < 256; i++) {
         uint64_t value = i * 3;
@@ -44,6 +44,6 @@ int main(void) {
     ck_hashmap_remove(map, &key);
     CK_TEST_ASSERT_PTR_NULL(ck_hashmap_get(map, &key));
 
-    ck_hashmap_deinit(map);
+    ck_hashmap_destroy(map);
     return 0;
 }

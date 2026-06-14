@@ -46,8 +46,8 @@
  */
 typedef struct ck_vector ck_vector;
 
-/* Initialize a vector with element size elem_size. */
-ck_vector *ck_vector_init(size_t elem_size, ck_allocator *allocator);
+/* Create a vector with element size elem_size. */
+ck_vector *ck_vector_create(size_t elem_size, ck_allocator *allocator);
 
 /* Append one element by copying elem_size bytes from element. */
 void ck_vector_push(ck_vector *vector, const void *element);
@@ -70,7 +70,7 @@ void *ck_vector_swap_remove(ck_vector *vector, size_t index);
 /* Return the number of stored elements. */
 size_t ck_vector_size(const ck_vector *vector);
 
-/* Deinitialize and release owned storage. */
-void ck_vector_deinit(ck_vector *vector);
+/* Destroy and release owned storage. */
+void ck_vector_destroy(ck_vector *vector);
 
 #endif

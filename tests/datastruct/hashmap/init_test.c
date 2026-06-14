@@ -31,9 +31,9 @@
 int main(void) {
     ck_hashmap *map;
 
-    map = ck_hashmap_init(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
+    map = ck_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), ck_eq_u64, NULL);
     CK_TEST_ASSERT_EQ(ck_hashmap_size(map), 0);
 
-    ck_hashmap_deinit(map);
+    ck_hashmap_destroy(map);
     return 0;
 }

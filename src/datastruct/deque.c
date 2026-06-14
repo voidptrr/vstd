@@ -73,8 +73,8 @@ static void ck_deque_grow(ck_deque *deque) {
     deque->tail = deque->size;
 }
 
-ck_deque *ck_deque_init(size_t elem_size, ck_allocator *allocator) {
-    CK_ASSERT(elem_size > 0, "fatal: ck_deque_init invalid arguments");
+ck_deque *ck_deque_create(size_t elem_size, ck_allocator *allocator) {
+    CK_ASSERT(elem_size > 0, "fatal: ck_deque_create invalid arguments");
 
     ck_deque *deque = ck_malloc(allocator, sizeof(ck_deque));
     deque->allocator = allocator;
@@ -188,8 +188,8 @@ size_t ck_deque_size(const ck_deque *deque) {
     return deque->size;
 }
 
-void ck_deque_deinit(ck_deque *deque) {
-    CK_ASSERT(deque != NULL, "fatal: ck_deque_deinit invalid arguments");
+void ck_deque_destroy(ck_deque *deque) {
+    CK_ASSERT(deque != NULL, "fatal: ck_deque_destroy invalid arguments");
 
     ck_allocator *allocator = deque->allocator;
     ck_dealloc(deque->allocator, deque->buffer);

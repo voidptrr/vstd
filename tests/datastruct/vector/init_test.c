@@ -29,12 +29,12 @@ int main(void) {
     ck_vector *v;
     int value = 1;
 
-    v = ck_vector_init(sizeof(int), NULL);
+    v = ck_vector_create(sizeof(int), NULL);
     CK_TEST_ASSERT_EQ(ck_vector_size(v), 0);
 
     ck_vector_push(v, &value);
     CK_TEST_ASSERT_EQ(ck_vector_size(v), 1);
 
-    ck_vector_deinit(v);
+    ck_vector_destroy(v);
     return 0;
 }

@@ -21,10 +21,10 @@ typedef struct ck_heap ck_heap;
 
 ## FUNCTIONS
 
-### ck_heap_init
+### ck_heap_create
 
 ```c
-ck_heap *ck_heap_init(size_t capacity);
+ck_heap *ck_heap_create(size_t capacity);
 ```
 
 - Parameters: `capacity`
@@ -86,10 +86,10 @@ size_t ck_heap_available(const ck_heap *heap);
 - Parameters: `heap`
 - Returns: sum of currently free payload bytes.
 
-### ck_heap_deinit
+### ck_heap_destroy
 
 ```c
-void ck_heap_deinit(ck_heap *heap);
+void ck_heap_destroy(ck_heap *heap);
 ```
 
 - Parameters: `heap`

@@ -31,7 +31,7 @@ int main(void) {
     int second = 2;
     const int *out;
 
-    q = ck_deque_init(sizeof(int), NULL);
+    q = ck_deque_create(sizeof(int), NULL);
     ck_deque_push(q, &first);
     ck_deque_push(q, &second);
 
@@ -39,6 +39,6 @@ int main(void) {
     CK_TEST_ASSERT_PTR_NOT_NULL(out);
     CK_TEST_ASSERT_EQ(*out, second);
 
-    ck_deque_deinit(q);
+    ck_deque_destroy(q);
     return 0;
 }

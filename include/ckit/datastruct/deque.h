@@ -50,8 +50,8 @@
  */
 typedef struct ck_deque ck_deque;
 
-/* Initialize a deque with element size elem_size. */
-ck_deque *ck_deque_init(size_t elem_size, ck_allocator *allocator);
+/* Create a deque with element size elem_size. */
+ck_deque *ck_deque_create(size_t elem_size, ck_allocator *allocator);
 
 /* Enqueue one element by copying elem_size bytes from element. */
 void ck_deque_push(ck_deque *deque, const void *element);
@@ -74,7 +74,7 @@ const void *ck_deque_peekback(const ck_deque *deque);
 /* Return the number of stored elements. */
 size_t ck_deque_size(const ck_deque *deque);
 
-/* Deinitialize and release owned storage. */
-void ck_deque_deinit(ck_deque *deque);
+/* Destroy and release owned storage. */
+void ck_deque_destroy(ck_deque *deque);
 
 #endif

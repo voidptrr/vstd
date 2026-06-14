@@ -36,7 +36,7 @@ int main(void) {
     test_item first = {.value = 5};
     test_item second = {.value = 9};
 
-    list = ck_linked_list_init(NULL);
+    list = ck_linked_list_create(NULL);
     CK_TEST_ASSERT_PTR_NULL(ck_linked_list_popleft(list));
 
     ck_linked_list_push(list, &first.node);
@@ -54,6 +54,6 @@ int main(void) {
     out = CK_CONTAINER_OF(out_node, test_item, node);
     CK_TEST_ASSERT_EQ(out->value, second.value);
 
-    ck_linked_list_deinit(list);
+    ck_linked_list_destroy(list);
     return 0;
 }

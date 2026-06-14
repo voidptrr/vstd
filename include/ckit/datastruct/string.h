@@ -51,8 +51,8 @@
  */
 typedef char *ck_string;
 
-/* Initialize a string from initial, or an empty string when initial is NULL. */
-ck_string ck_string_init(const char *initial, ck_allocator *allocator);
+/* Create a string from initial, or an empty string when initial is NULL. */
+ck_string ck_string_create(const char *initial, ck_allocator *allocator);
 
 /* Append suffix to string, growing storage as needed. */
 void ck_string_append(ck_string *string, const char *suffix);
@@ -75,7 +75,7 @@ void ck_string_clear(ck_string string);
 /* Return the number of bytes before the terminating NUL. */
 size_t ck_string_len(const ck_string string);
 
-/* Deinitialize and release owned storage. */
-void ck_string_deinit(ck_string string);
+/* Destroy and release owned storage. */
+void ck_string_destroy(ck_string string);
 
 #endif

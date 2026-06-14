@@ -36,10 +36,10 @@
 #define CK_HASH_COMMON_DEFAULT_CAPACITY 16
 #define CK_HASH_COMMON_MAX_LOAD 0.75
 
-typedef void (*ck_hash_common_entry_deinit_fn)(ck_linked_list_node *node, ck_allocator *allocator);
+typedef void (*ck_hash_common_entry_destroy_fn)(ck_linked_list_node *node, ck_allocator *allocator);
 typedef const void *(*ck_hash_common_entry_value_fn)(const ck_linked_list_node *node);
 
-ck_linked_list **ck_hash_common_buckets_init(size_t capacity, ck_allocator *allocator);
+ck_linked_list **ck_hash_common_buckets_create(size_t capacity, ck_allocator *allocator);
 ck_linked_list **ck_hash_common_buckets_rehash(ck_linked_list **buckets, size_t capacity,
                                                size_t new_capacity, size_t value_size,
                                                ck_allocator *allocator,
@@ -50,9 +50,9 @@ ck_linked_list_node *ck_hash_common_bucket_find(ck_linked_list *bucket, const vo
 ck_linked_list_node *ck_hash_common_bucket_remove(ck_linked_list *bucket, const void *value,
                                                   size_t value_size, ck_eq_fn value_eq,
                                                   ck_hash_common_entry_value_fn entry_value);
-void ck_hash_common_buckets_deinit(ck_linked_list **buckets, size_t capacity,
-                                   ck_allocator *allocator,
-                                   ck_hash_common_entry_deinit_fn entry_deinit);
+void ck_hash_common_buckets_destroy(ck_linked_list **buckets, size_t capacity,
+                                    ck_allocator *allocator,
+                                    ck_hash_common_entry_destroy_fn entry_destroy);
 
 static inline size_t ck_hash_common_bucket_index(const void *value, size_t value_size,
                                                  size_t capacity) {

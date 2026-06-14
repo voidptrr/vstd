@@ -28,7 +28,7 @@
 #include "ckit/memory/allocators/general_heap.h"
 
 int main(void) {
-    ck_heap *heap = ck_heap_init(2048);
+    ck_heap *heap = ck_heap_create(2048);
     size_t before;
     size_t after;
     int *a;
@@ -46,6 +46,6 @@ int main(void) {
 
     ck_heap_dealloc(heap, a);
     ck_heap_dealloc(heap, b);
-    ck_heap_deinit(heap);
+    ck_heap_destroy(heap);
     return 0;
 }

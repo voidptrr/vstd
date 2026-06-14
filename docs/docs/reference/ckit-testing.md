@@ -175,13 +175,13 @@ int main(void) {
     ck_test_allocator test_allocator;
     ck_test_allocator_init(&test_allocator);
 
-    ck_vector *vector = ck_vector_init(sizeof(int), ck_test_allocator_allocator(&test_allocator));
+    ck_vector *vector = ck_vector_create(sizeof(int), ck_test_allocator_allocator(&test_allocator));
     int value = 7;
 
     ck_vector_push(vector, &value);
     CK_TEST_ASSERT_EQ(ck_vector_size(vector), 1);
 
-    ck_vector_deinit(vector);
+    ck_vector_destroy(vector);
     CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
     return 0;
 }

@@ -50,7 +50,7 @@ struct ck_hashmap {
     ck_allocator *allocator;
 };
 
-static void ck_hashmap_entry_deinit(ck_linked_list_node *node, ck_allocator *allocator) {
+static void ck_hashmap_entry_destroy(ck_linked_list_node *node, ck_allocator *allocator) {
     ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
     ck_dealloc(allocator, entry);
 }
@@ -81,15 +81,15 @@ static ck_hashmap_entry *ck_hashmap_entry_get(const ck_hashmap *map, const void 
     return NULL;
 }
 
-ck_hashmap *ck_hashmap_init(size_t key_size, size_t value_size, ck_hashmap_key_eq_fn key_eq,
-                            ck_allocator *allocator) {
-    CK_ASSERT(key_eq != NULL, "fatal: ck_hashmap_init invalid arguments");
-    CK_ASSERT(key_size > 0, "fatal: ck_hashmap_init invalid arguments");
-    CK_ASSERT(value_size > 0, "fatal: ck_hashmap_init invalid arguments");
+ck_hashmap *ck_hashmap_create(size_t key_size, size_t value_size, ck_hashmap_key_eq_fn key_eq,
+                              ck_allocator *allocator) {
+    CK_ASSERT(key_eq != NULL, "fatal: ck_hashmap_create invalid arguments");
+    CK_ASSERT(key_size > 0, "fatal: ck_hashmap_create invalid arguments");
+    CK_ASSERT(value_size > 0, "fatal: ck_hashmap_create invalid arguments");
 
     ck_hashmap *map = ck_malloc(allocator, sizeof(ck_hashmap));
     map->allocator = allocator;
-    map->buckets = ck_hash_common_buckets_init(CK_HASH_COMMON_DEFAULT_CAPACITY, allocator);
+    map->buckets = ck_hash_common_buckets_create(CK_HASH_COMMON_DEFAULT_CAPACITY, allocator);
 
     map->size = 0;
     map->key_size = key_size;
@@ -176,10 +176,11 @@ size_t ck_hashmap_size(const ck_hashmap *map) {
     return map->size;
 }
 
-void ck_hashmap_deinit(ck_hashmap *map) {
-    CK_ASSERT(map != NULL, "fatal: ck_hashmap_deinit invalid arguments");
+void ck_hashmap_destroy(ck_hashmap *map) {
+    CK_ASSERT(map != NULL, "fatal: ck_hashmap_destroy invalid arguments");
 
     ck_allocator *allocator = map->allocator;
-    ck_hash_common_buckets_deinit(map->buckets, map->capacity, allocator, ck_hashmap_entry_deinit);
+    ck_hash_common_buckets_destroy(map->buckets, map->capacity, allocator,
+                                   ck_hashmap_entry_destroy);
     ck_dealloc(allocator, map);
 }

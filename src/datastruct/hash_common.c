@@ -31,15 +31,15 @@
 #include "ckit/memory/allocators/allocator.h"
 #include "datastruct/hash_common.h"
 
-ck_linked_list **ck_hash_common_buckets_init(size_t capacity, ck_allocator *allocator) {
-    CK_ASSERT(capacity > 0, "fatal: ck_hash_common_buckets_init invalid arguments");
+ck_linked_list **ck_hash_common_buckets_create(size_t capacity, ck_allocator *allocator) {
+    CK_ASSERT(capacity > 0, "fatal: ck_hash_common_buckets_create invalid arguments");
 
     size_t alloc_size = sizeof(ck_linked_list *) * capacity;
     ck_linked_list **buckets = (ck_linked_list **)ck_malloc(allocator, alloc_size);
     memset((void *)buckets, 0, alloc_size);
 
     for (size_t i = 0; i < capacity; i++) {
-        buckets[i] = ck_linked_list_init(allocator);
+        buckets[i] = ck_linked_list_create(allocator);
     }
 
     return buckets;
@@ -55,7 +55,7 @@ ck_linked_list **ck_hash_common_buckets_rehash(ck_linked_list **buckets, size_t 
     CK_ASSERT(value_size > 0, "fatal: ck_hash_common_buckets_rehash invalid arguments");
     CK_ASSERT(entry_value != NULL, "fatal: ck_hash_common_buckets_rehash invalid arguments");
 
-    ck_linked_list **new_buckets = ck_hash_common_buckets_init(new_capacity, allocator);
+    ck_linked_list **new_buckets = ck_hash_common_buckets_create(new_capacity, allocator);
     for (size_t i = 0; i < capacity; i++) {
         ck_linked_list_node *node = ck_linked_list_head(buckets[i]);
         while (node != NULL) {
@@ -66,7 +66,7 @@ ck_linked_list **ck_hash_common_buckets_rehash(ck_linked_list **buckets, size_t 
             ck_linked_list_pushfront(new_buckets[bucket], node);
             node = next;
         }
-        ck_linked_list_deinit(buckets[i]);
+        ck_linked_list_destroy(buckets[i]);
     }
 
     ck_dealloc(allocator, (void *)buckets);
@@ -116,20 +116,20 @@ ck_linked_list_node *ck_hash_common_bucket_remove(ck_linked_list *bucket, const 
     return NULL;
 }
 
-void ck_hash_common_buckets_deinit(ck_linked_list **buckets, size_t capacity,
-                                   ck_allocator *allocator,
-                                   ck_hash_common_entry_deinit_fn entry_deinit) {
-    CK_ASSERT(buckets != NULL, "fatal: ck_hash_common_buckets_deinit invalid arguments");
-    CK_ASSERT(entry_deinit != NULL, "fatal: ck_hash_common_buckets_deinit invalid arguments");
+void ck_hash_common_buckets_destroy(ck_linked_list **buckets, size_t capacity,
+                                    ck_allocator *allocator,
+                                    ck_hash_common_entry_destroy_fn entry_destroy) {
+    CK_ASSERT(buckets != NULL, "fatal: ck_hash_common_buckets_destroy invalid arguments");
+    CK_ASSERT(entry_destroy != NULL, "fatal: ck_hash_common_buckets_destroy invalid arguments");
 
     for (size_t i = 0; i < capacity; i++) {
         ck_linked_list_node *node = ck_linked_list_head(buckets[i]);
         while (node != NULL) {
             ck_linked_list_node *next = node->next;
-            entry_deinit(node, allocator);
+            entry_destroy(node, allocator);
             node = next;
         }
-        ck_linked_list_deinit(buckets[i]);
+        ck_linked_list_destroy(buckets[i]);
     }
 
     ck_dealloc(allocator, (void *)buckets);

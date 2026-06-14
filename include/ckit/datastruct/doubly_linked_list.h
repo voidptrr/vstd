@@ -59,8 +59,8 @@ typedef struct ck_doubly_linked_list_node {
 
 typedef struct ck_doubly_linked_list ck_doubly_linked_list;
 
-/* Initialize an intrusive doubly linked list. */
-ck_doubly_linked_list *ck_doubly_linked_list_init(ck_allocator *allocator);
+/* Create an intrusive doubly linked list. */
+ck_doubly_linked_list *ck_doubly_linked_list_create(ck_allocator *allocator);
 
 /* Append node at the tail. */
 void ck_doubly_linked_list_push(ck_doubly_linked_list *list, ck_doubly_linked_list_node *node);
@@ -92,6 +92,6 @@ ck_doubly_linked_list_node *ck_doubly_linked_list_head(const ck_doubly_linked_li
 ck_doubly_linked_list_node *ck_doubly_linked_list_tail(const ck_doubly_linked_list *list);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
-void ck_doubly_linked_list_deinit(ck_doubly_linked_list *list);
+void ck_doubly_linked_list_destroy(ck_doubly_linked_list *list);
 
 #endif

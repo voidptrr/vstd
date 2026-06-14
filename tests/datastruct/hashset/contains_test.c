@@ -31,7 +31,7 @@
 int main(void) {
     ck_hashset *set;
 
-    set = ck_hashset_init(sizeof(uint64_t), ck_eq_u64, NULL);
+    set = ck_hashset_create(sizeof(uint64_t), ck_eq_u64, NULL);
 
     uint64_t present = 42;
     uint64_t missing = 7;
@@ -48,6 +48,6 @@ int main(void) {
 
     CK_TEST_ASSERT(ck_hashset_contains(set, &missing));
 
-    ck_hashset_deinit(set);
+    ck_hashset_destroy(set);
     return 0;
 }

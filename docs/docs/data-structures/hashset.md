@@ -14,17 +14,19 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ck_hashset_init
+### ck_hashset_create
 
 ```c
-ck_hashset *ck_hashset_init(size_t elem_size,
+ck_hashset *ck_hashset_create(size_t elem_size,
                                 ck_hashset_elem_eq_fn elem_eq,
                                 ck_allocator *allocator);
 ```
 
 - Parameters: `elem_size`, `elem_eq`, `allocator`
 - Returns: opaque hashset handle.
-- Notes: when `allocator` is `NULL`, hashset uses the C library heap through `ck_malloc`.
+- Notes: the hashset stores `allocator` and reuses it for entries, buckets,
+  rehashing, and destroy. When `allocator` is `NULL`, hashset uses the C
+  library heap through `ck_malloc`.
 
 ### ck_hashset_insert
 
@@ -82,10 +84,10 @@ size_t ck_hashset_size(const ck_hashset *set);
 - Parameters: `set`
 - Returns: current element count.
 
-### ck_hashset_deinit
+### ck_hashset_destroy
 
 ```c
-void ck_hashset_deinit(ck_hashset *set);
+void ck_hashset_destroy(ck_hashset *set);
 ```
 
 - Parameters: `set`
@@ -105,7 +107,7 @@ int main(void) {
     uint64_t value = 42;
     const uint64_t *found = NULL;
 
-    set = ck_hashset_init(sizeof(uint64_t), ck_eq_u64, NULL);
+    set = ck_hashset_create(sizeof(uint64_t), ck_eq_u64, NULL);
     ck_hashset_insert(set, &value);
 
     found = (const uint64_t *)ck_hashset_get_const(set, &value);
@@ -121,7 +123,7 @@ int main(void) {
     }
 
 cleanup:
-    ck_hashset_deinit(set);
+    ck_hashset_destroy(set);
     return status;
 }
 ```

@@ -26,7 +26,7 @@
 #include "ckit/datastruct/string.h"
 
 int main(void) {
-    ck_string value = ck_string_init("hello world", NULL);
+    ck_string value = ck_string_create("hello world", NULL);
 
     CK_TEST_ASSERT(ck_string_contains(value, "lo wo"));
 
@@ -42,6 +42,6 @@ int main(void) {
     CK_TEST_ASSERT(ck_string_starts_with(value, ""));
     CK_TEST_ASSERT(ck_string_ends_with(value, ""));
 
-    ck_string_deinit(value);
+    ck_string_destroy(value);
     return 0;
 }

@@ -40,11 +40,11 @@ struct ck_arena {
     size_t offset;
 };
 
-ck_arena *ck_arena_init(size_t capacity) {
+ck_arena *ck_arena_create(size_t capacity) {
     ck_arena *arena;
 
     capacity = ck_align_up(capacity, CK_MEMORY_ALIGN);
-    CK_ASSERT(capacity > 0, "fatal: ck_arena_init invalid capacity");
+    CK_ASSERT(capacity > 0, "fatal: ck_arena_create invalid capacity");
 
     arena = ck_malloc(NULL, sizeof(ck_arena));
     arena->buffer = ck_malloc(NULL, capacity);
@@ -146,8 +146,8 @@ size_t ck_arena_available(const ck_arena *arena) {
     return arena->capacity - arena->offset;
 }
 
-void ck_arena_deinit(ck_arena *arena) {
-    CK_ASSERT(arena != NULL, "fatal: ck_arena_deinit invalid arguments");
+void ck_arena_destroy(ck_arena *arena) {
+    CK_ASSERT(arena != NULL, "fatal: ck_arena_destroy invalid arguments");
 
     ck_dealloc(NULL, arena->buffer);
     ck_dealloc(NULL, arena);

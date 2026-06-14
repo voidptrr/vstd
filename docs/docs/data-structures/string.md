@@ -18,15 +18,18 @@ typedef char *ck_string;
 
 ## FUNCTIONS
 
-### ck_string_init
+### ck_string_create
 
 ```c
-ck_string ck_string_init(const char *initial, ck_allocator *allocator);
+ck_string ck_string_create(const char *initial, ck_allocator *allocator);
 ```
 
 - Parameters: `initial`, `allocator`
-- Returns: initialized string.
-- Notes: when `initial` is `NULL`, creates an empty string. When `allocator` is `NULL`, uses the C library heap through `ck_malloc`/`ck_realloc`.
+- Returns: created string.
+- Notes: when `initial` is `NULL`, creates an empty string. The string stores
+  `allocator` in its header and reuses it for growth and destroy. When
+  `allocator` is `NULL`, uses the C library heap through
+  `ck_malloc`/`ck_realloc`.
 
 ### ck_string_append
 
@@ -97,10 +100,10 @@ size_t ck_string_len(const ck_string string);
 - Parameters: `string`
 - Returns: number of bytes before the terminating NUL.
 
-### ck_string_deinit
+### ck_string_destroy
 
 ```c
-void ck_string_deinit(ck_string string);
+void ck_string_destroy(ck_string string);
 ```
 
 - Parameters: `string`
@@ -115,7 +118,7 @@ void ck_string_deinit(ck_string string);
 
 int main(void) {
     int status = 0;
-    ck_string value = ck_string_init("hello", NULL);
+    ck_string value = ck_string_create("hello", NULL);
 
     ck_string_append(&value, " world");
     ck_string_prepend(&value, "say ");
@@ -125,7 +128,7 @@ int main(void) {
     }
 
 cleanup:
-    ck_string_deinit(value);
+    ck_string_destroy(value);
     return status;
 }
 ```

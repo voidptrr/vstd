@@ -27,10 +27,10 @@
 
 int main(void) {
     ck_linked_list *list;
-    list = ck_linked_list_init(NULL);
+    list = ck_linked_list_create(NULL);
 
     CK_TEST_ASSERT_EQ(ck_linked_list_size(list), 0);
 
-    ck_linked_list_deinit(list);
+    ck_linked_list_destroy(list);
     return 0;
 }
