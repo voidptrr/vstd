@@ -26,29 +26,29 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/datastruct/string.h"
-#include "ckit/memory/allocators/allocator.h"
-#include "ckit/panic.h"
+#include "vstd/datastruct/string.h"
+#include "vstd/memory/allocators/allocator.h"
+#include "vstd/panic.h"
 
-#define CK_STRING_DEFAULT_CAPACITY 16
+#define VS_STRING_DEFAULT_CAPACITY 16
 
-typedef struct ck_string_header {
+typedef struct vs_string_header {
     size_t len;
     size_t capacity;
-    ck_allocator *allocator;
+    vs_allocator *allocator;
     char buf[];
-} ck_string_header;
+} vs_string_header;
 
-static ck_string_header *ck_string_header_from_buf(ck_string string) {
+static vs_string_header *vs_string_header_from_buf(vs_string string) {
     if (string == NULL) {
         return NULL;
     }
 
-    return (ck_string_header *)((uint8_t *)string - offsetof(ck_string_header, buf));
+    return (vs_string_header *)((uint8_t *)string - offsetof(vs_string_header, buf));
 }
 
-static size_t ck_string_capacity_for(size_t len) {
-    size_t capacity = CK_STRING_DEFAULT_CAPACITY;
+static size_t vs_string_capacity_for(size_t len) {
+    size_t capacity = VS_STRING_DEFAULT_CAPACITY;
 
     while (capacity <= len) {
         capacity *= 2;
@@ -57,28 +57,28 @@ static size_t ck_string_capacity_for(size_t len) {
     return capacity;
 }
 
-static ck_string_header *ck_string_ensure_capacity(ck_string *string, size_t len) {
-    ck_string_header *header = ck_string_header_from_buf(*string);
+static vs_string_header *vs_string_ensure_capacity(vs_string *string, size_t len) {
+    vs_string_header *header = vs_string_header_from_buf(*string);
     if (len < header->capacity) {
         return header;
     }
 
-    size_t new_capacity = ck_string_capacity_for(len);
-    size_t alloc_size = sizeof(ck_string_header) + new_capacity;
+    size_t new_capacity = vs_string_capacity_for(len);
+    size_t alloc_size = sizeof(vs_string_header) + new_capacity;
 
-    ck_allocator *allocator = header->allocator;
-    ck_string_header *tmp = ck_realloc(allocator, header, alloc_size);
+    vs_allocator *allocator = header->allocator;
+    vs_string_header *tmp = vs_realloc(allocator, header, alloc_size);
     tmp->capacity = new_capacity;
     *string = tmp->buf;
     return tmp;
 }
 
-ck_string ck_string_create(const char *initial, ck_allocator *allocator) {
+vs_string vs_string_create(const char *initial, vs_allocator *allocator) {
     size_t len = initial == NULL ? 0 : strlen(initial);
-    size_t capacity = ck_string_capacity_for(len);
-    size_t alloc_size = sizeof(ck_string_header) + capacity;
+    size_t capacity = vs_string_capacity_for(len);
+    size_t alloc_size = sizeof(vs_string_header) + capacity;
 
-    ck_string_header *header = ck_malloc(allocator, alloc_size);
+    vs_string_header *header = vs_malloc(allocator, alloc_size);
     header->len = len;
     header->capacity = capacity;
     header->allocator = allocator;
@@ -91,46 +91,46 @@ ck_string ck_string_create(const char *initial, ck_allocator *allocator) {
     return header->buf;
 }
 
-void ck_string_append(ck_string *string, const char *suffix) {
-    CK_ASSERT(string != NULL, "fatal: ck_string_append invalid arguments");
-    CK_ASSERT(*string != NULL, "fatal: ck_string_append invalid arguments");
-    CK_ASSERT(suffix != NULL, "fatal: ck_string_append invalid arguments");
+void vs_string_append(vs_string *string, const char *suffix) {
+    VS_ASSERT(string != NULL, "fatal: vs_string_append invalid arguments");
+    VS_ASSERT(*string != NULL, "fatal: vs_string_append invalid arguments");
+    VS_ASSERT(suffix != NULL, "fatal: vs_string_append invalid arguments");
 
     size_t suffix_len = strlen(suffix);
     if (suffix_len == 0) {
         return;
     }
 
-    ck_string_header *header = ck_string_header_from_buf(*string);
+    vs_string_header *header = vs_string_header_from_buf(*string);
     size_t new_len = header->len + suffix_len;
-    header = ck_string_ensure_capacity(string, new_len);
+    header = vs_string_ensure_capacity(string, new_len);
 
     memcpy(header->buf + header->len, suffix, suffix_len);
     header->len = new_len;
     header->buf[header->len] = '\0';
 }
 
-void ck_string_prepend(ck_string *string, const char *prefix) {
-    CK_ASSERT(string != NULL, "fatal: ck_string_prepend invalid arguments");
-    CK_ASSERT(*string != NULL, "fatal: ck_string_prepend invalid arguments");
-    CK_ASSERT(prefix != NULL, "fatal: ck_string_prepend invalid arguments");
+void vs_string_prepend(vs_string *string, const char *prefix) {
+    VS_ASSERT(string != NULL, "fatal: vs_string_prepend invalid arguments");
+    VS_ASSERT(*string != NULL, "fatal: vs_string_prepend invalid arguments");
+    VS_ASSERT(prefix != NULL, "fatal: vs_string_prepend invalid arguments");
 
     size_t prefix_len = strlen(prefix);
     if (prefix_len == 0) {
         return;
     }
 
-    ck_string_header *header = ck_string_header_from_buf(*string);
+    vs_string_header *header = vs_string_header_from_buf(*string);
     size_t old_len = header->len;
     size_t new_len = old_len + prefix_len;
-    header = ck_string_ensure_capacity(string, new_len);
+    header = vs_string_ensure_capacity(string, new_len);
 
     memmove(header->buf + prefix_len, header->buf, old_len + 1);
     memcpy(header->buf, prefix, prefix_len);
     header->len = new_len;
 }
 
-bool ck_string_contains(const ck_string string, const char *needle) {
+bool vs_string_contains(const vs_string string, const char *needle) {
     if (string == NULL || needle == NULL) {
         return false;
     }
@@ -138,7 +138,7 @@ bool ck_string_contains(const ck_string string, const char *needle) {
     return strstr(string, needle) != NULL;
 }
 
-bool ck_string_starts_with(const ck_string string, const char *prefix) {
+bool vs_string_starts_with(const vs_string string, const char *prefix) {
     if (string == NULL || prefix == NULL) {
         return false;
     }
@@ -147,12 +147,12 @@ bool ck_string_starts_with(const ck_string string, const char *prefix) {
     return strncmp(string, prefix, prefix_len) == 0;
 }
 
-bool ck_string_ends_with(const ck_string string, const char *suffix) {
+bool vs_string_ends_with(const vs_string string, const char *suffix) {
     if (string == NULL || suffix == NULL) {
         return false;
     }
 
-    size_t string_len = ck_string_len(string);
+    size_t string_len = vs_string_len(string);
     size_t suffix_len = strlen(suffix);
     if (suffix_len > string_len) {
         return false;
@@ -161,25 +161,25 @@ bool ck_string_ends_with(const ck_string string, const char *suffix) {
     return memcmp(string + string_len - suffix_len, suffix, suffix_len) == 0;
 }
 
-void ck_string_clear(ck_string string) {
-    CK_ASSERT(string != NULL, "fatal: ck_string_clear invalid arguments");
+void vs_string_clear(vs_string string) {
+    VS_ASSERT(string != NULL, "fatal: vs_string_clear invalid arguments");
 
-    ck_string_header *header = ck_string_header_from_buf(string);
+    vs_string_header *header = vs_string_header_from_buf(string);
     header->len = 0;
     header->buf[0] = '\0';
 }
 
-size_t ck_string_len(const ck_string string) {
-    CK_ASSERT(string != NULL, "fatal: ck_string_len invalid arguments");
+size_t vs_string_len(const vs_string string) {
+    VS_ASSERT(string != NULL, "fatal: vs_string_len invalid arguments");
 
-    ck_string_header *header = ck_string_header_from_buf(string);
+    vs_string_header *header = vs_string_header_from_buf(string);
     return header->len;
 }
 
-void ck_string_destroy(ck_string string) {
-    CK_ASSERT(string != NULL, "fatal: ck_string_destroy invalid arguments");
+void vs_string_destroy(vs_string string) {
+    VS_ASSERT(string != NULL, "fatal: vs_string_destroy invalid arguments");
 
-    ck_string_header *header = ck_string_header_from_buf(string);
-    ck_allocator *allocator = header->allocator;
-    ck_dealloc(allocator, header);
+    vs_string_header *header = vs_string_header_from_buf(string);
+    vs_allocator *allocator = header->allocator;
+    vs_dealloc(allocator, header);
 }

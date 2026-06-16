@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef CK_MEMORY_GENERAL_HEAP_H
-#define CK_MEMORY_GENERAL_HEAP_H
+#ifndef VSTD_GENERAL_HEAP_H
+#define VSTD_GENERAL_HEAP_H
 
 #include <stddef.h>
 
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Free-list heap memory model:
@@ -50,44 +50,44 @@
  * - split large free blocks
  * - coalesce neighboring free blocks on dealloc
  */
-typedef struct ck_heap ck_heap;
+typedef struct vs_heap vs_heap;
 
 /*
  * Create a heap with `capacity` bytes of internal storage.
  */
-ck_heap *ck_heap_create(size_t capacity);
+vs_heap *vs_heap_create(size_t capacity);
 
 /*
  * Return an allocator adapter that routes through this heap.
  */
-ck_allocator ck_heap_adapter(ck_heap *heap);
+vs_allocator vs_heap_adapter(vs_heap *heap);
 
 /*
  * Allocate `size` bytes from heap.
  * Returns NULL when no suitable free block exists.
  */
-void *ck_heap_alloc(ck_heap *heap, size_t size);
+void *vs_heap_alloc(vs_heap *heap, size_t size);
 
 /*
- * Free a pointer previously returned by ck_heap_alloc/ck_heap_realloc.
+ * Free a pointer previously returned by vs_heap_alloc/vs_heap_realloc.
  */
-void ck_heap_dealloc(ck_heap *heap, void *ptr);
+void vs_heap_dealloc(vs_heap *heap, void *ptr);
 
 /*
  * Resize an existing heap allocation.
  * Behaves like realloc: NULL ptr allocates, size 0 frees and returns NULL.
  */
-void *ck_heap_realloc(ck_heap *heap, void *ptr, size_t size);
+void *vs_heap_realloc(vs_heap *heap, void *ptr, size_t size);
 
 /* Total managed bytes (including internal metadata overhead). */
-size_t ck_heap_capacity(const ck_heap *heap);
+size_t vs_heap_capacity(const vs_heap *heap);
 
 /* Sum of currently free payload bytes. */
-size_t ck_heap_available(const ck_heap *heap);
+size_t vs_heap_available(const vs_heap *heap);
 
 /*
  * Destroy and release heap resources.
  */
-void ck_heap_destroy(ck_heap *heap);
+void vs_heap_destroy(vs_heap *heap);
 
 #endif

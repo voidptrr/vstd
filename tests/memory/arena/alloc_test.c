@@ -24,26 +24,26 @@
 
 #include <stdint.h>
 
-#include "ckit/memory/allocators/arena.h"
-#include "ckit/memory/utils.h"
-#include "ckit/testing.h"
+#include "vstd/memory/allocators/arena.h"
+#include "vstd/memory/utils.h"
+#include "vstd/testing.h"
 
 int main(void) {
-    ck_arena *arena = ck_arena_create(128);
+    vs_arena *arena = vs_arena_create(128);
     void *first;
     void *second;
 
-    first = ck_arena_alloc(arena, 8);
-    second = ck_arena_alloc(arena, 8);
-    CK_TEST_ASSERT_PTR_NOT_NULL(first);
-    CK_TEST_ASSERT_PTR_NOT_NULL(second);
-    CK_TEST_ASSERT_PTR_NE(first, second);
+    first = vs_arena_alloc(arena, 8);
+    second = vs_arena_alloc(arena, 8);
+    VS_TEST_ASSERT_PTR_NOT_NULL(first);
+    VS_TEST_ASSERT_PTR_NOT_NULL(second);
+    VS_TEST_ASSERT_PTR_NE(first, second);
 
-    CK_TEST_ASSERT_EQ((uintptr_t)first % CK_MEMORY_ALIGN, 0);
-    CK_TEST_ASSERT_EQ((uintptr_t)second % CK_MEMORY_ALIGN, 0);
+    VS_TEST_ASSERT_EQ((uintptr_t)first % VS_MEMORY_ALIGN, 0);
+    VS_TEST_ASSERT_EQ((uintptr_t)second % VS_MEMORY_ALIGN, 0);
 
-    CK_TEST_ASSERT_PTR_NULL(ck_arena_alloc(arena, ck_arena_capacity(arena)));
+    VS_TEST_ASSERT_PTR_NULL(vs_arena_alloc(arena, vs_arena_capacity(arena)));
 
-    ck_arena_destroy(arena);
+    vs_arena_destroy(arena);
     return 0;
 }

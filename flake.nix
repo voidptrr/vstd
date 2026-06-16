@@ -21,7 +21,7 @@
 # SOFTWARE.
 #
 {
-  description = "ckit";
+  description = "vstd";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -47,7 +47,7 @@
 
     packages = forEachSystem ({pkgs}: {
       default = pkgs.callPackage ./tools/nix/package.nix {};
-      ckit = pkgs.callPackage ./tools/nix/package.nix {};
+      vstd = pkgs.callPackage ./tools/nix/package.nix {};
     });
 
     devShells = forEachSystem ({pkgs}: {

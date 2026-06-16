@@ -24,113 +24,113 @@
 
 #include <stddef.h>
 
-#include "ckit/datastruct/vector.h"
-#include "ckit/memory/allocators/test_allocator.h"
-#include "ckit/testing.h"
+#include "vstd/datastruct/vector.h"
+#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/testing.h"
 
-CK_TEST(init) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_vector *v;
+VS_TEST(init) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
     int value = 1;
 
-    v = ck_vector_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    CK_TEST_ASSERT_EQ(ck_vector_size(v), 0);
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    VS_TEST_ASSERT_EQ(vs_vector_size(v), 0);
 
-    ck_vector_push(v, &value);
-    CK_TEST_ASSERT_EQ(ck_vector_size(v), 1);
+    vs_vector_push(v, &value);
+    VS_TEST_ASSERT_EQ(vs_vector_size(v), 1);
 
-    ck_vector_destroy(v);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_vector_destroy(v);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(pop) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_vector *v;
+VS_TEST(pop) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
     int first = 7;
     int second = 11;
     int *popped;
 
-    v = ck_vector_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    CK_TEST_ASSERT_PTR_NULL(ck_vector_pop(v));
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    VS_TEST_ASSERT_PTR_NULL(vs_vector_pop(v));
 
-    ck_vector_push(v, &first);
-    ck_vector_push(v, &second);
+    vs_vector_push(v, &first);
+    vs_vector_push(v, &second);
 
-    popped = (int *)ck_vector_pop(v);
-    CK_TEST_ASSERT_PTR_NOT_NULL(popped);
-    CK_TEST_ASSERT_EQ(*popped, second);
+    popped = (int *)vs_vector_pop(v);
+    VS_TEST_ASSERT_PTR_NOT_NULL(popped);
+    VS_TEST_ASSERT_EQ(*popped, second);
 
-    popped = (int *)ck_vector_pop(v);
-    CK_TEST_ASSERT_PTR_NOT_NULL(popped);
-    CK_TEST_ASSERT_EQ(*popped, first);
+    popped = (int *)vs_vector_pop(v);
+    VS_TEST_ASSERT_PTR_NOT_NULL(popped);
+    VS_TEST_ASSERT_EQ(*popped, first);
 
-    ck_vector_destroy(v);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_vector_destroy(v);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(push_single_element) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_vector *v;
+VS_TEST(push_single_element) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
     int value = 42;
 
-    v = ck_vector_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    ck_vector_push(v, &value);
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_vector_push(v, &value);
 
-    CK_TEST_ASSERT_EQ(ck_vector_size(v), 1);
-    CK_TEST_ASSERT_EQ(*(int *)ck_vector_get(v, 0), value);
+    VS_TEST_ASSERT_EQ(vs_vector_size(v), 1);
+    VS_TEST_ASSERT_EQ(*(int *)vs_vector_get(v, 0), value);
 
-    ck_vector_destroy(v);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_vector_destroy(v);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(push_grows_storage) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_vector *v;
+VS_TEST(push_grows_storage) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
 
-    v = ck_vector_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
     for (size_t i = 0; i < 17; i++) {
         int value = (int)i;
-        ck_vector_push(v, &value);
+        vs_vector_push(v, &value);
     }
 
-    CK_TEST_ASSERT_EQ(ck_vector_size(v), 17);
+    VS_TEST_ASSERT_EQ(vs_vector_size(v), 17);
 
-    ck_vector_destroy(v);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_vector_destroy(v);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(push_preserves_existing_items_after_growth) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_vector *v;
+VS_TEST(push_preserves_existing_items_after_growth) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
 
-    v = ck_vector_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
     for (size_t i = 0; i < 17; i++) {
         int value = (int)i;
-        ck_vector_push(v, &value);
+        vs_vector_push(v, &value);
     }
 
     for (size_t i = 0; i < 17; i++) {
-        CK_TEST_ASSERT_EQ(*(int *)ck_vector_get(v, i), (int)i);
+        VS_TEST_ASSERT_EQ(*(int *)vs_vector_get(v, i), (int)i);
     }
 
-    ck_vector_destroy(v);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_vector_destroy(v);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST_MAIN(
-    CK_TEST_CASE(init),
-    CK_TEST_CASE(pop),
-    CK_TEST_CASE(push_single_element),
-    CK_TEST_CASE(push_grows_storage),
-    CK_TEST_CASE(push_preserves_existing_items_after_growth)
+VS_TEST_MAIN(
+    VS_TEST_CASE(init),
+    VS_TEST_CASE(pop),
+    VS_TEST_CASE(push_single_element),
+    VS_TEST_CASE(push_grows_storage),
+    VS_TEST_CASE(push_preserves_existing_items_after_growth)
 )

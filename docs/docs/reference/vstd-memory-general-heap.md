@@ -10,86 +10,86 @@ This API is fail-fast for required initialization/teardown preconditions.
 
 ## TYPES
 
-### ck_heap
+### vs_heap
 
 ```c
-typedef struct ck_heap ck_heap;
+typedef struct vs_heap vs_heap;
 ```
 
-- Notes: `ck_heap` is opaque. Use the functions below to inspect or mutate
+- Notes: `vs_heap` is opaque. Use the functions below to inspect or mutate
   heap state.
 
 ## FUNCTIONS
 
-### ck_heap_create
+### vs_heap_create
 
 ```c
-ck_heap *ck_heap_create(size_t capacity);
+vs_heap *vs_heap_create(size_t capacity);
 ```
 
 - Parameters: `capacity`
 - Returns: heap pointer.
 
-### ck_heap_adapter
+### vs_heap_adapter
 
 ```c
-ck_allocator ck_heap_adapter(ck_heap *heap);
+vs_allocator vs_heap_adapter(vs_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: allocator adapter bound to `heap`.
-- Notes: the returned allocator advertises `CK_ALLOCATOR_FEATURE_DEALLOC | CK_ALLOCATOR_FEATURE_REALLOC`.
+- Notes: the returned allocator advertises `VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC`.
 
-### ck_heap_alloc
+### vs_heap_alloc
 
 ```c
-void *ck_heap_alloc(ck_heap *heap, size_t size);
+void *vs_heap_alloc(vs_heap *heap, size_t size);
 ```
 
 - Parameters: `heap`, `size`
 - Returns: allocated pointer, or `NULL` when allocation cannot be satisfied.
 
-### ck_heap_dealloc
+### vs_heap_dealloc
 
 ```c
-void ck_heap_dealloc(ck_heap *heap, void *ptr);
+void vs_heap_dealloc(vs_heap *heap, void *ptr);
 ```
 
 - Parameters: `heap`, `ptr`
 - Behavior: frees `ptr` if valid.
 
-### ck_heap_realloc
+### vs_heap_realloc
 
 ```c
-void *ck_heap_realloc(ck_heap *heap, void *ptr, size_t size);
+void *vs_heap_realloc(vs_heap *heap, void *ptr, size_t size);
 ```
 
 - Parameters: `heap`, `ptr`, `size`
 - Returns: resized pointer, or `NULL` on failure.
 - Notes: `ptr == NULL` behaves like allocation; `size == 0` frees `ptr` and returns `NULL`.
 
-### ck_heap_capacity
+### vs_heap_capacity
 
 ```c
-size_t ck_heap_capacity(const ck_heap *heap);
+size_t vs_heap_capacity(const vs_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: total managed bytes.
 
-### ck_heap_available
+### vs_heap_available
 
 ```c
-size_t ck_heap_available(const ck_heap *heap);
+size_t vs_heap_available(const vs_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: sum of currently free payload bytes.
 
-### ck_heap_destroy
+### vs_heap_destroy
 
 ```c
-void ck_heap_destroy(ck_heap *heap);
+void vs_heap_destroy(vs_heap *heap);
 ```
 
 - Parameters: `heap`

@@ -1,0 +1,24 @@
+name: vstd
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - docs/**
+      - src/**
+      - tests/**
+      - tooling/**
+      - flake.nix
+      - flake.lock
+      - .github/workflows/flake.yml
+      - .clang-format
+      - .clang-tidy
+
+concurrency:
+  group: pre-merge-checks
+  cancel-in-progress: true
+
+jobs:
+  flake:
+    uses: voidptrr/ctools/.github/workflows/checks.yml@c515d3e2f639cce88846a6927f57f2426d129c95

@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-#ifndef CK_DATASTRUCT_DEQUE_H
-#define CK_DATASTRUCT_DEQUE_H
+#ifndef VSTD_DEQUE_H
+#define VSTD_DEQUE_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Opaque generic double-ended queue backed by circular storage.
@@ -48,33 +48,33 @@
  * Storage may wrap internally, but callers observe a normal front-to-back
  * sequence.
  */
-typedef struct ck_deque ck_deque;
+typedef struct vs_deque vs_deque;
 
 /* Create a deque with element size elem_size. */
-ck_deque *ck_deque_create(size_t elem_size, ck_allocator *allocator);
+vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator);
 
 /* Enqueue one element by copying elem_size bytes from element. */
-void ck_deque_push(ck_deque *deque, const void *element);
+void vs_deque_push(vs_deque *deque, const void *element);
 
 /* Enqueue one element at the front by copying elem_size bytes from element. */
-void ck_deque_pushfront(ck_deque *deque, const void *element);
+void vs_deque_pushfront(vs_deque *deque, const void *element);
 
 /* Dequeue and return the front element pointer, or NULL when empty. */
-void *ck_deque_popleft(ck_deque *deque);
+void *vs_deque_popleft(vs_deque *deque);
 
 /* Remove and return the back element pointer, or NULL when empty. */
-void *ck_deque_popback(ck_deque *deque);
+void *vs_deque_popback(vs_deque *deque);
 
 /* Return the front element pointer without removing it, or NULL when empty. */
-const void *ck_deque_peekleft(const ck_deque *deque);
+const void *vs_deque_peekleft(const vs_deque *deque);
 
 /* Return the back element pointer without removing it, or NULL when empty. */
-const void *ck_deque_peekback(const ck_deque *deque);
+const void *vs_deque_peekback(const vs_deque *deque);
 
 /* Return the number of stored elements. */
-size_t ck_deque_size(const ck_deque *deque);
+size_t vs_deque_size(const vs_deque *deque);
 
 /* Destroy and release owned storage. */
-void ck_deque_destroy(ck_deque *deque);
+void vs_deque_destroy(vs_deque *deque);
 
 #endif

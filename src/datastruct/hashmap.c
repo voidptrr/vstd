@@ -26,192 +26,192 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/datastruct/hashmap.h"
-#include "ckit/datastruct/linked_list.h"
-#include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/utils.h"
-#include "ckit/panic.h"
 #include "datastruct/hash_common.h"
+#include "vstd/datastruct/hashmap.h"
+#include "vstd/datastruct/linked_list.h"
+#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/utils.h"
+#include "vstd/panic.h"
 
-typedef struct ck_hashmap_entry {
-    ck_linked_list_node node;
+typedef struct vs_hashmap_entry {
+    vs_linked_list_node node;
     max_align_t align;
     uint8_t data[];
-} ck_hashmap_entry;
+} vs_hashmap_entry;
 
-struct ck_hashmap {
+struct vs_hashmap {
     size_t size;
     size_t key_size;
     size_t value_size;
     size_t capacity;
-    ck_linked_list **buckets;
-    ck_hashmap_key_eq_fn key_eq;
-    ck_allocator *allocator;
+    vs_linked_list **buckets;
+    vs_hashmap_key_eq_fn key_eq;
+    vs_allocator *allocator;
 };
 
-static void ck_hashmap_entry_destroy(ck_linked_list_node *node, ck_allocator *allocator) {
-    ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
-    ck_dealloc(allocator, entry);
+static void vs_hashmap_entry_destroy(vs_linked_list_node *node, vs_allocator *allocator) {
+    vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
+    vs_dealloc(allocator, entry);
 }
 
-static const void *ck_hashmap_entry_key(const ck_linked_list_node *node) {
-    const ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
+static const void *vs_hashmap_entry_key(const vs_linked_list_node *node) {
+    const vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
     return entry->data;
 }
 
-static void *ck_hashmap_entry_value(const ck_hashmap *map, ck_hashmap_entry *entry) {
-    size_t value_offset = ck_align_up(map->key_size, CK_MEMORY_ALIGN);
+static void *vs_hashmap_entry_value(const vs_hashmap *map, vs_hashmap_entry *entry) {
+    size_t value_offset = vs_align_up(map->key_size, VS_MEMORY_ALIGN);
     return entry->data + value_offset;
 }
 
-static const void *ck_hashmap_entry_value_const(
-    const ck_hashmap *map,
-    const ck_hashmap_entry *entry
+static const void *vs_hashmap_entry_value_const(
+    const vs_hashmap *map,
+    const vs_hashmap_entry *entry
 ) {
-    size_t value_offset = ck_align_up(map->key_size, CK_MEMORY_ALIGN);
+    size_t value_offset = vs_align_up(map->key_size, VS_MEMORY_ALIGN);
     return entry->data + value_offset;
 }
 
-static ck_hashmap_entry *ck_hashmap_entry_get(const ck_hashmap *map, const void *key) {
-    size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
-    ck_linked_list_node *node = ck_hash_common_bucket_find(
+static vs_hashmap_entry *vs_hashmap_entry_get(const vs_hashmap *map, const void *key) {
+    size_t bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
+    vs_linked_list_node *node = vs_hash_common_bucket_find(
         map->buckets[bucket],
         key,
         map->key_size,
         map->key_eq,
-        ck_hashmap_entry_key
+        vs_hashmap_entry_key
     );
     if (node != NULL) {
-        return CK_CONTAINER_OF(node, ck_hashmap_entry, node);
+        return VS_CONTAINER_OF(node, vs_hashmap_entry, node);
     }
     return NULL;
 }
 
-ck_hashmap *ck_hashmap_create(
+vs_hashmap *vs_hashmap_create(
     size_t key_size,
     size_t value_size,
-    ck_hashmap_key_eq_fn key_eq,
-    ck_allocator *allocator
+    vs_hashmap_key_eq_fn key_eq,
+    vs_allocator *allocator
 ) {
-    CK_ASSERT(key_eq != NULL, "fatal: ck_hashmap_create invalid arguments");
-    CK_ASSERT(key_size > 0, "fatal: ck_hashmap_create invalid arguments");
-    CK_ASSERT(value_size > 0, "fatal: ck_hashmap_create invalid arguments");
+    VS_ASSERT(key_eq != NULL, "fatal: vs_hashmap_create invalid arguments");
+    VS_ASSERT(key_size > 0, "fatal: vs_hashmap_create invalid arguments");
+    VS_ASSERT(value_size > 0, "fatal: vs_hashmap_create invalid arguments");
 
-    ck_hashmap *map = ck_malloc(allocator, sizeof(ck_hashmap));
+    vs_hashmap *map = vs_malloc(allocator, sizeof(vs_hashmap));
     map->allocator = allocator;
-    map->buckets = ck_hash_common_buckets_create(CK_HASH_COMMON_DEFAULT_CAPACITY, allocator);
+    map->buckets = vs_hash_common_buckets_create(VS_HASH_COMMON_DEFAULT_CAPACITY, allocator);
 
     map->size = 0;
     map->key_size = key_size;
     map->value_size = value_size;
-    map->capacity = CK_HASH_COMMON_DEFAULT_CAPACITY;
+    map->capacity = VS_HASH_COMMON_DEFAULT_CAPACITY;
     map->key_eq = key_eq;
 
     return map;
 }
 
-void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value) {
-    CK_ASSERT(map != NULL, "fatal: ck_hashmap_put invalid arguments");
-    CK_ASSERT(key != NULL, "fatal: ck_hashmap_put invalid arguments");
-    CK_ASSERT(value != NULL, "fatal: ck_hashmap_put invalid arguments");
+void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
+    VS_ASSERT(map != NULL, "fatal: vs_hashmap_put invalid arguments");
+    VS_ASSERT(key != NULL, "fatal: vs_hashmap_put invalid arguments");
+    VS_ASSERT(value != NULL, "fatal: vs_hashmap_put invalid arguments");
 
-    ck_allocator *allocator = map->allocator;
-    size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
-    ck_linked_list_node *node = ck_hash_common_bucket_find(
+    vs_allocator *allocator = map->allocator;
+    size_t bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
+    vs_linked_list_node *node = vs_hash_common_bucket_find(
         map->buckets[bucket],
         key,
         map->key_size,
         map->key_eq,
-        ck_hashmap_entry_key
+        vs_hashmap_entry_key
     );
     if (node != NULL) {
-        ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
-        memcpy(ck_hashmap_entry_value(map, entry), value, map->value_size);
+        vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
+        memcpy(vs_hashmap_entry_value(map, entry), value, map->value_size);
         return;
     }
 
-    if (ck_hash_common_should_grow(map->size, map->capacity)) {
+    if (vs_hash_common_should_grow(map->size, map->capacity)) {
         size_t new_capacity = map->capacity * 2;
-        map->buckets = ck_hash_common_buckets_rehash(
+        map->buckets = vs_hash_common_buckets_rehash(
             map->buckets,
             map->capacity,
             new_capacity,
             map->key_size,
             allocator,
-            ck_hashmap_entry_key
+            vs_hashmap_entry_key
         );
         map->capacity = new_capacity;
-        bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
+        bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
     }
 
-    size_t value_offset = ck_align_up(map->key_size, CK_MEMORY_ALIGN);
-    size_t alloc_size = sizeof(ck_hashmap_entry) + value_offset + map->value_size;
-    ck_hashmap_entry *entry = ck_malloc(allocator, alloc_size);
+    size_t value_offset = vs_align_up(map->key_size, VS_MEMORY_ALIGN);
+    size_t alloc_size = sizeof(vs_hashmap_entry) + value_offset + map->value_size;
+    vs_hashmap_entry *entry = vs_malloc(allocator, alloc_size);
 
     memcpy(entry->data, key, map->key_size);
-    memcpy(ck_hashmap_entry_value(map, entry), value, map->value_size);
+    memcpy(vs_hashmap_entry_value(map, entry), value, map->value_size);
 
-    ck_linked_list_pushfront(map->buckets[bucket], &entry->node);
+    vs_linked_list_pushfront(map->buckets[bucket], &entry->node);
     map->size += 1;
 }
 
-void *ck_hashmap_get(ck_hashmap *map, const void *key) {
-    CK_ASSERT(map != NULL, "fatal: ck_hashmap_get invalid arguments");
-    CK_ASSERT(key != NULL, "fatal: ck_hashmap_get invalid arguments");
+void *vs_hashmap_get(vs_hashmap *map, const void *key) {
+    VS_ASSERT(map != NULL, "fatal: vs_hashmap_get invalid arguments");
+    VS_ASSERT(key != NULL, "fatal: vs_hashmap_get invalid arguments");
 
-    ck_hashmap_entry *entry = ck_hashmap_entry_get(map, key);
+    vs_hashmap_entry *entry = vs_hashmap_entry_get(map, key);
     if (entry != NULL) {
-        return ck_hashmap_entry_value(map, entry);
+        return vs_hashmap_entry_value(map, entry);
     }
     return NULL;
 }
 
-const void *ck_hashmap_get_const(const ck_hashmap *map, const void *key) {
-    CK_ASSERT(map != NULL, "fatal: ck_hashmap_get_const invalid arguments");
-    CK_ASSERT(key != NULL, "fatal: ck_hashmap_get_const invalid arguments");
+const void *vs_hashmap_get_const(const vs_hashmap *map, const void *key) {
+    VS_ASSERT(map != NULL, "fatal: vs_hashmap_get_const invalid arguments");
+    VS_ASSERT(key != NULL, "fatal: vs_hashmap_get_const invalid arguments");
 
-    ck_hashmap_entry *entry = ck_hashmap_entry_get(map, key);
+    vs_hashmap_entry *entry = vs_hashmap_entry_get(map, key);
     if (entry != NULL) {
-        return ck_hashmap_entry_value_const(map, entry);
+        return vs_hashmap_entry_value_const(map, entry);
     }
     return NULL;
 }
 
-void ck_hashmap_remove(ck_hashmap *map, const void *key) {
-    CK_ASSERT(map != NULL, "fatal: ck_hashmap_remove invalid arguments");
-    CK_ASSERT(key != NULL, "fatal: ck_hashmap_remove invalid arguments");
+void vs_hashmap_remove(vs_hashmap *map, const void *key) {
+    VS_ASSERT(map != NULL, "fatal: vs_hashmap_remove invalid arguments");
+    VS_ASSERT(key != NULL, "fatal: vs_hashmap_remove invalid arguments");
 
-    ck_allocator *allocator = map->allocator;
-    size_t bucket = ck_hash_common_bucket_index(key, map->key_size, map->capacity);
-    ck_linked_list_node *node = ck_hash_common_bucket_remove(
+    vs_allocator *allocator = map->allocator;
+    size_t bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
+    vs_linked_list_node *node = vs_hash_common_bucket_remove(
         map->buckets[bucket],
         key,
         map->key_size,
         map->key_eq,
-        ck_hashmap_entry_key
+        vs_hashmap_entry_key
     );
     if (node != NULL) {
-        ck_hashmap_entry *entry = CK_CONTAINER_OF(node, ck_hashmap_entry, node);
-        ck_dealloc(allocator, entry);
+        vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
+        vs_dealloc(allocator, entry);
         map->size -= 1;
     }
 }
 
-size_t ck_hashmap_size(const ck_hashmap *map) {
-    CK_ASSERT(map != NULL, "fatal: ck_hashmap_size invalid arguments");
+size_t vs_hashmap_size(const vs_hashmap *map) {
+    VS_ASSERT(map != NULL, "fatal: vs_hashmap_size invalid arguments");
 
     return map->size;
 }
 
-void ck_hashmap_destroy(ck_hashmap *map) {
-    CK_ASSERT(map != NULL, "fatal: ck_hashmap_destroy invalid arguments");
+void vs_hashmap_destroy(vs_hashmap *map) {
+    VS_ASSERT(map != NULL, "fatal: vs_hashmap_destroy invalid arguments");
 
-    ck_allocator *allocator = map->allocator;
-    ck_hash_common_buckets_destroy(
+    vs_allocator *allocator = map->allocator;
+    vs_hash_common_buckets_destroy(
         map->buckets,
         map->capacity,
         allocator,
-        ck_hashmap_entry_destroy
+        vs_hashmap_entry_destroy
     );
-    ck_dealloc(allocator, map);
+    vs_dealloc(allocator, map);
 }

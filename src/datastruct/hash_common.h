@@ -22,81 +22,81 @@
  * SOFTWARE.
  */
 
-#ifndef CK_DATASTRUCT_HASH_COMMON_H
-#define CK_DATASTRUCT_HASH_COMMON_H
+#ifndef VSTD_HASH_COMMON_H
+#define VSTD_HASH_COMMON_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/compare.h"
-#include "ckit/datastruct/linked_list.h"
-#include "ckit/memory/allocators/allocator.h"
 #include "hash.h"
+#include "vstd/compare.h"
+#include "vstd/datastruct/linked_list.h"
+#include "vstd/memory/allocators/allocator.h"
 
-#define CK_HASH_COMMON_DEFAULT_CAPACITY 16
-#define CK_HASH_COMMON_MAX_LOAD 0.75
+#define VS_HASH_COMMON_DEFAULT_CAPACITY 16
+#define VS_HASH_COMMON_MAX_LOAD 0.75
 
-typedef void (*ck_hash_common_entry_destroy_fn)(ck_linked_list_node *node, ck_allocator *allocator);
-typedef const void *(*ck_hash_common_entry_value_fn)(const ck_linked_list_node *node);
+typedef void (*vs_hash_common_entry_destroy_fn)(vs_linked_list_node *node, vs_allocator *allocator);
+typedef const void *(*vs_hash_common_entry_value_fn)(const vs_linked_list_node *node);
 
 /* Allocate and initialize an array of empty bucket lists. */
-ck_linked_list **ck_hash_common_buckets_create(size_t capacity, ck_allocator *allocator);
+vs_linked_list **vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator);
 
 /*
  * Move all nodes into a newly allocated bucket array sized to new_capacity.
  * The old bucket list wrappers and bucket array are destroyed, but entries are
  * preserved and relinked into the new buckets.
  */
-ck_linked_list **ck_hash_common_buckets_rehash(
-    ck_linked_list **buckets,
+vs_linked_list **vs_hash_common_buckets_rehash(
+    vs_linked_list **buckets,
     size_t capacity,
     size_t new_capacity,
     size_t value_size,
-    ck_allocator *allocator,
-    ck_hash_common_entry_value_fn entry_value
+    vs_allocator *allocator,
+    vs_hash_common_entry_value_fn entry_value
 );
 
 /* Return the first node whose extracted value equals value, or NULL. */
-ck_linked_list_node *ck_hash_common_bucket_find(
-    ck_linked_list *bucket,
+vs_linked_list_node *vs_hash_common_bucket_find(
+    vs_linked_list *bucket,
     const void *value,
     size_t value_size,
-    ck_eq_fn value_eq,
-    ck_hash_common_entry_value_fn entry_value
+    vs_eq_fn value_eq,
+    vs_hash_common_entry_value_fn entry_value
 );
 
 /*
  * Unlink and return the first matching node from bucket, or NULL when no match
  * is found. The returned node remains owned by the caller.
  */
-ck_linked_list_node *ck_hash_common_bucket_remove(
-    ck_linked_list *bucket,
+vs_linked_list_node *vs_hash_common_bucket_remove(
+    vs_linked_list *bucket,
     const void *value,
     size_t value_size,
-    ck_eq_fn value_eq,
-    ck_hash_common_entry_value_fn entry_value
+    vs_eq_fn value_eq,
+    vs_hash_common_entry_value_fn entry_value
 );
 
 /* Destroy all entries, bucket lists, and the bucket array. */
-void ck_hash_common_buckets_destroy(
-    ck_linked_list **buckets,
+void vs_hash_common_buckets_destroy(
+    vs_linked_list **buckets,
     size_t capacity,
-    ck_allocator *allocator,
-    ck_hash_common_entry_destroy_fn entry_destroy
+    vs_allocator *allocator,
+    vs_hash_common_entry_destroy_fn entry_destroy
 );
 
 /* Hash value and map it into the bucket range [0, capacity). */
-static inline size_t ck_hash_common_bucket_index(
+static inline size_t vs_hash_common_bucket_index(
     const void *value,
     size_t value_size,
     size_t capacity
 ) {
-    return ck_fnv1a_hash(value, value_size) % capacity;
+    return vs_fnv1a_hash(value, value_size) % capacity;
 }
 
 /* Return true when inserting one more item would exceed the load limit. */
-static inline bool ck_hash_common_should_grow(size_t size, size_t capacity) {
-    return ((double)(size + 1) / (double)capacity) > CK_HASH_COMMON_MAX_LOAD;
+static inline bool vs_hash_common_should_grow(size_t size, size_t capacity) {
+    return ((double)(size + 1) / (double)capacity) > VS_HASH_COMMON_MAX_LOAD;
 }
 
 #endif

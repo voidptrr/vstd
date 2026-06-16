@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-#ifndef CK_DATASTRUCT_VECTOR_H
-#define CK_DATASTRUCT_VECTOR_H
+#ifndef VSTD_VECTOR_H
+#define VSTD_VECTOR_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Opaque generic contiguous dynamic array.
@@ -44,33 +44,33 @@
  * - pop removes from the right edge
  * - get returns an item by index in O(1)
  */
-typedef struct ck_vector ck_vector;
+typedef struct vs_vector vs_vector;
 
 /* Create a vector with element size elem_size. */
-ck_vector *ck_vector_create(size_t elem_size, ck_allocator *allocator);
+vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator);
 
 /* Append one element by copying elem_size bytes from element. */
-void ck_vector_push(ck_vector *vector, const void *element);
+void vs_vector_push(vs_vector *vector, const void *element);
 
 /* Remove and return the last element pointer, or NULL when empty. */
-void *ck_vector_pop(ck_vector *vector);
+void *vs_vector_pop(vs_vector *vector);
 
 /* Return item at index, or NULL when out of range. */
-void *ck_vector_get(ck_vector *vector, size_t index);
+void *vs_vector_get(vs_vector *vector, size_t index);
 
 /* Return const item at index, or NULL when out of range. */
-const void *ck_vector_get_const(const ck_vector *vector, size_t index);
+const void *vs_vector_get_const(const vs_vector *vector, size_t index);
 
 /* Return the configured element size. */
-size_t ck_vector_elem_size(const ck_vector *vector);
+size_t vs_vector_elem_size(const vs_vector *vector);
 
 /* Remove item at index by moving the last item into its slot. */
-void *ck_vector_swap_remove(ck_vector *vector, size_t index);
+void *vs_vector_swap_remove(vs_vector *vector, size_t index);
 
 /* Return the number of stored elements. */
-size_t ck_vector_size(const ck_vector *vector);
+size_t vs_vector_size(const vs_vector *vector);
 
 /* Destroy and release owned storage. */
-void ck_vector_destroy(ck_vector *vector);
+void vs_vector_destroy(vs_vector *vector);
 
 #endif

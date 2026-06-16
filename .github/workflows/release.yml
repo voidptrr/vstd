@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: Version bump to apply from the previous tag
+        description: version bump
         required: true
         default: patch
         type: choice
@@ -22,17 +22,14 @@ concurrency:
 
 jobs:
   release:
-    name: Release ${{ inputs.bump }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
 
-      - name: Generate tag
-        id: tag
+      - id: tag
         uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8 # 1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,8 +37,7 @@ jobs:
           DEFAULT_BUMP: ${{ inputs.bump }}
           TAG_CONTEXT: branch
 
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+      - uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           tag: ${{ steps.tag.outputs.new_tag }}
           name: ${{ steps.tag.outputs.new_tag }}

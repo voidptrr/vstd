@@ -22,153 +22,153 @@
  * SOFTWARE.
  */
 
-#include "ckit/datastruct/deque.h"
-#include "ckit/memory/allocators/test_allocator.h"
-#include "ckit/testing.h"
+#include "vstd/datastruct/deque.h"
+#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/testing.h"
 
-CK_TEST(init) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_deque *q;
+VS_TEST(init) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
 
-    q = ck_deque_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    CK_TEST_ASSERT_EQ(ck_deque_size(q), 0);
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    VS_TEST_ASSERT_EQ(vs_deque_size(q), 0);
 
-    ck_deque_destroy(q);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_deque_destroy(q);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(peekback) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_deque *q;
+VS_TEST(peekback) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
     int first = 1;
     int second = 2;
     const int *out;
 
-    q = ck_deque_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    ck_deque_push(q, &first);
-    ck_deque_push(q, &second);
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_deque_push(q, &first);
+    vs_deque_push(q, &second);
 
-    out = (const int *)ck_deque_peekback(q);
-    CK_TEST_ASSERT_PTR_NOT_NULL(out);
-    CK_TEST_ASSERT_EQ(*out, second);
+    out = (const int *)vs_deque_peekback(q);
+    VS_TEST_ASSERT_PTR_NOT_NULL(out);
+    VS_TEST_ASSERT_EQ(*out, second);
 
-    ck_deque_destroy(q);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_deque_destroy(q);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(peekleft) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_deque *q;
+VS_TEST(peekleft) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
     int first = 1;
     int second = 2;
     const int *out;
 
-    q = ck_deque_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    ck_deque_push(q, &first);
-    ck_deque_push(q, &second);
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_deque_push(q, &first);
+    vs_deque_push(q, &second);
 
-    out = (const int *)ck_deque_peekleft(q);
-    CK_TEST_ASSERT_PTR_NOT_NULL(out);
-    CK_TEST_ASSERT_EQ(*out, first);
+    out = (const int *)vs_deque_peekleft(q);
+    VS_TEST_ASSERT_PTR_NOT_NULL(out);
+    VS_TEST_ASSERT_EQ(*out, first);
 
-    ck_deque_destroy(q);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_deque_destroy(q);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(popback) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_deque *q;
+VS_TEST(popback) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
     int first = 1;
     int second = 2;
     int *out;
 
-    q = ck_deque_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    ck_deque_push(q, &first);
-    ck_deque_push(q, &second);
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_deque_push(q, &first);
+    vs_deque_push(q, &second);
 
-    out = (int *)ck_deque_popback(q);
-    CK_TEST_ASSERT_PTR_NOT_NULL(out);
-    CK_TEST_ASSERT_EQ(*out, second);
+    out = (int *)vs_deque_popback(q);
+    VS_TEST_ASSERT_PTR_NOT_NULL(out);
+    VS_TEST_ASSERT_EQ(*out, second);
 
-    ck_deque_destroy(q);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_deque_destroy(q);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(popleft) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_deque *q;
+VS_TEST(popleft) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
     int values[] = {10, 20};
     int *out;
 
-    q = ck_deque_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    CK_TEST_ASSERT_PTR_NULL(ck_deque_popleft(q));
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    VS_TEST_ASSERT_PTR_NULL(vs_deque_popleft(q));
 
-    ck_deque_push(q, &values[0]);
-    ck_deque_push(q, &values[1]);
-    out = (int *)ck_deque_popleft(q);
-    CK_TEST_ASSERT_PTR_NOT_NULL(out);
-    CK_TEST_ASSERT_EQ(*out, values[0]);
+    vs_deque_push(q, &values[0]);
+    vs_deque_push(q, &values[1]);
+    out = (int *)vs_deque_popleft(q);
+    VS_TEST_ASSERT_PTR_NOT_NULL(out);
+    VS_TEST_ASSERT_EQ(*out, values[0]);
 
-    ck_deque_destroy(q);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_deque_destroy(q);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(push) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_deque *q;
+VS_TEST(push) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
     int value = 42;
 
-    q = ck_deque_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    ck_deque_push(q, &value);
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_deque_push(q, &value);
 
-    const int *out = ck_deque_peekback(q);
-    CK_TEST_ASSERT_EQ(ck_deque_size(q), 1);
-    CK_TEST_ASSERT_PTR_NOT_NULL(out);
-    CK_TEST_ASSERT_EQ(*out, value);
+    const int *out = vs_deque_peekback(q);
+    VS_TEST_ASSERT_EQ(vs_deque_size(q), 1);
+    VS_TEST_ASSERT_PTR_NOT_NULL(out);
+    VS_TEST_ASSERT_EQ(*out, value);
 
-    ck_deque_destroy(q);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_deque_destroy(q);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(pushfront) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_deque *q;
+VS_TEST(pushfront) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
     int first = 1;
     int second = 2;
     int *out;
 
-    q = ck_deque_create(sizeof(int), ck_test_allocator_adapter(&test_allocator));
-    ck_deque_push(q, &first);
-    ck_deque_pushfront(q, &second);
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_deque_push(q, &first);
+    vs_deque_pushfront(q, &second);
 
-    out = (int *)ck_deque_popleft(q);
-    CK_TEST_ASSERT_PTR_NOT_NULL(out);
-    CK_TEST_ASSERT_EQ(*out, second);
+    out = (int *)vs_deque_popleft(q);
+    VS_TEST_ASSERT_PTR_NOT_NULL(out);
+    VS_TEST_ASSERT_EQ(*out, second);
 
-    ck_deque_destroy(q);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_deque_destroy(q);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST_MAIN(
-    CK_TEST_CASE(init),
-    CK_TEST_CASE(peekback),
-    CK_TEST_CASE(peekleft),
-    CK_TEST_CASE(popback),
-    CK_TEST_CASE(popleft),
-    CK_TEST_CASE(push),
-    CK_TEST_CASE(pushfront)
+VS_TEST_MAIN(
+    VS_TEST_CASE(init),
+    VS_TEST_CASE(peekback),
+    VS_TEST_CASE(peekleft),
+    VS_TEST_CASE(popback),
+    VS_TEST_CASE(popleft),
+    VS_TEST_CASE(push),
+    VS_TEST_CASE(pushfront)
 )

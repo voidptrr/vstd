@@ -24,28 +24,28 @@
 
 #include <stddef.h>
 
-#include "ckit/memory/allocators/general_heap.h"
-#include "ckit/testing.h"
+#include "vstd/memory/allocators/general_heap.h"
+#include "vstd/testing.h"
 
 int main(void) {
-    ck_heap *heap = ck_heap_create(2048);
+    vs_heap *heap = vs_heap_create(2048);
     size_t before;
     size_t after;
     int *a;
     int *b;
 
-    before = ck_heap_available(heap);
+    before = vs_heap_available(heap);
 
-    a = (int *)ck_heap_alloc(heap, sizeof(int));
-    b = (int *)ck_heap_alloc(heap, sizeof(int));
-    CK_TEST_ASSERT_PTR_NOT_NULL(a);
-    CK_TEST_ASSERT_PTR_NOT_NULL(b);
+    a = (int *)vs_heap_alloc(heap, sizeof(int));
+    b = (int *)vs_heap_alloc(heap, sizeof(int));
+    VS_TEST_ASSERT_PTR_NOT_NULL(a);
+    VS_TEST_ASSERT_PTR_NOT_NULL(b);
 
-    after = ck_heap_available(heap);
-    CK_TEST_ASSERT(after < before);
+    after = vs_heap_available(heap);
+    VS_TEST_ASSERT(after < before);
 
-    ck_heap_dealloc(heap, a);
-    ck_heap_dealloc(heap, b);
-    ck_heap_destroy(heap);
+    vs_heap_dealloc(heap, a);
+    vs_heap_dealloc(heap, b);
+    vs_heap_destroy(heap);
     return 0;
 }

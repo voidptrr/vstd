@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-#ifndef CK_DATASTRUCT_LINKED_LIST_H
-#define CK_DATASTRUCT_LINKED_LIST_H
+#ifndef VSTD_LINKED_LIST_H
+#define VSTD_LINKED_LIST_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Opaque intrusive singly linked list.
@@ -43,7 +43,7 @@
  *  +------+    +------+    +------+        +------+
  *     ^           ^           ^               ^
  *     |           |           |               |
- *  user object embeds ck_linked_list_node
+ *  user object embeds vs_linked_list_node
  *
  * - push appends at tail
  * - pushfront prepends at head
@@ -51,34 +51,34 @@
  * - linked list nodes and owning objects are caller-owned
  */
 
-typedef struct ck_linked_list_node {
-    struct ck_linked_list_node *next;
-} ck_linked_list_node;
+typedef struct vs_linked_list_node {
+    struct vs_linked_list_node *next;
+} vs_linked_list_node;
 
-typedef struct ck_linked_list ck_linked_list;
+typedef struct vs_linked_list vs_linked_list;
 
 /* Create an intrusive linked list. */
-ck_linked_list *ck_linked_list_create(ck_allocator *allocator);
+vs_linked_list *vs_linked_list_create(vs_allocator *allocator);
 
 /* Append node at the tail. */
-void ck_linked_list_push(ck_linked_list *list, ck_linked_list_node *node);
+void vs_linked_list_push(vs_linked_list *list, vs_linked_list_node *node);
 
 /* Prepend node at the head. */
-void ck_linked_list_pushfront(ck_linked_list *list, ck_linked_list_node *node);
+void vs_linked_list_pushfront(vs_linked_list *list, vs_linked_list_node *node);
 
 /* Remove and return the head node, or NULL when empty. */
-ck_linked_list_node *ck_linked_list_popleft(ck_linked_list *list);
+vs_linked_list_node *vs_linked_list_popleft(vs_linked_list *list);
 
 /* Remove and return the node after prev, or the head node when prev is NULL. */
-ck_linked_list_node *ck_linked_list_remove_after(ck_linked_list *list, ck_linked_list_node *prev);
+vs_linked_list_node *vs_linked_list_remove_after(vs_linked_list *list, vs_linked_list_node *prev);
 
 /* Return the number of stored elements. */
-size_t ck_linked_list_size(const ck_linked_list *list);
+size_t vs_linked_list_size(const vs_linked_list *list);
 
 /* Return the head node, or NULL when empty. */
-ck_linked_list_node *ck_linked_list_head(const ck_linked_list *list);
+vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
-void ck_linked_list_destroy(ck_linked_list *list);
+void vs_linked_list_destroy(vs_linked_list *list);
 
 #endif

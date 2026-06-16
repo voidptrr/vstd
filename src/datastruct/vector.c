@@ -25,47 +25,47 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/datastruct/vector.h"
-#include "ckit/memory/allocators/allocator.h"
-#include "ckit/panic.h"
+#include "vstd/datastruct/vector.h"
+#include "vstd/memory/allocators/allocator.h"
+#include "vstd/panic.h"
 
-#define CK_VECTOR_DEFAULT_CAPACITY 16
+#define VS_VECTOR_DEFAULT_CAPACITY 16
 
-struct ck_vector {
+struct vs_vector {
     size_t size;
     size_t elem_size;
     size_t capacity;
     void *buffer;
-    ck_allocator *allocator;
+    vs_allocator *allocator;
 };
 
-ck_vector *ck_vector_create(size_t elem_size, ck_allocator *allocator) {
-    CK_ASSERT(elem_size > 0, "fatal: ck_vector_create invalid arguments");
+vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator) {
+    VS_ASSERT(elem_size > 0, "fatal: vs_vector_create invalid arguments");
 
-    ck_vector *vector = ck_malloc(allocator, sizeof(ck_vector));
+    vs_vector *vector = vs_malloc(allocator, sizeof(vs_vector));
     vector->allocator = allocator;
 
-    size_t alloc_size = elem_size * CK_VECTOR_DEFAULT_CAPACITY;
-    void *buffer = ck_malloc(allocator, alloc_size);
+    size_t alloc_size = elem_size * VS_VECTOR_DEFAULT_CAPACITY;
+    void *buffer = vs_malloc(allocator, alloc_size);
 
     vector->buffer = buffer;
     vector->size = 0;
     vector->elem_size = elem_size;
-    vector->capacity = CK_VECTOR_DEFAULT_CAPACITY;
+    vector->capacity = VS_VECTOR_DEFAULT_CAPACITY;
 
     return vector;
 }
 
-void ck_vector_push(ck_vector *vector, const void *element) {
-    CK_ASSERT(vector != NULL, "fatal: ck_vector_push invalid arguments");
-    CK_ASSERT(element != NULL, "fatal: ck_vector_push invalid arguments");
+void vs_vector_push(vs_vector *vector, const void *element) {
+    VS_ASSERT(vector != NULL, "fatal: vs_vector_push invalid arguments");
+    VS_ASSERT(element != NULL, "fatal: vs_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
-        ck_allocator *allocator = vector->allocator;
+        vs_allocator *allocator = vector->allocator;
         size_t new_capacity = vector->capacity * 2;
         size_t alloc_size = new_capacity * vector->elem_size;
 
-        void *tmp = ck_realloc(allocator, vector->buffer, alloc_size);
+        void *tmp = vs_realloc(allocator, vector->buffer, alloc_size);
         vector->buffer = tmp;
         vector->capacity = new_capacity;
     }
@@ -76,8 +76,8 @@ void ck_vector_push(ck_vector *vector, const void *element) {
     vector->size += 1;
 }
 
-void *ck_vector_pop(ck_vector *vector) {
-    CK_ASSERT(vector != NULL, "fatal: ck_vector_pop invalid arguments");
+void *vs_vector_pop(vs_vector *vector) {
+    VS_ASSERT(vector != NULL, "fatal: vs_vector_pop invalid arguments");
 
     if (vector->size == 0) {
         return NULL;
@@ -89,7 +89,7 @@ void *ck_vector_pop(ck_vector *vector) {
     return base + (vector->size * vector->elem_size);
 }
 
-void *ck_vector_get(ck_vector *vector, size_t index) {
+void *vs_vector_get(vs_vector *vector, size_t index) {
     if (vector == NULL || index >= vector->size) {
         return NULL;
     }
@@ -98,7 +98,7 @@ void *ck_vector_get(ck_vector *vector, size_t index) {
     return base + (index * vector->elem_size);
 }
 
-const void *ck_vector_get_const(const ck_vector *vector, size_t index) {
+const void *vs_vector_get_const(const vs_vector *vector, size_t index) {
     if (vector == NULL || index >= vector->size) {
         return NULL;
     }
@@ -107,14 +107,14 @@ const void *ck_vector_get_const(const ck_vector *vector, size_t index) {
     return base + (index * vector->elem_size);
 }
 
-size_t ck_vector_elem_size(const ck_vector *vector) {
-    CK_ASSERT(vector != NULL, "fatal: ck_vector_elem_size invalid arguments");
+size_t vs_vector_elem_size(const vs_vector *vector) {
+    VS_ASSERT(vector != NULL, "fatal: vs_vector_elem_size invalid arguments");
 
     return vector->elem_size;
 }
 
-void *ck_vector_swap_remove(ck_vector *vector, size_t index) {
-    CK_ASSERT(vector != NULL, "fatal: ck_vector_swap_remove invalid arguments");
+void *vs_vector_swap_remove(vs_vector *vector, size_t index) {
+    VS_ASSERT(vector != NULL, "fatal: vs_vector_swap_remove invalid arguments");
 
     if (index >= vector->size) {
         return NULL;
@@ -133,16 +133,16 @@ void *ck_vector_swap_remove(ck_vector *vector, size_t index) {
     return slot;
 }
 
-size_t ck_vector_size(const ck_vector *vector) {
-    CK_ASSERT(vector != NULL, "fatal: ck_vector_size invalid arguments");
+size_t vs_vector_size(const vs_vector *vector) {
+    VS_ASSERT(vector != NULL, "fatal: vs_vector_size invalid arguments");
 
     return vector->size;
 }
 
-void ck_vector_destroy(ck_vector *vector) {
-    CK_ASSERT(vector != NULL, "fatal: ck_vector_destroy invalid arguments");
+void vs_vector_destroy(vs_vector *vector) {
+    VS_ASSERT(vector != NULL, "fatal: vs_vector_destroy invalid arguments");
 
-    ck_allocator *allocator = vector->allocator;
-    ck_dealloc(allocator, vector->buffer);
-    ck_dealloc(allocator, vector);
+    vs_allocator *allocator = vector->allocator;
+    vs_dealloc(allocator, vector->buffer);
+    vs_dealloc(allocator, vector);
 }

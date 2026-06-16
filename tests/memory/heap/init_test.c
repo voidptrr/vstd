@@ -22,15 +22,15 @@
  * SOFTWARE.
  */
 
-#include "ckit/memory/allocators/general_heap.h"
-#include "ckit/testing.h"
+#include "vstd/memory/allocators/general_heap.h"
+#include "vstd/testing.h"
 
 int main(void) {
-    ck_heap *heap = ck_heap_create(1024);
+    vs_heap *heap = vs_heap_create(1024);
 
-    CK_TEST_ASSERT(ck_heap_capacity(heap) > 0);
-    CK_TEST_ASSERT(ck_heap_available(heap) > 0);
+    VS_TEST_ASSERT(vs_heap_capacity(heap) > 0);
+    VS_TEST_ASSERT(vs_heap_available(heap) > 0);
 
-    ck_heap_destroy(heap);
+    vs_heap_destroy(heap);
     return 0;
 }

@@ -25,9 +25,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "ckit/testing.h"
+#include "vstd/testing.h"
 
-int ck_test_fail(const char *file, int line, const char *condition, const char *message) {
+int vs_test_fail(const char *file, int line, const char *condition, const char *message) {
     if (message == NULL) {
         fprintf(stderr, "%s:%d: assertion failed: %s\n", file, line, condition);
     } else {
@@ -37,7 +37,7 @@ int ck_test_fail(const char *file, int line, const char *condition, const char *
     return 1;
 }
 
-int ck_test_fail_eq(
+int vs_test_fail_eq(
     const char *file,
     int line,
     const char *actual_expr,
@@ -47,12 +47,12 @@ int ck_test_fail_eq(
     return 1;
 }
 
-int ck_test_fail_ptr_null(const char *file, int line, const char *expr, const void *ptr) {
+int vs_test_fail_ptr_null(const char *file, int line, const char *expr, const void *ptr) {
     fprintf(stderr, "%s:%d: assertion failed: %s == NULL (actual %p)\n", file, line, expr, ptr);
     return 1;
 }
 
-int ck_test_fail_ptr_eq(
+int vs_test_fail_ptr_eq(
     const char *file,
     int line,
     const char *actual_expr,
@@ -73,7 +73,7 @@ int ck_test_fail_ptr_eq(
     return 1;
 }
 
-int ck_test_fail_str_eq(
+int vs_test_fail_str_eq(
     const char *file,
     int line,
     const char *actual_expr,
@@ -94,7 +94,7 @@ int ck_test_fail_str_eq(
     return 1;
 }
 
-bool ck_test_str_eq(const char *actual, const char *expected) {
+bool vs_test_str_eq(const char *actual, const char *expected) {
     if (actual == NULL || expected == NULL) {
         return actual == expected;
     }
@@ -102,7 +102,7 @@ bool ck_test_str_eq(const char *actual, const char *expected) {
     return strcmp(actual, expected) == 0;
 }
 
-int ck_test_run(const ck_test_case *cases, size_t count) {
+int vs_test_run(const vs_test_case *cases, size_t count) {
     int failed = 0;
 
     for (size_t i = 0; i < count; i++) {

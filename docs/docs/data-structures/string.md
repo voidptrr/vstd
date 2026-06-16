@@ -10,18 +10,18 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### ck_string
+### vs_string
 
 ```c
-typedef char *ck_string;
+typedef char *vs_string;
 ```
 
 ## FUNCTIONS
 
-### ck_string_create
+### vs_string_create
 
 ```c
-ck_string ck_string_create(const char *initial, ck_allocator *allocator);
+vs_string vs_string_create(const char *initial, vs_allocator *allocator);
 ```
 
 - Parameters: `initial`, `allocator`
@@ -29,81 +29,81 @@ ck_string ck_string_create(const char *initial, ck_allocator *allocator);
 - Notes: when `initial` is `NULL`, creates an empty string. The string stores
   `allocator` in its header and reuses it for growth and destroy. When
   `allocator` is `NULL`, uses the C library heap through
-  `ck_malloc`/`ck_realloc`.
+  `vs_malloc`/`vs_realloc`.
 
-### ck_string_append
+### vs_string_append
 
 ```c
-void ck_string_append(ck_string *string, const char *suffix);
+void vs_string_append(vs_string *string, const char *suffix);
 ```
 
 - Parameters: `string`, `suffix`
 - Returns: none.
 - Notes: may reallocate and update `*string`.
 
-### ck_string_prepend
+### vs_string_prepend
 
 ```c
-void ck_string_prepend(ck_string *string, const char *prefix);
+void vs_string_prepend(vs_string *string, const char *prefix);
 ```
 
 - Parameters: `string`, `prefix`
 - Returns: none.
 - Notes: may reallocate and update `*string`.
 
-### ck_string_contains
+### vs_string_contains
 
 ```c
-bool ck_string_contains(const ck_string string, const char *needle);
+bool vs_string_contains(const vs_string string, const char *needle);
 ```
 
 - Parameters: `string`, `needle`
 - Returns: `true` when `needle` appears in `string`; otherwise `false`.
 - Notes: an empty `needle` matches.
 
-### ck_string_starts_with
+### vs_string_starts_with
 
 ```c
-bool ck_string_starts_with(const ck_string string, const char *prefix);
+bool vs_string_starts_with(const vs_string string, const char *prefix);
 ```
 
 - Parameters: `string`, `prefix`
 - Returns: `true` when `string` begins with `prefix`; otherwise `false`.
 - Notes: an empty `prefix` matches.
 
-### ck_string_ends_with
+### vs_string_ends_with
 
 ```c
-bool ck_string_ends_with(const ck_string string, const char *suffix);
+bool vs_string_ends_with(const vs_string string, const char *suffix);
 ```
 
 - Parameters: `string`, `suffix`
 - Returns: `true` when `string` ends with `suffix`; otherwise `false`.
 - Notes: an empty `suffix` matches.
 
-### ck_string_clear
+### vs_string_clear
 
 ```c
-void ck_string_clear(ck_string string);
+void vs_string_clear(vs_string string);
 ```
 
 - Parameters: `string`
 - Returns: none.
 - Notes: resets length to zero without releasing storage.
 
-### ck_string_len
+### vs_string_len
 
 ```c
-size_t ck_string_len(const ck_string string);
+size_t vs_string_len(const vs_string string);
 ```
 
 - Parameters: `string`
 - Returns: number of bytes before the terminating NUL.
 
-### ck_string_destroy
+### vs_string_destroy
 
 ```c
-void ck_string_destroy(ck_string string);
+void vs_string_destroy(vs_string string);
 ```
 
 - Parameters: `string`
@@ -113,22 +113,22 @@ void ck_string_destroy(ck_string string);
 ## EXAMPLE
 
 ```c
-#include <ckit/datastruct/string.h>
+#include <vstd/datastruct/string.h>
 #include <string.h>
 
 int main(void) {
     int status = 0;
-    ck_string value = ck_string_create("hello", NULL);
+    vs_string value = vs_string_create("hello", NULL);
 
-    ck_string_append(&value, " world");
-    ck_string_prepend(&value, "say ");
+    vs_string_append(&value, " world");
+    vs_string_prepend(&value, "say ");
     if (strcmp(value, "say hello world") != 0) {
         status = 1;
         goto cleanup;
     }
 
 cleanup:
-    ck_string_destroy(value);
+    vs_string_destroy(value);
     return status;
 }
 ```

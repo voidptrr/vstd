@@ -9,60 +9,60 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### ck_binary_heap_create
+### vs_binary_heap_create
 
 ```c
-ck_binary_heap *ck_binary_heap_create(size_t elem_size,
-                                        ck_heap_cmp_fn cmp,
-                                        ck_allocator *allocator);
+vs_binary_heap *vs_binary_heap_create(size_t elem_size,
+                                        vs_heap_cmp_fn cmp,
+                                        vs_allocator *allocator);
 ```
 
 - Parameters: `elem_size`, `cmp`, `allocator`
 - Returns: opaque binary-heap handle.
 - Notes: the binary heap stores `allocator` and reuses it for growth and
   destroy. When `allocator` is `NULL`, binary heap storage uses the C library
-  heap through `ck_malloc`/`ck_realloc`.
+  heap through `vs_malloc`/`vs_realloc`.
 
-### ck_binary_heap_push
+### vs_binary_heap_push
 
 ```c
-void ck_binary_heap_push(ck_binary_heap *heap, const void *element);
+void vs_binary_heap_push(vs_binary_heap *heap, const void *element);
 ```
 
 - Parameters: `heap`, `element`
 - Returns: none.
 
-### ck_binary_heap_pop
+### vs_binary_heap_pop
 
 ```c
-void *ck_binary_heap_pop(ck_binary_heap *heap);
+void *vs_binary_heap_pop(vs_binary_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: pointer to removed top element in heap-managed storage, or `NULL` when empty.
 
-### ck_binary_heap_peek
+### vs_binary_heap_peek
 
 ```c
-const void *ck_binary_heap_peek(const ck_binary_heap *heap);
+const void *vs_binary_heap_peek(const vs_binary_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: pointer to top element in heap-managed storage, or `NULL` when empty.
 
-### ck_binary_heap_size
+### vs_binary_heap_size
 
 ```c
-size_t ck_binary_heap_size(const ck_binary_heap *heap);
+size_t vs_binary_heap_size(const vs_binary_heap *heap);
 ```
 
 - Parameters: `heap`
 - Returns: current element count.
 
-### ck_binary_heap_destroy
+### vs_binary_heap_destroy
 
 ```c
-void ck_binary_heap_destroy(ck_binary_heap *heap);
+void vs_binary_heap_destroy(vs_binary_heap *heap);
 ```
 
 - Parameters: `heap`
@@ -72,33 +72,33 @@ void ck_binary_heap_destroy(ck_binary_heap *heap);
 ## EXAMPLE
 
 ```c
-#include <ckit/compare.h>
-#include <ckit/datastruct/binary_heap.h>
+#include <vstd/compare.h>
+#include <vstd/datastruct/binary_heap.h>
 #include <stdint.h>
 
 int main(void) {
     int status = 0;
-    ck_binary_heap *heap = ck_binary_heap_create(sizeof(int32_t), ck_cmp_i32, NULL);
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int32_t), vs_cmp_i32, NULL);
     int32_t values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
-        ck_binary_heap_push(heap, &values[i]);
+        vs_binary_heap_push(heap, &values[i]);
     }
 
-    const int32_t *top = (const int32_t *)ck_binary_heap_peek(heap);
+    const int32_t *top = (const int32_t *)vs_binary_heap_peek(heap);
     if (top == NULL || *top != 1) {
         status = 1;
         goto cleanup;
     }
 
-    int32_t *popped = (int32_t *)ck_binary_heap_pop(heap);
+    int32_t *popped = (int32_t *)vs_binary_heap_pop(heap);
     if (popped == NULL || *popped != 1) {
         status = 1;
         goto cleanup;
     }
 
 cleanup:
-    ck_binary_heap_destroy(heap);
+    vs_binary_heap_destroy(heap);
     return status;
 }
 ```

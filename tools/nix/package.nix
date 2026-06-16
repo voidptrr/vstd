@@ -27,7 +27,7 @@
   ninja,
 }:
 stdenv.mkDerivation {
-  pname = "ckit";
+  pname = "vstd";
   version = "0.1.0";
 
   src = ../..;
@@ -40,7 +40,7 @@ stdenv.mkDerivation {
   doCheck = true;
 
   meta = {
-    description = "C utility library";
+    description = "Enhanced C standard library";
     license = lib.licenses.mit;
     platforms = lib.platforms.linux;
   };

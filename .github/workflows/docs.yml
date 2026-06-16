@@ -1,16 +1,22 @@
 name: docs
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - docs/**
+      - scripts/docs-build
+      - flake.lock
+      - .github/workflows/docs.yml
   push:
     branches:
       - main
     paths:
       - docs/**
-      - tooling/nix/**
-      - flake.nix
+      - scripts/docs-build
       - flake.lock
       - .github/workflows/docs.yml
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,37 +24,36 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: docs-${{ github.event_name }}-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
+      - uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25 # v22
 
-      - name: Setup Pages
+      - run: nix develop -c scripts/docs-build
+
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
 
-      - name: Build docs
-        run: nix develop -c scripts/docs-build
-
-      - name: Upload artifact
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: docs/site
 
   deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5

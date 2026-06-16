@@ -22,7 +22,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project(ckit VERSION 0.1.0 LANGUAGES C)
+project(vstd VERSION 0.1.0 LANGUAGES C)
 
 include(CTest)
 enable_testing()
@@ -33,14 +33,14 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-file(GLOB_RECURSE CKIT_SRC_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+file(GLOB_RECURSE VSTD_SRC_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 
-add_library(ckit ${CKIT_SRC_FILES})
-add_library(ckit::ckit ALIAS ckit)
+add_library(vstd ${VSTD_SRC_FILES})
+add_library(vstd::vstd ALIAS vstd)
 
-target_compile_features(ckit PUBLIC c_std_17)
+target_compile_features(vstd PUBLIC c_std_17)
 target_include_directories(
-  ckit
+  vstd
   PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
@@ -49,16 +49,16 @@ target_include_directories(
 )
 
 set_target_properties(
-  ckit
+  vstd
   PROPERTIES
     VERSION "${PROJECT_VERSION}"
     SOVERSION "${PROJECT_VERSION_MAJOR}"
-    EXPORT_NAME ckit
+    EXPORT_NAME vstd
 )
 
 include(tools/cmake/install.cmake)
 
 if(BUILD_TESTING)
   include(tools/cmake/tests.cmake)
-  ck_discover_tests()
+  vs_discover_tests()
 endif()

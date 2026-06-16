@@ -21,8 +21,8 @@
 # SOFTWARE.
 
 [project]
-site_name = "ckit"
-site_description = "Documentation for ckit"
+site_name = "vstd"
+site_description = "Documentation for vstd"
 site_author = "voidptrr"
 copyright = """
 Copyright &copy; 2026 voidptrr
@@ -30,15 +30,15 @@ Copyright &copy; 2026 voidptrr
 extra_css = ["stylesheets/extra.css"]
 nav = [
   { "Overview" = "index.md" },
-  { "Compare" = "reference/ckit-compare.md" },
-  { "Testing" = "reference/ckit-testing.md" },
+  { "Compare" = "reference/vstd-compare.md" },
+  { "Testing" = "reference/vstd-testing.md" },
   { "Memory" = [
-    { "Utilities" = "reference/ckit-memory-utils.md" },
+    { "Utilities" = "reference/vstd-memory-utils.md" },
     { "Allocators" = [
-      { "Overview" = "reference/ckit-memory-allocators.md" },
-      { "Arena allocator" = "reference/ckit-memory-arena.md" },
-      { "Free-list allocator" = "reference/ckit-memory-general-heap.md" },
-      { "Test allocator" = "reference/ckit-memory-test-allocator.md" },
+      { "Overview" = "reference/vstd-memory-allocators.md" },
+      { "Arena allocator" = "reference/vstd-memory-arena.md" },
+      { "Free-list allocator" = "reference/vstd-memory-general-heap.md" },
+      { "Test allocator" = "reference/vstd-memory-test-allocator.md" },
     ] },
   ] },
   { "Data structures" = [

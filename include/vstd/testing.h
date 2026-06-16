@@ -22,116 +22,116 @@
  * SOFTWARE.
  */
 
-#ifndef CK_TESTING_H
-#define CK_TESTING_H
+#ifndef VSTD_TESTING_H
+#define VSTD_TESTING_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef int (*ck_test_fn)(void);
+typedef int (*vs_test_fn)(void);
 
-typedef struct ck_test_case {
+typedef struct vs_test_case {
     const char *name;
-    ck_test_fn fn;
-} ck_test_case;
+    vs_test_fn fn;
+} vs_test_case;
 
-#define CK_TEST(name) static int ck_test_case_##name(void)
-#define CK_TEST_CASE(name) {#name, ck_test_case_##name}
-#define CK_TEST_MAIN(...) \
+#define VS_TEST(name) static int vs_test_case_##name(void)
+#define VS_TEST_CASE(name) {#name, vs_test_case_##name}
+#define VS_TEST_MAIN(...) \
     int main(void) { \
-        static const ck_test_case ck_test_cases[] = {__VA_ARGS__}; \
-        return ck_test_run(ck_test_cases, sizeof(ck_test_cases) / sizeof(ck_test_cases[0])); \
+        static const vs_test_case vs_test_cases[] = {__VA_ARGS__}; \
+        return vs_test_run(vs_test_cases, sizeof(vs_test_cases) / sizeof(vs_test_cases[0])); \
     }
 
-#define CK_TEST_ASSERT(condition) \
+#define VS_TEST_ASSERT(condition) \
     do { \
         if (!(condition)) { \
-            return ck_test_fail(__FILE__, __LINE__, #condition, NULL); \
+            return vs_test_fail(__FILE__, __LINE__, #condition, NULL); \
         } \
     } while (0)
 
-#define CK_TEST_ASSERT_MSG(condition, message) \
+#define VS_TEST_ASSERT_MSG(condition, message) \
     do { \
         if (!(condition)) { \
-            return ck_test_fail(__FILE__, __LINE__, #condition, message); \
+            return vs_test_fail(__FILE__, __LINE__, #condition, message); \
         } \
     } while (0)
 
-#define CK_TEST_ASSERT_EQ(actual, expected) \
+#define VS_TEST_ASSERT_EQ(actual, expected) \
     do { \
         if ((actual) != (expected)) { \
-            return ck_test_fail_eq(__FILE__, __LINE__, #actual, #expected); \
+            return vs_test_fail_eq(__FILE__, __LINE__, #actual, #expected); \
         } \
     } while (0)
 
-#define CK_TEST_ASSERT_PTR_NULL(ptr) \
+#define VS_TEST_ASSERT_PTR_NULL(ptr) \
     do { \
-        const void *ck_test_ptr = (ptr); \
-        if (ck_test_ptr != NULL) { \
-            return ck_test_fail_ptr_null(__FILE__, __LINE__, #ptr, ck_test_ptr); \
+        const void *vs_test_ptr = (ptr); \
+        if (vs_test_ptr != NULL) { \
+            return vs_test_fail_ptr_null(__FILE__, __LINE__, #ptr, vs_test_ptr); \
         } \
     } while (0)
 
-#define CK_TEST_ASSERT_PTR_NOT_NULL(ptr) \
+#define VS_TEST_ASSERT_PTR_NOT_NULL(ptr) \
     do { \
-        const void *ck_test_ptr = (ptr); \
-        if (ck_test_ptr == NULL) { \
-            return ck_test_fail(__FILE__, __LINE__, #ptr " != NULL", NULL); \
+        const void *vs_test_ptr = (ptr); \
+        if (vs_test_ptr == NULL) { \
+            return vs_test_fail(__FILE__, __LINE__, #ptr " != NULL", NULL); \
         } \
     } while (0)
 
-#define CK_TEST_ASSERT_PTR_EQ(actual, expected) \
+#define VS_TEST_ASSERT_PTR_EQ(actual, expected) \
     do { \
-        const void *ck_test_actual = (actual); \
-        const void *ck_test_expected = (expected); \
-        if (ck_test_actual != ck_test_expected) { \
-            return ck_test_fail_ptr_eq( \
+        const void *vs_test_actual = (actual); \
+        const void *vs_test_expected = (expected); \
+        if (vs_test_actual != vs_test_expected) { \
+            return vs_test_fail_ptr_eq( \
                 __FILE__, \
                 __LINE__, \
                 #actual, \
                 #expected, \
-                ck_test_actual, \
-                ck_test_expected \
+                vs_test_actual, \
+                vs_test_expected \
             ); \
         } \
     } while (0)
 
-#define CK_TEST_ASSERT_PTR_NE(actual, expected) \
+#define VS_TEST_ASSERT_PTR_NE(actual, expected) \
     do { \
-        const void *ck_test_actual = (actual); \
-        const void *ck_test_expected = (expected); \
-        if (ck_test_actual == ck_test_expected) { \
-            return ck_test_fail(__FILE__, __LINE__, #actual " != " #expected, NULL); \
+        const void *vs_test_actual = (actual); \
+        const void *vs_test_expected = (expected); \
+        if (vs_test_actual == vs_test_expected) { \
+            return vs_test_fail(__FILE__, __LINE__, #actual " != " #expected, NULL); \
         } \
     } while (0)
 
-#define CK_TEST_ASSERT_STR_EQ(actual, expected) \
+#define VS_TEST_ASSERT_STR_EQ(actual, expected) \
     do { \
-        const char *ck_test_actual = (actual); \
-        const char *ck_test_expected = (expected); \
-        if (!ck_test_str_eq(ck_test_actual, ck_test_expected)) { \
-            return ck_test_fail_str_eq( \
+        const char *vs_test_actual = (actual); \
+        const char *vs_test_expected = (expected); \
+        if (!vs_test_str_eq(vs_test_actual, vs_test_expected)) { \
+            return vs_test_fail_str_eq( \
                 __FILE__, \
                 __LINE__, \
                 #actual, \
                 #expected, \
-                ck_test_actual, \
-                ck_test_expected \
+                vs_test_actual, \
+                vs_test_expected \
             ); \
         } \
     } while (0)
 
 /* Print an assertion failure and return 1 for direct use from test main. */
-int ck_test_fail(const char *file, int line, const char *condition, const char *message);
+int vs_test_fail(const char *file, int line, const char *condition, const char *message);
 
 /* Print an equality assertion failure and return 1 for direct use from test main. */
-int ck_test_fail_eq(const char *file, int line, const char *actual_expr, const char *expected_expr);
+int vs_test_fail_eq(const char *file, int line, const char *actual_expr, const char *expected_expr);
 
 /* Print a non-NULL pointer assertion failure and return 1 for direct use from test main. */
-int ck_test_fail_ptr_null(const char *file, int line, const char *expr, const void *ptr);
+int vs_test_fail_ptr_null(const char *file, int line, const char *expr, const void *ptr);
 
 /* Print a pointer equality assertion failure and return 1 for direct use from test main. */
-int ck_test_fail_ptr_eq(
+int vs_test_fail_ptr_eq(
     const char *file,
     int line,
     const char *actual_expr,
@@ -141,7 +141,7 @@ int ck_test_fail_ptr_eq(
 );
 
 /* Print a string equality assertion failure and return 1 for direct use from test main. */
-int ck_test_fail_str_eq(
+int vs_test_fail_str_eq(
     const char *file,
     int line,
     const char *actual_expr,
@@ -151,9 +151,9 @@ int ck_test_fail_str_eq(
 );
 
 /* Return whether two C strings are equal, treating two NULL pointers as equal. */
-bool ck_test_str_eq(const char *actual, const char *expected);
+bool vs_test_str_eq(const char *actual, const char *expected);
 
 /* Run named test cases and return 1 if any case fails. */
-int ck_test_run(const ck_test_case *cases, size_t count);
+int vs_test_run(const vs_test_case *cases, size_t count);
 
 #endif

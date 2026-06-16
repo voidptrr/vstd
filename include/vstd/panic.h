@@ -22,36 +22,16 @@
  * SOFTWARE.
  */
 
-#ifndef CK_MEMORY_TEST_ALLOCATOR_H
-#define CK_MEMORY_TEST_ALLOCATOR_H
+#ifndef VSTD_PANIC_H
+#define VSTD_PANIC_H
 
-#include <stdbool.h>
-#include <stddef.h>
+_Noreturn void vs_panic(const char *message);
 
-#include "ckit/memory/allocators/allocator.h"
-
-#define CK_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
-
-typedef struct ck_test_allocator {
-    size_t alloc_count;
-    size_t realloc_count;
-    size_t dealloc_count;
-    size_t outstanding_allocations;
-    size_t failed_allocations;
-    size_t fail_after;
-    ck_allocator allocator;
-} ck_test_allocator;
-
-/* Initialize a malloc-backed tracking allocator. */
-void ck_test_allocator_init(ck_test_allocator *test_allocator);
-
-/* Return the allocator adapter for APIs that accept ck_allocator. */
-ck_allocator *ck_test_allocator_adapter(ck_test_allocator *test_allocator);
-
-/* Reset event counters while keeping outstanding allocation state and fail_after. */
-void ck_test_allocator_reset_counts(ck_test_allocator *test_allocator);
-
-/* Return whether every tracked allocation has been released. */
-bool ck_test_allocator_is_clean(const ck_test_allocator *test_allocator);
+#define VS_ASSERT(cond, message) \
+    do { \
+        if (!(cond)) { \
+            vs_panic(message); \
+        } \
+    } while (0)
 
 #endif

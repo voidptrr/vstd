@@ -24,125 +24,125 @@
 
 #include <string.h>
 
-#include "ckit/datastruct/binary_heap.h"
-#include "ckit/datastruct/vector.h"
-#include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/utils.h"
-#include "ckit/panic.h"
+#include "vstd/datastruct/binary_heap.h"
+#include "vstd/datastruct/vector.h"
+#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/utils.h"
+#include "vstd/panic.h"
 
-struct ck_binary_heap {
-    ck_vector *root;
-    ck_heap_cmp_fn cmp;
-    ck_allocator *allocator;
+struct vs_binary_heap {
+    vs_vector *root;
+    vs_heap_cmp_fn cmp;
+    vs_allocator *allocator;
 };
 
-static void ck_binary_heap_swap_at(ck_binary_heap *heap, size_t i, size_t j) {
-    size_t elem_size = ck_vector_elem_size(heap->root);
-    void *a = ck_vector_get(heap->root, i);
-    void *b = ck_vector_get(heap->root, j);
+static void vs_binary_heap_swap_at(vs_binary_heap *heap, size_t i, size_t j) {
+    size_t elem_size = vs_vector_elem_size(heap->root);
+    void *a = vs_vector_get(heap->root, i);
+    void *b = vs_vector_get(heap->root, j);
 
-    ck_memswap(a, b, elem_size);
+    vs_memswap(a, b, elem_size);
 }
 
-static int ck_binary_heap_compare_idx(const ck_binary_heap *heap, size_t i, size_t j) {
-    const void *a = ck_vector_get_const(heap->root, i);
-    const void *b = ck_vector_get_const(heap->root, j);
+static int vs_binary_heap_compare_idx(const vs_binary_heap *heap, size_t i, size_t j) {
+    const void *a = vs_vector_get_const(heap->root, i);
+    const void *b = vs_vector_get_const(heap->root, j);
     return heap->cmp(a, b);
 }
 
-static void ck_binary_heap_sift_up(ck_binary_heap *heap, size_t idx) {
+static void vs_binary_heap_sift_up(vs_binary_heap *heap, size_t idx) {
     while (idx > 0) {
         size_t parent = (idx - 1) / 2;
-        if (ck_binary_heap_compare_idx(heap, idx, parent) >= 0) {
+        if (vs_binary_heap_compare_idx(heap, idx, parent) >= 0) {
             break;
         }
-        ck_binary_heap_swap_at(heap, idx, parent);
+        vs_binary_heap_swap_at(heap, idx, parent);
         idx = parent;
     }
 }
 
-static void ck_binary_heap_sift_down(ck_binary_heap *heap, size_t idx) {
-    size_t n = ck_vector_size(heap->root);
+static void vs_binary_heap_sift_down(vs_binary_heap *heap, size_t idx) {
+    size_t n = vs_vector_size(heap->root);
 
     while (1) {
         size_t left = (2 * idx) + 1;
         size_t right = left + 1;
         size_t best = idx;
 
-        if (left < n && ck_binary_heap_compare_idx(heap, left, best) < 0) {
+        if (left < n && vs_binary_heap_compare_idx(heap, left, best) < 0) {
             best = left;
         }
-        if (right < n && ck_binary_heap_compare_idx(heap, right, best) < 0) {
+        if (right < n && vs_binary_heap_compare_idx(heap, right, best) < 0) {
             best = right;
         }
         if (best == idx) {
             break;
         }
 
-        ck_binary_heap_swap_at(heap, idx, best);
+        vs_binary_heap_swap_at(heap, idx, best);
         idx = best;
     }
 }
 
-ck_binary_heap *ck_binary_heap_create(
+vs_binary_heap *vs_binary_heap_create(
     size_t elem_size,
-    ck_heap_cmp_fn cmp,
-    ck_allocator *allocator
+    vs_heap_cmp_fn cmp,
+    vs_allocator *allocator
 ) {
-    CK_ASSERT(cmp != NULL, "fatal: ck_binary_heap_create invalid arguments");
-    CK_ASSERT(elem_size > 0, "fatal: ck_binary_heap_create invalid arguments");
+    VS_ASSERT(cmp != NULL, "fatal: vs_binary_heap_create invalid arguments");
+    VS_ASSERT(elem_size > 0, "fatal: vs_binary_heap_create invalid arguments");
 
-    ck_binary_heap *heap = ck_malloc(allocator, sizeof(ck_binary_heap));
-    heap->root = ck_vector_create(elem_size, allocator);
+    vs_binary_heap *heap = vs_malloc(allocator, sizeof(vs_binary_heap));
+    heap->root = vs_vector_create(elem_size, allocator);
     heap->cmp = cmp;
     heap->allocator = allocator;
 
     return heap;
 }
 
-void ck_binary_heap_push(ck_binary_heap *heap, const void *element) {
-    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_push invalid arguments");
-    CK_ASSERT(element != NULL, "fatal: ck_binary_heap_push invalid arguments");
+void vs_binary_heap_push(vs_binary_heap *heap, const void *element) {
+    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_push invalid arguments");
+    VS_ASSERT(element != NULL, "fatal: vs_binary_heap_push invalid arguments");
 
-    ck_vector_push(heap->root, element);
+    vs_vector_push(heap->root, element);
 
-    ck_binary_heap_sift_up(heap, ck_vector_size(heap->root) - 1);
+    vs_binary_heap_sift_up(heap, vs_vector_size(heap->root) - 1);
 }
 
-void *ck_binary_heap_pop(ck_binary_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_pop invalid arguments");
-    size_t size = ck_vector_size(heap->root);
+void *vs_binary_heap_pop(vs_binary_heap *heap) {
+    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_pop invalid arguments");
+    size_t size = vs_vector_size(heap->root);
     if (size == 0) {
         return NULL;
     }
 
-    void *out = ck_vector_swap_remove(heap->root, 0);
+    void *out = vs_vector_swap_remove(heap->root, 0);
 
     if (size > 1) {
-        ck_binary_heap_sift_down(heap, 0);
+        vs_binary_heap_sift_down(heap, 0);
     }
 
     return out;
 }
 
-const void *ck_binary_heap_peek(const ck_binary_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_peek invalid arguments");
-    if (ck_vector_size(heap->root) == 0) {
+const void *vs_binary_heap_peek(const vs_binary_heap *heap) {
+    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_peek invalid arguments");
+    if (vs_vector_size(heap->root) == 0) {
         return NULL;
     }
 
-    return ck_vector_get_const(heap->root, 0);
+    return vs_vector_get_const(heap->root, 0);
 }
 
-size_t ck_binary_heap_size(const ck_binary_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_size invalid arguments");
+size_t vs_binary_heap_size(const vs_binary_heap *heap) {
+    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_size invalid arguments");
 
-    return ck_vector_size(heap->root);
+    return vs_vector_size(heap->root);
 }
 
-void ck_binary_heap_destroy(ck_binary_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_binary_heap_destroy invalid arguments");
-    ck_allocator *allocator = heap->allocator;
-    ck_vector_destroy(heap->root);
-    ck_dealloc(allocator, heap);
+void vs_binary_heap_destroy(vs_binary_heap *heap) {
+    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_destroy invalid arguments");
+    vs_allocator *allocator = heap->allocator;
+    vs_vector_destroy(heap->root);
+    vs_dealloc(allocator, heap);
 }

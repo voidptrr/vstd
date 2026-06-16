@@ -22,131 +22,131 @@
  * SOFTWARE.
  */
 
-#include "ckit/datastruct/string.h"
-#include "ckit/memory/allocators/test_allocator.h"
-#include "ckit/testing.h"
+#include "vstd/datastruct/string.h"
+#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/testing.h"
 
-CK_TEST(allocator) {
-    ck_test_allocator test_allocator;
+VS_TEST(allocator) {
+    vs_test_allocator test_allocator;
 
-    ck_test_allocator_init(&test_allocator);
-    ck_string value = ck_string_create("abc", ck_test_allocator_adapter(&test_allocator));
-    CK_TEST_ASSERT_EQ(test_allocator.alloc_count, 1);
-    CK_TEST_ASSERT_EQ(test_allocator.realloc_count, 0);
-    CK_TEST_ASSERT_EQ(test_allocator.dealloc_count, 0);
+    vs_test_allocator_init(&test_allocator);
+    vs_string value = vs_string_create("abc", vs_test_allocator_adapter(&test_allocator));
+    VS_TEST_ASSERT_EQ(test_allocator.alloc_count, 1);
+    VS_TEST_ASSERT_EQ(test_allocator.realloc_count, 0);
+    VS_TEST_ASSERT_EQ(test_allocator.dealloc_count, 0);
 
-    ck_string_append(&value, "012345678901234567890123456789");
-    CK_TEST_ASSERT_EQ(test_allocator.realloc_count, 1);
-    CK_TEST_ASSERT_EQ(ck_string_len(value), 33);
-    CK_TEST_ASSERT_STR_EQ(value, "abc012345678901234567890123456789");
+    vs_string_append(&value, "012345678901234567890123456789");
+    VS_TEST_ASSERT_EQ(test_allocator.realloc_count, 1);
+    VS_TEST_ASSERT_EQ(vs_string_len(value), 33);
+    VS_TEST_ASSERT_STR_EQ(value, "abc012345678901234567890123456789");
 
-    ck_string_destroy(value);
-    CK_TEST_ASSERT_EQ(test_allocator.dealloc_count, 1);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_string_destroy(value);
+    VS_TEST_ASSERT_EQ(test_allocator.dealloc_count, 1);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(append) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_string value = ck_string_create("hello", ck_test_allocator_adapter(&test_allocator));
+VS_TEST(append) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_string value = vs_string_create("hello", vs_test_allocator_adapter(&test_allocator));
 
-    ck_string_append(&value, ", ");
-    ck_string_append(&value, "world");
-    ck_string_append(&value, "");
-    CK_TEST_ASSERT_EQ(ck_string_len(value), 12);
-    CK_TEST_ASSERT_STR_EQ(value, "hello, world");
+    vs_string_append(&value, ", ");
+    vs_string_append(&value, "world");
+    vs_string_append(&value, "");
+    VS_TEST_ASSERT_EQ(vs_string_len(value), 12);
+    VS_TEST_ASSERT_STR_EQ(value, "hello, world");
 
-    ck_string_append(&value, "012345678901234567890123456789");
-    CK_TEST_ASSERT_EQ(ck_string_len(value), 42);
-    CK_TEST_ASSERT_STR_EQ(value, "hello, world012345678901234567890123456789");
+    vs_string_append(&value, "012345678901234567890123456789");
+    VS_TEST_ASSERT_EQ(vs_string_len(value), 42);
+    VS_TEST_ASSERT_STR_EQ(value, "hello, world012345678901234567890123456789");
 
-    ck_string_destroy(value);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_string_destroy(value);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(clear) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_string value = ck_string_create("hello", ck_test_allocator_adapter(&test_allocator));
+VS_TEST(clear) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_string value = vs_string_create("hello", vs_test_allocator_adapter(&test_allocator));
 
-    ck_string_clear(value);
-    CK_TEST_ASSERT_EQ(ck_string_len(value), 0);
-    CK_TEST_ASSERT_STR_EQ(value, "");
+    vs_string_clear(value);
+    VS_TEST_ASSERT_EQ(vs_string_len(value), 0);
+    VS_TEST_ASSERT_STR_EQ(value, "");
 
-    ck_string_append(&value, "again");
-    CK_TEST_ASSERT_STR_EQ(value, "again");
+    vs_string_append(&value, "again");
+    VS_TEST_ASSERT_STR_EQ(value, "again");
 
-    ck_string_destroy(value);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_string_destroy(value);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(init) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_string empty = ck_string_create(NULL, ck_test_allocator_adapter(&test_allocator));
-    CK_TEST_ASSERT_PTR_NOT_NULL(empty);
-    CK_TEST_ASSERT_EQ(ck_string_len(empty), 0);
-    CK_TEST_ASSERT_STR_EQ(empty, "");
-    ck_string_destroy(empty);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+VS_TEST(init) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_string empty = vs_string_create(NULL, vs_test_allocator_adapter(&test_allocator));
+    VS_TEST_ASSERT_PTR_NOT_NULL(empty);
+    VS_TEST_ASSERT_EQ(vs_string_len(empty), 0);
+    VS_TEST_ASSERT_STR_EQ(empty, "");
+    vs_string_destroy(empty);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
 
-    ck_string value = ck_string_create("hello", ck_test_allocator_adapter(&test_allocator));
-    CK_TEST_ASSERT_PTR_NOT_NULL(value);
-    CK_TEST_ASSERT_EQ(ck_string_len(value), 5);
-    CK_TEST_ASSERT_STR_EQ(value, "hello");
-    ck_string_destroy(value);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_string value = vs_string_create("hello", vs_test_allocator_adapter(&test_allocator));
+    VS_TEST_ASSERT_PTR_NOT_NULL(value);
+    VS_TEST_ASSERT_EQ(vs_string_len(value), 5);
+    VS_TEST_ASSERT_STR_EQ(value, "hello");
+    vs_string_destroy(value);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(prepend) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_string value = ck_string_create("world", ck_test_allocator_adapter(&test_allocator));
+VS_TEST(prepend) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_string value = vs_string_create("world", vs_test_allocator_adapter(&test_allocator));
 
-    ck_string_prepend(&value, "hello ");
-    CK_TEST_ASSERT_STR_EQ(value, "hello world");
+    vs_string_prepend(&value, "hello ");
+    VS_TEST_ASSERT_STR_EQ(value, "hello world");
 
-    ck_string_prepend(&value, "");
-    CK_TEST_ASSERT_STR_EQ(value, "hello world");
+    vs_string_prepend(&value, "");
+    VS_TEST_ASSERT_STR_EQ(value, "hello world");
 
-    ck_string_destroy(value);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_string_destroy(value);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(search) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_string value = ck_string_create("hello world", ck_test_allocator_adapter(&test_allocator));
+VS_TEST(search) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_string value = vs_string_create("hello world", vs_test_allocator_adapter(&test_allocator));
 
-    CK_TEST_ASSERT(ck_string_contains(value, "lo wo"));
+    VS_TEST_ASSERT(vs_string_contains(value, "lo wo"));
 
-    CK_TEST_ASSERT(!ck_string_contains(value, "missing"));
+    VS_TEST_ASSERT(!vs_string_contains(value, "missing"));
 
-    CK_TEST_ASSERT(ck_string_starts_with(value, "hello"));
-    CK_TEST_ASSERT(!ck_string_starts_with(value, "world"));
+    VS_TEST_ASSERT(vs_string_starts_with(value, "hello"));
+    VS_TEST_ASSERT(!vs_string_starts_with(value, "world"));
 
-    CK_TEST_ASSERT(ck_string_ends_with(value, "world"));
-    CK_TEST_ASSERT(!ck_string_ends_with(value, "hello"));
+    VS_TEST_ASSERT(vs_string_ends_with(value, "world"));
+    VS_TEST_ASSERT(!vs_string_ends_with(value, "hello"));
 
-    CK_TEST_ASSERT(ck_string_contains(value, ""));
-    CK_TEST_ASSERT(ck_string_starts_with(value, ""));
-    CK_TEST_ASSERT(ck_string_ends_with(value, ""));
+    VS_TEST_ASSERT(vs_string_contains(value, ""));
+    VS_TEST_ASSERT(vs_string_starts_with(value, ""));
+    VS_TEST_ASSERT(vs_string_ends_with(value, ""));
 
-    ck_string_destroy(value);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_string_destroy(value);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST_MAIN(
-    CK_TEST_CASE(allocator),
-    CK_TEST_CASE(append),
-    CK_TEST_CASE(clear),
-    CK_TEST_CASE(init),
-    CK_TEST_CASE(prepend),
-    CK_TEST_CASE(search)
+VS_TEST_MAIN(
+    VS_TEST_CASE(allocator),
+    VS_TEST_CASE(append),
+    VS_TEST_CASE(clear),
+    VS_TEST_CASE(init),
+    VS_TEST_CASE(prepend),
+    VS_TEST_CASE(search)
 )

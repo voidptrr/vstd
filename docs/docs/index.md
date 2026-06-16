@@ -1,6 +1,6 @@
-# ckit
+# vstd
 
-`ckit` is a practical utilities and data-structures kit for C projects.
+`vstd` is a practical utilities and data-structures kit for C projects.
 It bundles reusable low-level building blocks with consistent behavior,
 predictable error handling, and a compact API style that stays easy to adopt.
 

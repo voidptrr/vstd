@@ -22,26 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef CK_MEMORY_UTILS_H
-#define CK_MEMORY_UTILS_H
+#ifndef VSTD_TEST_ALLOCATOR_H
+#define VSTD_TEST_ALLOCATOR_H
 
+#include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h> /* IWYU pragma: keep */
 
-#define CK_CONTAINER_OF(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
+#include "vstd/memory/allocators/allocator.h"
 
-#define CK_MEMORY_ALIGN (_Alignof(max_align_t))
+#define VS_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
 
-/*
- * Round value up to the next multiple of alignment.
- * alignment must be a power of two and non-zero.
- */
-static inline size_t ck_align_up(size_t value, size_t alignment) {
-    size_t mask = alignment - 1;
-    return (value + mask) & ~mask;
-}
+typedef struct vs_test_allocator {
+    size_t alloc_count;
+    size_t realloc_count;
+    size_t dealloc_count;
+    size_t outstanding_allocations;
+    size_t failed_allocations;
+    size_t fail_after;
+    vs_allocator allocator;
+} vs_test_allocator;
 
-/* Swap size bytes between memory regions a and b. */
-void ck_memswap(void *a, void *b, size_t size);
+/* Initialize a malloc-backed tracking allocator. */
+void vs_test_allocator_init(vs_test_allocator *test_allocator);
+
+/* Return the allocator adapter for APIs that accept vs_allocator. */
+vs_allocator *vs_test_allocator_adapter(vs_test_allocator *test_allocator);
+
+/* Reset event counters while keeping outstanding allocation state and fail_after. */
+void vs_test_allocator_reset_counts(vs_test_allocator *test_allocator);
+
+/* Return whether every tracked allocation has been released. */
+bool vs_test_allocator_is_clean(const vs_test_allocator *test_allocator);
 
 #endif

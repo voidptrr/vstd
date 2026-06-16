@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef CK_MEMORY_ARENA_H
-#define CK_MEMORY_ARENA_H
+#ifndef VSTD_ARENA_H
+#define VSTD_ARENA_H
 
 #include <stddef.h>
 
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Arena memory model:
@@ -45,48 +45,48 @@
  * - small internal allocation headers are stored before payloads so realloc can
  *   preserve existing bytes
  */
-typedef struct ck_arena ck_arena;
+typedef struct vs_arena vs_arena;
 
 /*
  * Create an arena with `capacity` bytes of internal storage.
  */
-ck_arena *ck_arena_create(size_t capacity);
+vs_arena *vs_arena_create(size_t capacity);
 
 /*
  * Return an allocator adapter that routes through this arena.
  */
-ck_allocator ck_arena_adapter(ck_arena *arena);
+vs_allocator vs_arena_adapter(vs_arena *arena);
 
 /*
  * Allocate `size` bytes from arena.
  * Returns NULL when the arena does not have enough available space.
  */
-void *ck_arena_alloc(ck_arena *arena, size_t size);
+void *vs_arena_alloc(vs_arena *arena, size_t size);
 
 /*
  * Grow an arena allocation.
  * NULL ptr allocates. Size 0 with an existing ptr returns NULL.
  * Shrinking an existing allocation is invalid.
  */
-void *ck_arena_realloc(ck_arena *arena, void *ptr, size_t size);
+void *vs_arena_realloc(vs_arena *arena, void *ptr, size_t size);
 
 /*
  * Release all arena allocations while keeping the backing buffer.
  */
-void ck_arena_reset(ck_arena *arena);
+void vs_arena_reset(vs_arena *arena);
 
 /* Total managed bytes. */
-size_t ck_arena_capacity(const ck_arena *arena);
+size_t vs_arena_capacity(const vs_arena *arena);
 
 /* Number of bytes currently consumed. */
-size_t ck_arena_used(const ck_arena *arena);
+size_t vs_arena_used(const vs_arena *arena);
 
 /* Number of bytes still available. */
-size_t ck_arena_available(const ck_arena *arena);
+size_t vs_arena_available(const vs_arena *arena);
 
 /*
  * Destroy and release arena resources.
  */
-void ck_arena_destroy(ck_arena *arena);
+void vs_arena_destroy(vs_arena *arena);
 
 #endif

@@ -22,24 +22,24 @@
  * SOFTWARE.
  */
 
-#include "ckit/memory/allocators/arena.h"
-#include "ckit/testing.h"
+#include "vstd/memory/allocators/arena.h"
+#include "vstd/testing.h"
 
 int main(void) {
-    ck_arena *arena = ck_arena_create(128);
+    vs_arena *arena = vs_arena_create(128);
     void *before;
     void *after;
 
-    before = ck_arena_alloc(arena, 8);
-    CK_TEST_ASSERT_PTR_NOT_NULL(before);
-    CK_TEST_ASSERT(ck_arena_used(arena) > 0);
+    before = vs_arena_alloc(arena, 8);
+    VS_TEST_ASSERT_PTR_NOT_NULL(before);
+    VS_TEST_ASSERT(vs_arena_used(arena) > 0);
 
-    ck_arena_reset(arena);
-    CK_TEST_ASSERT_EQ(ck_arena_used(arena), 0);
+    vs_arena_reset(arena);
+    VS_TEST_ASSERT_EQ(vs_arena_used(arena), 0);
 
-    after = ck_arena_alloc(arena, 8);
-    CK_TEST_ASSERT_PTR_EQ(after, before);
+    after = vs_arena_alloc(arena, 8);
+    VS_TEST_ASSERT_PTR_EQ(after, before);
 
-    ck_arena_destroy(arena);
+    vs_arena_destroy(arena);
     return 0;
 }

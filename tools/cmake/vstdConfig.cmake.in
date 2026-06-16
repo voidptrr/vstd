@@ -22,4 +22,4 @@
 
 @PACKAGE_INIT@
 
-include("${CMAKE_CURRENT_LIST_DIR}/ckitTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/vstdTargets.cmake")

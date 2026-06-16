@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
-#ifndef CK_DATASTRUCT_HASHMAP_H
-#define CK_DATASTRUCT_HASHMAP_H
+#ifndef VSTD_HASHMAP_H
+#define VSTD_HASHMAP_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/compare.h"
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/compare.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Opaque hash map with separate chaining.
@@ -53,49 +53,49 @@
  */
 
 /* Key equality callback used to resolve collisions and lookups. */
-typedef ck_eq_fn ck_hashmap_key_eq_fn;
+typedef vs_eq_fn vs_hashmap_key_eq_fn;
 
-typedef struct ck_hashmap ck_hashmap;
+typedef struct vs_hashmap vs_hashmap;
 
 /*
  * Create a hash map with fixed key/value sizes.
  * Hashing uses the internal FNV-1a implementation.
  * Initial capacity is implementation-defined.
  */
-ck_hashmap *ck_hashmap_create(
+vs_hashmap *vs_hashmap_create(
     size_t key_size,
     size_t value_size,
-    ck_hashmap_key_eq_fn key_eq,
-    ck_allocator *allocator
+    vs_hashmap_key_eq_fn key_eq,
+    vs_allocator *allocator
 );
 
 /*
  * Insert or update an entry.
  * If key exists, overwrite value in place.
  */
-void ck_hashmap_put(ck_hashmap *map, const void *key, const void *value);
+void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
 
 /*
  * Lookup key and return stored value pointer, or NULL when missing.
  */
-void *ck_hashmap_get(ck_hashmap *map, const void *key);
+void *vs_hashmap_get(vs_hashmap *map, const void *key);
 
 /*
  * Lookup key and return const stored value pointer, or NULL when missing.
  */
-const void *ck_hashmap_get_const(const ck_hashmap *map, const void *key);
+const void *vs_hashmap_get_const(const vs_hashmap *map, const void *key);
 
 /*
  * Remove key from map.
  */
-void ck_hashmap_remove(ck_hashmap *map, const void *key);
+void vs_hashmap_remove(vs_hashmap *map, const void *key);
 
 /* Return the number of stored entries. */
-size_t ck_hashmap_size(const ck_hashmap *map);
+size_t vs_hashmap_size(const vs_hashmap *map);
 
 /*
  * Release all entries, bucket storage, and the hashmap handle.
  */
-void ck_hashmap_destroy(ck_hashmap *map);
+void vs_hashmap_destroy(vs_hashmap *map);
 
 #endif

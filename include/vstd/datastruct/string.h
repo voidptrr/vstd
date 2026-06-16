@@ -22,20 +22,20 @@
  * SOFTWARE.
  */
 
-#ifndef CK_DATASTRUCT_STRING_H
-#define CK_DATASTRUCT_STRING_H
+#ifndef VSTD_STRING_H
+#define VSTD_STRING_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Opaque growable string.
  *
  * Public view:
  *
- *   ck_string
+ *   vs_string
  *        |
  *        v
  *      "hello\0"
@@ -47,35 +47,35 @@
  *   +----------------------+----------------------+-------------+
  *                                                 ^
  *                                                 |
- *                                            ck_string
+ *                                            vs_string
  */
-typedef char *ck_string;
+typedef char *vs_string;
 
 /* Create a string from initial, or an empty string when initial is NULL. */
-ck_string ck_string_create(const char *initial, ck_allocator *allocator);
+vs_string vs_string_create(const char *initial, vs_allocator *allocator);
 
 /* Append suffix to string, growing storage as needed. */
-void ck_string_append(ck_string *string, const char *suffix);
+void vs_string_append(vs_string *string, const char *suffix);
 
 /* Prepend prefix to string, growing storage as needed. */
-void ck_string_prepend(ck_string *string, const char *prefix);
+void vs_string_prepend(vs_string *string, const char *prefix);
 
 /* Return whether string contains needle. */
-bool ck_string_contains(const ck_string string, const char *needle);
+bool vs_string_contains(const vs_string string, const char *needle);
 
 /* Return whether string begins with prefix. */
-bool ck_string_starts_with(const ck_string string, const char *prefix);
+bool vs_string_starts_with(const vs_string string, const char *prefix);
 
 /* Return whether string ends with suffix. */
-bool ck_string_ends_with(const ck_string string, const char *suffix);
+bool vs_string_ends_with(const vs_string string, const char *suffix);
 
 /* Reset string to empty without releasing storage. */
-void ck_string_clear(ck_string string);
+void vs_string_clear(vs_string string);
 
 /* Return the number of bytes before the terminating NUL. */
-size_t ck_string_len(const ck_string string);
+size_t vs_string_len(const vs_string string);
 
 /* Destroy and release owned storage. */
-void ck_string_destroy(ck_string string);
+void vs_string_destroy(vs_string string);
 
 #endif

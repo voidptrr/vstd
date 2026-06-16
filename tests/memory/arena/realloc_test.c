@@ -25,27 +25,27 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "ckit/memory/allocators/arena.h"
-#include "ckit/memory/utils.h"
-#include "ckit/testing.h"
+#include "vstd/memory/allocators/arena.h"
+#include "vstd/memory/utils.h"
+#include "vstd/testing.h"
 
 int main(void) {
-    ck_arena *arena = ck_arena_create(256);
+    vs_arena *arena = vs_arena_create(256);
     uint64_t *value;
     uint64_t *grown;
-    size_t grown_size = CK_MEMORY_ALIGN * 2;
+    size_t grown_size = VS_MEMORY_ALIGN * 2;
 
-    value = (uint64_t *)ck_arena_alloc(arena, sizeof(uint64_t));
-    CK_TEST_ASSERT_PTR_NOT_NULL(value);
+    value = (uint64_t *)vs_arena_alloc(arena, sizeof(uint64_t));
+    VS_TEST_ASSERT_PTR_NOT_NULL(value);
     *value = 42;
 
-    grown = (uint64_t *)ck_arena_realloc(arena, value, grown_size);
-    CK_TEST_ASSERT_PTR_NOT_NULL(grown);
-    CK_TEST_ASSERT_PTR_NE(grown, value);
-    CK_TEST_ASSERT_EQ(grown[0], 42);
+    grown = (uint64_t *)vs_arena_realloc(arena, value, grown_size);
+    VS_TEST_ASSERT_PTR_NOT_NULL(grown);
+    VS_TEST_ASSERT_PTR_NE(grown, value);
+    VS_TEST_ASSERT_EQ(grown[0], 42);
 
-    CK_TEST_ASSERT_PTR_EQ(ck_arena_realloc(arena, grown, grown_size), grown);
+    VS_TEST_ASSERT_PTR_EQ(vs_arena_realloc(arena, grown, grown_size), grown);
 
-    ck_arena_destroy(arena);
+    vs_arena_destroy(arena);
     return 0;
 }

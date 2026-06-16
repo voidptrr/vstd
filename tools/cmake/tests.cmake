@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-function(ck_discover_tests)
+function(vs_discover_tests)
   file(GLOB TEST_FILES RELATIVE "${PROJECT_SOURCE_DIR}" "tests/*/*_test.c" "tests/*/*/*_test.c")
 
   if(NOT TEST_FILES)
@@ -55,7 +55,7 @@ function(ck_discover_tests)
     endif()
     add_executable(${EXECUTABLE_NAME} "${PROJECT_SOURCE_DIR}/${TEST_FILE_REL}")
     target_include_directories(${EXECUTABLE_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/src")
-    target_link_libraries(${EXECUTABLE_NAME} PRIVATE ckit::ckit)
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE vstd::vstd)
 
     add_test(NAME ${CTEST_NAME} COMMAND ${EXECUTABLE_NAME})
     set_tests_properties(${CTEST_NAME} PROPERTIES LABELS "${TARGET_GROUP};${TARGET_NAME}")

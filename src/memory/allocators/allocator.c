@@ -24,10 +24,10 @@
 
 #include <stdlib.h>
 
-#include "ckit/memory/allocators/allocator.h"
-#include "ckit/panic.h"
+#include "vstd/memory/allocators/allocator.h"
+#include "vstd/panic.h"
 
-void *ck_malloc(ck_allocator *allocator, size_t size) {
+void *vs_malloc(vs_allocator *allocator, size_t size) {
     void *ptr = NULL;
     if (allocator == NULL || allocator->alloc == NULL) {
         ptr = malloc(size);
@@ -36,14 +36,14 @@ void *ck_malloc(ck_allocator *allocator, size_t size) {
     }
 
     if (ptr == NULL) {
-        ck_panic("fatal: ck_malloc out of memory");
+        vs_panic("fatal: vs_malloc out of memory");
     }
     return ptr;
 }
 
-void *ck_realloc(ck_allocator *allocator, void *ptr, size_t size) {
+void *vs_realloc(vs_allocator *allocator, void *ptr, size_t size) {
     if (size == 0) {
-        ck_dealloc(allocator, ptr);
+        vs_dealloc(allocator, ptr);
         return NULL;
     }
 
@@ -55,21 +55,21 @@ void *ck_realloc(ck_allocator *allocator, void *ptr, size_t size) {
     }
 
     if (new_ptr == NULL) {
-        ck_panic("fatal: ck_realloc out of memory");
+        vs_panic("fatal: vs_realloc out of memory");
     }
     return new_ptr;
 }
 
-void ck_dealloc(ck_allocator *allocator, void *ptr) {
+void vs_dealloc(vs_allocator *allocator, void *ptr) {
     if (allocator == NULL) {
         free(ptr);
         return;
     }
 
-    if ((allocator->features & CK_ALLOCATOR_FEATURE_DEALLOC) == 0) {
+    if ((allocator->features & VS_ALLOCATOR_FEATURE_DEALLOC) == 0) {
         return;
     }
 
-    CK_ASSERT(allocator->dealloc != NULL, "fatal: ck_dealloc invalid arguments");
+    VS_ASSERT(allocator->dealloc != NULL, "fatal: vs_dealloc invalid arguments");
     allocator->dealloc(allocator->ctx, ptr);
 }

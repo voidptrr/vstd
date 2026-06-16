@@ -26,175 +26,175 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/datastruct/hashset.h"
-#include "ckit/datastruct/linked_list.h"
-#include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/utils.h"
-#include "ckit/panic.h"
 #include "datastruct/hash_common.h"
+#include "vstd/datastruct/hashset.h"
+#include "vstd/datastruct/linked_list.h"
+#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/utils.h"
+#include "vstd/panic.h"
 
-typedef struct ck_hashset_entry {
-    ck_linked_list_node node;
+typedef struct vs_hashset_entry {
+    vs_linked_list_node node;
     max_align_t align;
     uint8_t data[];
-} ck_hashset_entry;
+} vs_hashset_entry;
 
-struct ck_hashset {
+struct vs_hashset {
     size_t size;
     size_t elem_size;
     size_t capacity;
-    ck_linked_list **buckets;
-    ck_hashset_elem_eq_fn elem_eq;
-    ck_allocator *allocator;
+    vs_linked_list **buckets;
+    vs_hashset_elem_eq_fn elem_eq;
+    vs_allocator *allocator;
 };
 
-static void ck_hashset_entry_destroy(ck_linked_list_node *node, ck_allocator *allocator) {
-    ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
-    ck_dealloc(allocator, entry);
+static void vs_hashset_entry_destroy(vs_linked_list_node *node, vs_allocator *allocator) {
+    vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
+    vs_dealloc(allocator, entry);
 }
 
-static const void *ck_hashset_entry_elem(const ck_linked_list_node *node) {
-    const ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
+static const void *vs_hashset_entry_elem(const vs_linked_list_node *node) {
+    const vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
     return entry->data;
 }
 
-static ck_hashset_entry *ck_hashset_entry_get(const ck_hashset *set, const void *elem) {
-    size_t bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
-    ck_linked_list_node *node = ck_hash_common_bucket_find(
+static vs_hashset_entry *vs_hashset_entry_get(const vs_hashset *set, const void *elem) {
+    size_t bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
+    vs_linked_list_node *node = vs_hash_common_bucket_find(
         set->buckets[bucket],
         elem,
         set->elem_size,
         set->elem_eq,
-        ck_hashset_entry_elem
+        vs_hashset_entry_elem
     );
     if (node != NULL) {
-        return CK_CONTAINER_OF(node, ck_hashset_entry, node);
+        return VS_CONTAINER_OF(node, vs_hashset_entry, node);
     }
     return NULL;
 }
 
-ck_hashset *ck_hashset_create(
+vs_hashset *vs_hashset_create(
     size_t elem_size,
-    ck_hashset_elem_eq_fn elem_eq,
-    ck_allocator *allocator
+    vs_hashset_elem_eq_fn elem_eq,
+    vs_allocator *allocator
 ) {
-    CK_ASSERT(elem_eq != NULL, "fatal: ck_hashset_create invalid arguments");
-    CK_ASSERT(elem_size > 0, "fatal: ck_hashset_create invalid arguments");
+    VS_ASSERT(elem_eq != NULL, "fatal: vs_hashset_create invalid arguments");
+    VS_ASSERT(elem_size > 0, "fatal: vs_hashset_create invalid arguments");
 
-    ck_hashset *set = ck_malloc(allocator, sizeof(ck_hashset));
+    vs_hashset *set = vs_malloc(allocator, sizeof(vs_hashset));
     set->allocator = allocator;
-    set->buckets = ck_hash_common_buckets_create(CK_HASH_COMMON_DEFAULT_CAPACITY, allocator);
+    set->buckets = vs_hash_common_buckets_create(VS_HASH_COMMON_DEFAULT_CAPACITY, allocator);
 
     set->size = 0;
     set->elem_size = elem_size;
-    set->capacity = CK_HASH_COMMON_DEFAULT_CAPACITY;
+    set->capacity = VS_HASH_COMMON_DEFAULT_CAPACITY;
     set->elem_eq = elem_eq;
 
     return set;
 }
 
-void ck_hashset_insert(ck_hashset *set, const void *elem) {
-    CK_ASSERT(set != NULL, "fatal: ck_hashset_insert invalid arguments");
-    CK_ASSERT(elem != NULL, "fatal: ck_hashset_insert invalid arguments");
+void vs_hashset_insert(vs_hashset *set, const void *elem) {
+    VS_ASSERT(set != NULL, "fatal: vs_hashset_insert invalid arguments");
+    VS_ASSERT(elem != NULL, "fatal: vs_hashset_insert invalid arguments");
 
-    ck_allocator *allocator = set->allocator;
-    size_t bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
-    ck_linked_list_node *node = ck_hash_common_bucket_find(
+    vs_allocator *allocator = set->allocator;
+    size_t bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
+    vs_linked_list_node *node = vs_hash_common_bucket_find(
         set->buckets[bucket],
         elem,
         set->elem_size,
         set->elem_eq,
-        ck_hashset_entry_elem
+        vs_hashset_entry_elem
     );
     if (node != NULL) {
         return;
     }
 
-    if (ck_hash_common_should_grow(set->size, set->capacity)) {
+    if (vs_hash_common_should_grow(set->size, set->capacity)) {
         size_t new_capacity = set->capacity * 2;
-        set->buckets = ck_hash_common_buckets_rehash(
+        set->buckets = vs_hash_common_buckets_rehash(
             set->buckets,
             set->capacity,
             new_capacity,
             set->elem_size,
             allocator,
-            ck_hashset_entry_elem
+            vs_hashset_entry_elem
         );
         set->capacity = new_capacity;
-        bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
+        bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
     }
 
-    ck_hashset_entry *entry = ck_malloc(allocator, sizeof(ck_hashset_entry) + set->elem_size);
+    vs_hashset_entry *entry = vs_malloc(allocator, sizeof(vs_hashset_entry) + set->elem_size);
     memcpy(entry->data, elem, set->elem_size);
 
-    ck_linked_list_pushfront(set->buckets[bucket], &entry->node);
+    vs_linked_list_pushfront(set->buckets[bucket], &entry->node);
     set->size += 1;
 }
 
-bool ck_hashset_contains(const ck_hashset *set, const void *elem) {
-    CK_ASSERT(set != NULL, "fatal: ck_hashset_contains invalid arguments");
-    CK_ASSERT(elem != NULL, "fatal: ck_hashset_contains invalid arguments");
+bool vs_hashset_contains(const vs_hashset *set, const void *elem) {
+    VS_ASSERT(set != NULL, "fatal: vs_hashset_contains invalid arguments");
+    VS_ASSERT(elem != NULL, "fatal: vs_hashset_contains invalid arguments");
 
-    return ck_hashset_entry_get(set, elem) != NULL;
+    return vs_hashset_entry_get(set, elem) != NULL;
 }
 
-void *ck_hashset_get(ck_hashset *set, const void *elem) {
-    CK_ASSERT(set != NULL, "fatal: ck_hashset_get invalid arguments");
-    CK_ASSERT(elem != NULL, "fatal: ck_hashset_get invalid arguments");
+void *vs_hashset_get(vs_hashset *set, const void *elem) {
+    VS_ASSERT(set != NULL, "fatal: vs_hashset_get invalid arguments");
+    VS_ASSERT(elem != NULL, "fatal: vs_hashset_get invalid arguments");
 
-    ck_hashset_entry *entry = ck_hashset_entry_get(set, elem);
+    vs_hashset_entry *entry = vs_hashset_entry_get(set, elem);
     if (entry != NULL) {
         return entry->data;
     }
     return NULL;
 }
 
-const void *ck_hashset_get_const(const ck_hashset *set, const void *elem) {
-    CK_ASSERT(set != NULL, "fatal: ck_hashset_get_const invalid arguments");
-    CK_ASSERT(elem != NULL, "fatal: ck_hashset_get_const invalid arguments");
+const void *vs_hashset_get_const(const vs_hashset *set, const void *elem) {
+    VS_ASSERT(set != NULL, "fatal: vs_hashset_get_const invalid arguments");
+    VS_ASSERT(elem != NULL, "fatal: vs_hashset_get_const invalid arguments");
 
-    ck_hashset_entry *entry = ck_hashset_entry_get(set, elem);
+    vs_hashset_entry *entry = vs_hashset_entry_get(set, elem);
     if (entry != NULL) {
         return entry->data;
     }
     return NULL;
 }
 
-void ck_hashset_remove(ck_hashset *set, const void *elem) {
-    CK_ASSERT(set != NULL, "fatal: ck_hashset_remove invalid arguments");
-    CK_ASSERT(elem != NULL, "fatal: ck_hashset_remove invalid arguments");
+void vs_hashset_remove(vs_hashset *set, const void *elem) {
+    VS_ASSERT(set != NULL, "fatal: vs_hashset_remove invalid arguments");
+    VS_ASSERT(elem != NULL, "fatal: vs_hashset_remove invalid arguments");
 
-    ck_allocator *allocator = set->allocator;
-    size_t bucket = ck_hash_common_bucket_index(elem, set->elem_size, set->capacity);
-    ck_linked_list_node *node = ck_hash_common_bucket_remove(
+    vs_allocator *allocator = set->allocator;
+    size_t bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
+    vs_linked_list_node *node = vs_hash_common_bucket_remove(
         set->buckets[bucket],
         elem,
         set->elem_size,
         set->elem_eq,
-        ck_hashset_entry_elem
+        vs_hashset_entry_elem
     );
     if (node != NULL) {
-        ck_hashset_entry *entry = CK_CONTAINER_OF(node, ck_hashset_entry, node);
-        ck_dealloc(allocator, entry);
+        vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
+        vs_dealloc(allocator, entry);
         set->size -= 1;
     }
 }
 
-size_t ck_hashset_size(const ck_hashset *set) {
-    CK_ASSERT(set != NULL, "fatal: ck_hashset_size invalid arguments");
+size_t vs_hashset_size(const vs_hashset *set) {
+    VS_ASSERT(set != NULL, "fatal: vs_hashset_size invalid arguments");
 
     return set->size;
 }
 
-void ck_hashset_destroy(ck_hashset *set) {
-    CK_ASSERT(set != NULL, "fatal: ck_hashset_destroy invalid arguments");
+void vs_hashset_destroy(vs_hashset *set) {
+    VS_ASSERT(set != NULL, "fatal: vs_hashset_destroy invalid arguments");
 
-    ck_allocator *allocator = set->allocator;
-    ck_hash_common_buckets_destroy(
+    vs_allocator *allocator = set->allocator;
+    vs_hash_common_buckets_destroy(
         set->buckets,
         set->capacity,
         allocator,
-        ck_hashset_entry_destroy
+        vs_hashset_entry_destroy
     );
-    ck_dealloc(allocator, set);
+    vs_dealloc(allocator, set);
 }

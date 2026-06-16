@@ -22,12 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef CK_DATASTRUCT_DOUBLY_LINKED_LIST_H
-#define CK_DATASTRUCT_DOUBLY_LINKED_LIST_H
+#ifndef VSTD_DOUBLY_LINKED_LIST_H
+#define VSTD_DOUBLY_LINKED_LIST_H
 
 #include <stddef.h>
 
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Opaque intrusive doubly linked list.
@@ -42,7 +42,7 @@
  *          +------+     +------+     +------+       +------+
  *             ^            ^            ^              ^
  *             |            |            |              |
- *       user object embeds ck_doubly_linked_list_node
+ *       user object embeds vs_doubly_linked_list_node
  *
  * - push appends at tail
  * - pushfront prepends at head
@@ -52,48 +52,48 @@
  * - linked list nodes and owning objects are caller-owned
  */
 
-typedef struct ck_doubly_linked_list_node {
-    struct ck_doubly_linked_list_node *prev;
-    struct ck_doubly_linked_list_node *next;
-} ck_doubly_linked_list_node;
+typedef struct vs_doubly_linked_list_node {
+    struct vs_doubly_linked_list_node *prev;
+    struct vs_doubly_linked_list_node *next;
+} vs_doubly_linked_list_node;
 
-typedef struct ck_doubly_linked_list ck_doubly_linked_list;
+typedef struct vs_doubly_linked_list vs_doubly_linked_list;
 
 /* Create an intrusive doubly linked list. */
-ck_doubly_linked_list *ck_doubly_linked_list_create(ck_allocator *allocator);
+vs_doubly_linked_list *vs_doubly_linked_list_create(vs_allocator *allocator);
 
 /* Append node at the tail. */
-void ck_doubly_linked_list_push(ck_doubly_linked_list *list, ck_doubly_linked_list_node *node);
+void vs_doubly_linked_list_push(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node);
 
 /* Prepend node at the head. */
-void ck_doubly_linked_list_pushfront(ck_doubly_linked_list *list, ck_doubly_linked_list_node *node);
+void vs_doubly_linked_list_pushfront(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node);
 
 /* Insert node after an existing node, or at the front when after is NULL. */
-void ck_doubly_linked_list_insert_after(
-    ck_doubly_linked_list *list,
-    ck_doubly_linked_list_node *after,
-    ck_doubly_linked_list_node *node
+void vs_doubly_linked_list_insert_after(
+    vs_doubly_linked_list *list,
+    vs_doubly_linked_list_node *after,
+    vs_doubly_linked_list_node *node
 );
 
 /* Remove and return the head node, or NULL when empty. */
-ck_doubly_linked_list_node *ck_doubly_linked_list_popleft(ck_doubly_linked_list *list);
+vs_doubly_linked_list_node *vs_doubly_linked_list_popleft(vs_doubly_linked_list *list);
 
 /* Remove and return the tail node, or NULL when empty. */
-ck_doubly_linked_list_node *ck_doubly_linked_list_popback(ck_doubly_linked_list *list);
+vs_doubly_linked_list_node *vs_doubly_linked_list_popback(vs_doubly_linked_list *list);
 
 /* Unlink node from list. */
-void ck_doubly_linked_list_remove(ck_doubly_linked_list *list, ck_doubly_linked_list_node *node);
+void vs_doubly_linked_list_remove(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node);
 
 /* Return the number of stored elements. */
-size_t ck_doubly_linked_list_size(const ck_doubly_linked_list *list);
+size_t vs_doubly_linked_list_size(const vs_doubly_linked_list *list);
 
 /* Return the head node, or NULL when empty. */
-ck_doubly_linked_list_node *ck_doubly_linked_list_head(const ck_doubly_linked_list *list);
+vs_doubly_linked_list_node *vs_doubly_linked_list_head(const vs_doubly_linked_list *list);
 
 /* Return the tail node, or NULL when empty. */
-ck_doubly_linked_list_node *ck_doubly_linked_list_tail(const ck_doubly_linked_list *list);
+vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_list *list);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
-void ck_doubly_linked_list_destroy(ck_doubly_linked_list *list);
+void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list);
 
 #endif

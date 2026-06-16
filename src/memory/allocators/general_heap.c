@@ -26,144 +26,144 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ckit/datastruct/doubly_linked_list.h"
-#include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/allocators/general_heap.h"
-#include "ckit/memory/utils.h"
-#include "ckit/panic.h"
+#include "vstd/datastruct/doubly_linked_list.h"
+#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/general_heap.h"
+#include "vstd/memory/utils.h"
+#include "vstd/panic.h"
 
 /* Header stored immediately before each heap-managed payload block. */
-typedef struct ck_heap_block {
+typedef struct vs_heap_block {
     size_t size;
-    ck_doubly_linked_list_node node;
+    vs_doubly_linked_list_node node;
     bool is_free;
-} ck_heap_block;
+} vs_heap_block;
 
-struct ck_heap {
+struct vs_heap {
     void *buffer;
     size_t capacity;
-    ck_doubly_linked_list *blocks;
+    vs_doubly_linked_list *blocks;
 };
 
-static ck_heap_block *ck_heap_head(const ck_heap *heap) {
-    ck_doubly_linked_list_node *head = ck_doubly_linked_list_head(heap->blocks);
+static vs_heap_block *vs_heap_head(const vs_heap *heap) {
+    vs_doubly_linked_list_node *head = vs_doubly_linked_list_head(heap->blocks);
     if (head == NULL) {
         return NULL;
     }
 
-    return CK_CONTAINER_OF(head, ck_heap_block, node);
+    return VS_CONTAINER_OF(head, vs_heap_block, node);
 }
 
-static ck_heap_block *ck_heap_next(const ck_heap_block *block) {
+static vs_heap_block *vs_heap_next(const vs_heap_block *block) {
     if (block->node.next == NULL) {
         return NULL;
     }
 
-    return CK_CONTAINER_OF(block->node.next, ck_heap_block, node);
+    return VS_CONTAINER_OF(block->node.next, vs_heap_block, node);
 }
 
-static ck_heap_block *ck_heap_prev(const ck_heap_block *block) {
+static vs_heap_block *vs_heap_prev(const vs_heap_block *block) {
     if (block->node.prev == NULL) {
         return NULL;
     }
 
-    return CK_CONTAINER_OF(block->node.prev, ck_heap_block, node);
+    return VS_CONTAINER_OF(block->node.prev, vs_heap_block, node);
 }
 
-static void ck_heap_split_block(ck_heap *heap, ck_heap_block *block, size_t size) {
+static void vs_heap_split_block(vs_heap *heap, vs_heap_block *block, size_t size) {
     size_t remaining = block->size - size;
 
-    if (remaining <= sizeof(ck_heap_block) + CK_MEMORY_ALIGN) {
+    if (remaining <= sizeof(vs_heap_block) + VS_MEMORY_ALIGN) {
         return;
     }
 
-    ck_heap_block *split = (ck_heap_block *)((uint8_t *)block + sizeof(ck_heap_block) + size);
-    split->size = remaining - sizeof(ck_heap_block);
+    vs_heap_block *split = (vs_heap_block *)((uint8_t *)block + sizeof(vs_heap_block) + size);
+    split->size = remaining - sizeof(vs_heap_block);
     split->is_free = true;
 
     block->size = size;
-    ck_doubly_linked_list_insert_after(heap->blocks, &block->node, &split->node);
+    vs_doubly_linked_list_insert_after(heap->blocks, &block->node, &split->node);
 }
 
-static ck_heap_block *ck_heap_coalesce(ck_heap *heap, ck_heap_block *block) {
-    ck_heap_block *next = ck_heap_next(block);
+static vs_heap_block *vs_heap_coalesce(vs_heap *heap, vs_heap_block *block) {
+    vs_heap_block *next = vs_heap_next(block);
     if (next != NULL && next->is_free) {
-        block->size += sizeof(ck_heap_block) + next->size;
-        ck_doubly_linked_list_remove(heap->blocks, &next->node);
+        block->size += sizeof(vs_heap_block) + next->size;
+        vs_doubly_linked_list_remove(heap->blocks, &next->node);
     }
 
-    ck_heap_block *prev = ck_heap_prev(block);
+    vs_heap_block *prev = vs_heap_prev(block);
     if (prev != NULL && prev->is_free) {
-        prev->size += sizeof(ck_heap_block) + block->size;
-        ck_doubly_linked_list_remove(heap->blocks, &block->node);
+        prev->size += sizeof(vs_heap_block) + block->size;
+        vs_doubly_linked_list_remove(heap->blocks, &block->node);
         block = prev;
     }
 
     return block;
 }
 
-ck_heap *ck_heap_create(size_t capacity) {
-    ck_heap *heap;
+vs_heap *vs_heap_create(size_t capacity) {
+    vs_heap *heap;
 
-    capacity = ck_align_up(capacity, CK_MEMORY_ALIGN);
-    CK_ASSERT(
-        capacity > sizeof(ck_heap_block) + CK_MEMORY_ALIGN,
-        "fatal: ck_heap_create invalid capacity"
+    capacity = vs_align_up(capacity, VS_MEMORY_ALIGN);
+    VS_ASSERT(
+        capacity > sizeof(vs_heap_block) + VS_MEMORY_ALIGN,
+        "fatal: vs_heap_create invalid capacity"
     );
 
-    heap = ck_malloc(NULL, sizeof(ck_heap));
-    heap->buffer = ck_malloc(NULL, capacity);
+    heap = vs_malloc(NULL, sizeof(vs_heap));
+    heap->buffer = vs_malloc(NULL, capacity);
     heap->capacity = capacity;
-    heap->blocks = ck_doubly_linked_list_create(NULL);
+    heap->blocks = vs_doubly_linked_list_create(NULL);
 
-    ck_heap_block *block = (ck_heap_block *)heap->buffer;
-    block->size = capacity - sizeof(ck_heap_block);
+    vs_heap_block *block = (vs_heap_block *)heap->buffer;
+    block->size = capacity - sizeof(vs_heap_block);
     block->is_free = true;
-    ck_doubly_linked_list_push(heap->blocks, &block->node);
+    vs_doubly_linked_list_push(heap->blocks, &block->node);
 
     return heap;
 }
 
-ck_allocator ck_heap_adapter(ck_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_adapter invalid arguments");
-    CK_ASSERT(heap->buffer != NULL, "fatal: ck_heap_adapter invalid heap");
-    CK_ASSERT(heap->blocks != NULL, "fatal: ck_heap_adapter invalid heap");
+vs_allocator vs_heap_adapter(vs_heap *heap) {
+    VS_ASSERT(heap != NULL, "fatal: vs_heap_adapter invalid arguments");
+    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_adapter invalid heap");
+    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_adapter invalid heap");
 
-    ck_allocator allocator;
+    vs_allocator allocator;
     allocator.ctx = heap;
-    allocator.features = CK_ALLOCATOR_FEATURE_DEALLOC | CK_ALLOCATOR_FEATURE_REALLOC;
-    allocator.alloc = (ck_alloc_fn)ck_heap_alloc;
-    allocator.realloc = (ck_realloc_fn)ck_heap_realloc;
-    allocator.dealloc = (ck_dealloc_fn)ck_heap_dealloc;
+    allocator.features = VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC;
+    allocator.alloc = (vs_alloc_fn)vs_heap_alloc;
+    allocator.realloc = (vs_realloc_fn)vs_heap_realloc;
+    allocator.dealloc = (vs_dealloc_fn)vs_heap_dealloc;
 
     return allocator;
 }
 
-void *ck_heap_alloc(ck_heap *heap, size_t size) {
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_alloc invalid arguments");
-    CK_ASSERT(heap->buffer != NULL, "fatal: ck_heap_alloc invalid heap");
-    CK_ASSERT(heap->blocks != NULL, "fatal: ck_heap_alloc invalid heap");
-    CK_ASSERT(size > 0, "fatal: ck_heap_alloc invalid arguments");
+void *vs_heap_alloc(vs_heap *heap, size_t size) {
+    VS_ASSERT(heap != NULL, "fatal: vs_heap_alloc invalid arguments");
+    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_alloc invalid heap");
+    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_alloc invalid heap");
+    VS_ASSERT(size > 0, "fatal: vs_heap_alloc invalid arguments");
 
-    size = ck_align_up(size, CK_MEMORY_ALIGN);
-    ck_heap_block *block = ck_heap_head(heap);
+    size = vs_align_up(size, VS_MEMORY_ALIGN);
+    vs_heap_block *block = vs_heap_head(heap);
     while (block != NULL) {
         if (block->is_free && block->size >= size) {
-            ck_heap_split_block(heap, block, size);
+            vs_heap_split_block(heap, block, size);
             block->is_free = false;
-            return (uint8_t *)block + sizeof(ck_heap_block);
+            return (uint8_t *)block + sizeof(vs_heap_block);
         }
-        block = ck_heap_next(block);
+        block = vs_heap_next(block);
     }
 
     return NULL;
 }
 
-void ck_heap_dealloc(ck_heap *heap, void *ptr) {
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_dealloc invalid arguments");
-    CK_ASSERT(ptr != NULL, "fatal: ck_heap_dealloc invalid arguments");
-    CK_ASSERT(heap->buffer != NULL, "fatal: ck_heap_dealloc invalid heap");
-    CK_ASSERT(heap->blocks != NULL, "fatal: ck_heap_dealloc invalid heap");
+void vs_heap_dealloc(vs_heap *heap, void *ptr) {
+    VS_ASSERT(heap != NULL, "fatal: vs_heap_dealloc invalid arguments");
+    VS_ASSERT(ptr != NULL, "fatal: vs_heap_dealloc invalid arguments");
+    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_dealloc invalid heap");
+    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_dealloc invalid heap");
 
     uintptr_t start = (uintptr_t)heap->buffer;
     uintptr_t end = start + heap->capacity;
@@ -172,84 +172,84 @@ void ck_heap_dealloc(ck_heap *heap, void *ptr) {
         return;
     }
 
-    ck_heap_block *block = (ck_heap_block *)((uint8_t *)ptr - sizeof(ck_heap_block));
+    vs_heap_block *block = (vs_heap_block *)((uint8_t *)ptr - sizeof(vs_heap_block));
     block->is_free = true;
-    ck_heap_coalesce(heap, block);
+    vs_heap_coalesce(heap, block);
 }
 
-void *ck_heap_realloc(ck_heap *heap, void *ptr, size_t size) {
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_realloc invalid arguments");
-    CK_ASSERT(heap->buffer != NULL, "fatal: ck_heap_realloc invalid heap");
-    CK_ASSERT(heap->blocks != NULL, "fatal: ck_heap_realloc invalid heap");
+void *vs_heap_realloc(vs_heap *heap, void *ptr, size_t size) {
+    VS_ASSERT(heap != NULL, "fatal: vs_heap_realloc invalid arguments");
+    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_realloc invalid heap");
+    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_realloc invalid heap");
 
     if (ptr == NULL) {
-        return ck_heap_alloc(heap, size);
+        return vs_heap_alloc(heap, size);
     }
 
     if (size == 0) {
-        ck_heap_dealloc(heap, ptr);
+        vs_heap_dealloc(heap, ptr);
         return NULL;
     }
 
-    size = ck_align_up(size, CK_MEMORY_ALIGN);
-    ck_heap_block *block = (ck_heap_block *)((uint8_t *)ptr - sizeof(ck_heap_block));
+    size = vs_align_up(size, VS_MEMORY_ALIGN);
+    vs_heap_block *block = (vs_heap_block *)((uint8_t *)ptr - sizeof(vs_heap_block));
     if (block->size >= size) {
-        ck_heap_split_block(heap, block, size);
+        vs_heap_split_block(heap, block, size);
         return ptr;
     }
 
-    ck_heap_block *next = ck_heap_next(block);
+    vs_heap_block *next = vs_heap_next(block);
     if (next != NULL && next->is_free
-        && (block->size + sizeof(ck_heap_block) + next->size) >= size) {
-        block->size += sizeof(ck_heap_block) + next->size;
-        ck_doubly_linked_list_remove(heap->blocks, &next->node);
-        ck_heap_split_block(heap, block, size);
+        && (block->size + sizeof(vs_heap_block) + next->size) >= size) {
+        block->size += sizeof(vs_heap_block) + next->size;
+        vs_doubly_linked_list_remove(heap->blocks, &next->node);
+        vs_heap_split_block(heap, block, size);
         return ptr;
     }
 
-    void *new_ptr = ck_heap_alloc(heap, size);
+    void *new_ptr = vs_heap_alloc(heap, size);
     if (new_ptr == NULL) {
         return NULL;
     }
 
     memcpy(new_ptr, ptr, block->size);
-    ck_heap_dealloc(heap, ptr);
+    vs_heap_dealloc(heap, ptr);
     return new_ptr;
 }
 
-size_t ck_heap_capacity(const ck_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_capacity invalid arguments");
-    CK_ASSERT(heap->buffer != NULL, "fatal: ck_heap_capacity invalid heap");
-    CK_ASSERT(heap->blocks != NULL, "fatal: ck_heap_capacity invalid heap");
+size_t vs_heap_capacity(const vs_heap *heap) {
+    VS_ASSERT(heap != NULL, "fatal: vs_heap_capacity invalid arguments");
+    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_capacity invalid heap");
+    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_capacity invalid heap");
 
     return heap->capacity;
 }
 
-size_t ck_heap_available(const ck_heap *heap) {
+size_t vs_heap_available(const vs_heap *heap) {
     size_t total = 0;
 
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_available invalid arguments");
-    CK_ASSERT(heap->buffer != NULL, "fatal: ck_heap_available invalid heap");
-    CK_ASSERT(heap->blocks != NULL, "fatal: ck_heap_available invalid heap");
+    VS_ASSERT(heap != NULL, "fatal: vs_heap_available invalid arguments");
+    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_available invalid heap");
+    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_available invalid heap");
 
-    const ck_heap_block *block = ck_heap_head(heap);
+    const vs_heap_block *block = vs_heap_head(heap);
     while (block != NULL) {
         if (block->is_free) {
             total += block->size;
         }
-        block = ck_heap_next(block);
+        block = vs_heap_next(block);
     }
 
     return total;
 }
 
-void ck_heap_destroy(ck_heap *heap) {
-    CK_ASSERT(heap != NULL, "fatal: ck_heap_destroy invalid arguments");
+void vs_heap_destroy(vs_heap *heap) {
+    VS_ASSERT(heap != NULL, "fatal: vs_heap_destroy invalid arguments");
 
     if (heap->blocks != NULL) {
-        ck_doubly_linked_list_destroy(heap->blocks);
+        vs_doubly_linked_list_destroy(heap->blocks);
     }
 
-    ck_dealloc(NULL, heap->buffer);
-    ck_dealloc(NULL, heap);
+    vs_dealloc(NULL, heap->buffer);
+    vs_dealloc(NULL, heap);
 }

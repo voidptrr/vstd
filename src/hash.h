@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
-#ifndef CK_HASH_H
-#define CK_HASH_H
+#ifndef VSTD_HASH_H
+#define VSTD_HASH_H
 
 #include <stddef.h>
 #include <stdint.h>
 
 /* Internal FNV-1a 64-bit hash over raw bytes. */
-static inline size_t ck_fnv1a_hash(const void *data, size_t len) {
+static inline size_t vs_fnv1a_hash(const void *data, size_t len) {
     const uint8_t *bytes = (const uint8_t *)data;
     uint64_t hash = 14695981039346656037ULL;
 

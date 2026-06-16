@@ -24,9 +24,9 @@
 
 #include <stddef.h>
 
-#include "ckit/datastruct/binary_heap.h"
-#include "ckit/memory/allocators/test_allocator.h"
-#include "ckit/testing.h"
+#include "vstd/datastruct/binary_heap.h"
+#include "vstd/memory/allocators/test_allocator.h"
+#include "vstd/testing.h"
 
 static int cmp_int_asc(const void *a, const void *b) {
     int lhs = *(const int *)a;
@@ -34,88 +34,88 @@ static int cmp_int_asc(const void *a, const void *b) {
     return (lhs > rhs) - (lhs < rhs);
 }
 
-CK_TEST(init) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_binary_heap *heap;
+VS_TEST(init) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap;
 
     heap =
-        ck_binary_heap_create(sizeof(int), cmp_int_asc, ck_test_allocator_adapter(&test_allocator));
+        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
 
-    CK_TEST_ASSERT_EQ(ck_binary_heap_size(heap), 0);
+    VS_TEST_ASSERT_EQ(vs_binary_heap_size(heap), 0);
 
-    ck_binary_heap_destroy(heap);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_binary_heap_destroy(heap);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(peek) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_binary_heap *heap;
+VS_TEST(peek) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap;
     int value = 3;
     const int *out;
 
     heap =
-        ck_binary_heap_create(sizeof(int), cmp_int_asc, ck_test_allocator_adapter(&test_allocator));
+        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
 
-    CK_TEST_ASSERT_PTR_NULL(ck_binary_heap_peek(heap));
+    VS_TEST_ASSERT_PTR_NULL(vs_binary_heap_peek(heap));
 
-    ck_binary_heap_push(heap, &value);
-    out = (const int *)ck_binary_heap_peek(heap);
-    CK_TEST_ASSERT_PTR_NOT_NULL(out);
-    CK_TEST_ASSERT_EQ(*out, 3);
+    vs_binary_heap_push(heap, &value);
+    out = (const int *)vs_binary_heap_peek(heap);
+    VS_TEST_ASSERT_PTR_NOT_NULL(out);
+    VS_TEST_ASSERT_EQ(*out, 3);
 
-    ck_binary_heap_destroy(heap);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_binary_heap_destroy(heap);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(pop) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_binary_heap *heap;
+VS_TEST(pop) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap;
     int values[] = {4, 1, 3};
 
     heap =
-        ck_binary_heap_create(sizeof(int), cmp_int_asc, ck_test_allocator_adapter(&test_allocator));
+        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
     for (size_t i = 0; i < 3; i++) {
-        ck_binary_heap_push(heap, &values[i]);
+        vs_binary_heap_push(heap, &values[i]);
     }
 
     for (size_t i = 0; i < 3; i++) {
-        int *out = (int *)ck_binary_heap_pop(heap);
-        CK_TEST_ASSERT_PTR_NOT_NULL(out);
+        int *out = (int *)vs_binary_heap_pop(heap);
+        VS_TEST_ASSERT_PTR_NOT_NULL(out);
     }
 
-    CK_TEST_ASSERT_PTR_NULL(ck_binary_heap_pop(heap));
+    VS_TEST_ASSERT_PTR_NULL(vs_binary_heap_pop(heap));
 
-    ck_binary_heap_destroy(heap);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_binary_heap_destroy(heap);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST(push) {
-    ck_test_allocator test_allocator;
-    ck_test_allocator_init(&test_allocator);
-    ck_binary_heap *heap;
+VS_TEST(push) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap;
     int values[] = {5, 2, 8, 1};
     const int *top;
 
     heap =
-        ck_binary_heap_create(sizeof(int), cmp_int_asc, ck_test_allocator_adapter(&test_allocator));
+        vs_binary_heap_create(sizeof(int), cmp_int_asc, vs_test_allocator_adapter(&test_allocator));
     for (size_t i = 0; i < 4; i++) {
-        ck_binary_heap_push(heap, &values[i]);
+        vs_binary_heap_push(heap, &values[i]);
     }
 
-    top = (const int *)ck_binary_heap_peek(heap);
-    CK_TEST_ASSERT_PTR_NOT_NULL(top);
-    CK_TEST_ASSERT_EQ(*top, 1);
-    CK_TEST_ASSERT_EQ(ck_binary_heap_size(heap), 4);
+    top = (const int *)vs_binary_heap_peek(heap);
+    VS_TEST_ASSERT_PTR_NOT_NULL(top);
+    VS_TEST_ASSERT_EQ(*top, 1);
+    VS_TEST_ASSERT_EQ(vs_binary_heap_size(heap), 4);
 
-    ck_binary_heap_destroy(heap);
-    CK_TEST_ASSERT(ck_test_allocator_is_clean(&test_allocator));
+    vs_binary_heap_destroy(heap);
+    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
-CK_TEST_MAIN(CK_TEST_CASE(init), CK_TEST_CASE(peek), CK_TEST_CASE(pop), CK_TEST_CASE(push))
+VS_TEST_MAIN(VS_TEST_CASE(init), VS_TEST_CASE(peek), VS_TEST_CASE(pop), VS_TEST_CASE(push))

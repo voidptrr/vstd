@@ -24,11 +24,11 @@
 
 #include <stdlib.h>
 
-#include "ckit/memory/allocators/allocator.h"
-#include "ckit/memory/allocators/test_allocator.h"
+#include "vstd/memory/allocators/allocator.h"
+#include "vstd/memory/allocators/test_allocator.h"
 
-static bool ck_test_allocator_should_fail(ck_test_allocator *test_allocator) {
-    if (test_allocator->fail_after == CK_TEST_ALLOCATOR_NO_FAILURE) {
+static bool vs_test_allocator_should_fail(vs_test_allocator *test_allocator) {
+    if (test_allocator->fail_after == VS_TEST_ALLOCATOR_NO_FAILURE) {
         return false;
     }
 
@@ -41,10 +41,10 @@ static bool ck_test_allocator_should_fail(ck_test_allocator *test_allocator) {
     return false;
 }
 
-static void *ck_test_allocator_alloc(void *ctx, size_t size) {
-    ck_test_allocator *test_allocator = ctx;
+static void *vs_test_allocator_alloc(void *ctx, size_t size) {
+    vs_test_allocator *test_allocator = ctx;
 
-    if (ck_test_allocator_should_fail(test_allocator)) {
+    if (vs_test_allocator_should_fail(test_allocator)) {
         return NULL;
     }
 
@@ -59,8 +59,8 @@ static void *ck_test_allocator_alloc(void *ctx, size_t size) {
     return ptr;
 }
 
-static void ck_test_allocator_dealloc(void *ctx, void *ptr) {
-    ck_test_allocator *test_allocator = ctx;
+static void vs_test_allocator_dealloc(void *ctx, void *ptr) {
+    vs_test_allocator *test_allocator = ctx;
 
     if (ptr == NULL) {
         return;
@@ -73,19 +73,19 @@ static void ck_test_allocator_dealloc(void *ctx, void *ptr) {
     free(ptr);
 }
 
-static void *ck_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
-    ck_test_allocator *test_allocator = ctx;
+static void *vs_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
+    vs_test_allocator *test_allocator = ctx;
 
     if (ptr == NULL) {
-        return ck_test_allocator_alloc(ctx, size);
+        return vs_test_allocator_alloc(ctx, size);
     }
 
     if (size == 0) {
-        ck_test_allocator_dealloc(ctx, ptr);
+        vs_test_allocator_dealloc(ctx, ptr);
         return NULL;
     }
 
-    if (ck_test_allocator_should_fail(test_allocator)) {
+    if (vs_test_allocator_should_fail(test_allocator)) {
         return NULL;
     }
 
@@ -99,33 +99,33 @@ static void *ck_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
     return new_ptr;
 }
 
-void ck_test_allocator_init(ck_test_allocator *test_allocator) {
+void vs_test_allocator_init(vs_test_allocator *test_allocator) {
     test_allocator->alloc_count = 0;
     test_allocator->realloc_count = 0;
     test_allocator->dealloc_count = 0;
     test_allocator->outstanding_allocations = 0;
     test_allocator->failed_allocations = 0;
-    test_allocator->fail_after = CK_TEST_ALLOCATOR_NO_FAILURE;
-    test_allocator->allocator = (ck_allocator){
+    test_allocator->fail_after = VS_TEST_ALLOCATOR_NO_FAILURE;
+    test_allocator->allocator = (vs_allocator){
         .ctx = test_allocator,
-        .features = CK_ALLOCATOR_FEATURE_DEALLOC | CK_ALLOCATOR_FEATURE_REALLOC,
-        .alloc = ck_test_allocator_alloc,
-        .realloc = ck_test_allocator_realloc,
-        .dealloc = ck_test_allocator_dealloc,
+        .features = VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC,
+        .alloc = vs_test_allocator_alloc,
+        .realloc = vs_test_allocator_realloc,
+        .dealloc = vs_test_allocator_dealloc,
     };
 }
 
-ck_allocator *ck_test_allocator_adapter(ck_test_allocator *test_allocator) {
+vs_allocator *vs_test_allocator_adapter(vs_test_allocator *test_allocator) {
     return &test_allocator->allocator;
 }
 
-void ck_test_allocator_reset_counts(ck_test_allocator *test_allocator) {
+void vs_test_allocator_reset_counts(vs_test_allocator *test_allocator) {
     test_allocator->alloc_count = 0;
     test_allocator->realloc_count = 0;
     test_allocator->dealloc_count = 0;
     test_allocator->failed_allocations = 0;
 }
 
-bool ck_test_allocator_is_clean(const ck_test_allocator *test_allocator) {
+bool vs_test_allocator_is_clean(const vs_test_allocator *test_allocator) {
     return test_allocator->outstanding_allocations == 0;
 }

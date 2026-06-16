@@ -25,41 +25,41 @@ include(CMakePackageConfigHelpers)
 
 # Install the compiled library artifact into the platform library directory.
 install(
-  TARGETS ckit
-  EXPORT ckitTargets
+  TARGETS vstd
+  EXPORT vstdTargets
   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
 
-# Install the public header tree so consumers can include <ckit/...>.
+# Install the public header tree so consumers can include <vstd/...>.
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-# Generate the version file used by find_package(ckit VERSION ...).
+# Generate the version file used by find_package(vstd VERSION ...).
 write_basic_package_version_file(
-  "${PROJECT_BINARY_DIR}/ckitConfigVersion.cmake"
+  "${PROJECT_BINARY_DIR}/vstdConfigVersion.cmake"
   VERSION "${PROJECT_VERSION}"
   COMPATIBILITY SameMajorVersion
 )
 
-# Generate ckitConfig.cmake from the source template.
+# Generate vstdConfig.cmake from the source template.
 configure_package_config_file(
-  "${PROJECT_SOURCE_DIR}/tools/cmake/ckitConfig.cmake.in"
-  "${PROJECT_BINARY_DIR}/ckitConfig.cmake"
-  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/ckit"
+  "${PROJECT_SOURCE_DIR}/tools/cmake/vstdConfig.cmake.in"
+  "${PROJECT_BINARY_DIR}/vstdConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vstd"
 )
 
-# Install package config files so find_package(ckit) can locate ckit.
+# Install package config files so find_package(vstd) can locate vstd.
 install(
   FILES
-    "${PROJECT_BINARY_DIR}/ckitConfig.cmake"
-    "${PROJECT_BINARY_DIR}/ckitConfigVersion.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/ckit"
+    "${PROJECT_BINARY_DIR}/vstdConfig.cmake"
+    "${PROJECT_BINARY_DIR}/vstdConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vstd"
 )
 
-# Install the exported target metadata that defines ckit::ckit for consumers.
+# Install the exported target metadata that defines vstd::vstd for consumers.
 install(
-  EXPORT ckitTargets
-  NAMESPACE ckit::
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/ckit"
+  EXPORT vstdTargets
+  NAMESPACE vstd::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vstd"
 )

@@ -22,16 +22,26 @@
  * SOFTWARE.
  */
 
-#ifndef CK_PANIC_H
-#define CK_PANIC_H
+#ifndef VSTD_MEMORY_UTILS_H
+#define VSTD_MEMORY_UTILS_H
 
-_Noreturn void ck_panic(const char *message);
+#include <stddef.h>
+#include <stdint.h> /* IWYU pragma: keep */
 
-#define CK_ASSERT(cond, message) \
-    do { \
-        if (!(cond)) { \
-            ck_panic(message); \
-        } \
-    } while (0)
+#define VS_CONTAINER_OF(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
+
+#define VS_MEMORY_ALIGN (_Alignof(max_align_t))
+
+/*
+ * Round value up to the next multiple of alignment.
+ * alignment must be a power of two and non-zero.
+ */
+static inline size_t vs_align_up(size_t value, size_t alignment) {
+    size_t mask = alignment - 1;
+    return (value + mask) & ~mask;
+}
+
+/* Swap size bytes between memory regions a and b. */
+void vs_memswap(void *a, void *b, size_t size);
 
 #endif

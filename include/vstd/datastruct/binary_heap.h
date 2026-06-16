@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
-#ifndef CK_DATASTRUCT_BINARY_HEAP_H
-#define CK_DATASTRUCT_BINARY_HEAP_H
+#ifndef VSTD_BINARY_HEAP_H
+#define VSTD_BINARY_HEAP_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "ckit/compare.h"
-#include "ckit/memory/allocators/allocator.h"
+#include "vstd/compare.h"
+#include "vstd/memory/allocators/allocator.h"
 
 /*
  * Opaque binary heap.
@@ -55,30 +55,30 @@
  */
 
 /* Comparator callback: negative if a < b, zero if equal, positive if a > b. */
-typedef ck_cmp_fn ck_heap_cmp_fn;
+typedef vs_cmp_fn vs_heap_cmp_fn;
 
-typedef struct ck_binary_heap ck_binary_heap;
+typedef struct vs_binary_heap vs_binary_heap;
 
 /* Create a heap for elements of size elem_size using cmp ordering. */
-ck_binary_heap *ck_binary_heap_create(
+vs_binary_heap *vs_binary_heap_create(
     size_t elem_size,
-    ck_heap_cmp_fn cmp,
-    ck_allocator *allocator
+    vs_heap_cmp_fn cmp,
+    vs_allocator *allocator
 );
 
 /* Insert one element by copying elem_size bytes from element. */
-void ck_binary_heap_push(ck_binary_heap *heap, const void *element);
+void vs_binary_heap_push(vs_binary_heap *heap, const void *element);
 
 /* Remove and return the top element pointer, or NULL when empty. */
-void *ck_binary_heap_pop(ck_binary_heap *heap);
+void *vs_binary_heap_pop(vs_binary_heap *heap);
 
 /* Return the top element pointer without removing it, or NULL when empty. */
-const void *ck_binary_heap_peek(const ck_binary_heap *heap);
+const void *vs_binary_heap_peek(const vs_binary_heap *heap);
 
 /* Return the number of stored elements. */
-size_t ck_binary_heap_size(const ck_binary_heap *heap);
+size_t vs_binary_heap_size(const vs_binary_heap *heap);
 
 /* Destroy and release owned storage. */
-void ck_binary_heap_destroy(ck_binary_heap *heap);
+void vs_binary_heap_destroy(vs_binary_heap *heap);
 
 #endif
