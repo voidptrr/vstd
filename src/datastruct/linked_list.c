@@ -24,9 +24,9 @@
 
 #include <stddef.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocators/allocator.h"
-#include "vstd/panic.h"
 
 struct vs_linked_list {
     size_t size;
@@ -46,8 +46,8 @@ vs_linked_list *vs_linked_list_create(vs_allocator *allocator) {
 }
 
 void vs_linked_list_push(vs_linked_list *list, vs_linked_list_node *node) {
-    VS_ASSERT(list != NULL, "fatal: vs_linked_list_push invalid arguments");
-    VS_ASSERT(node != NULL, "fatal: vs_linked_list_push invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_push invalid arguments");
+    VSTD_ASSERT(node != NULL, "fatal: vs_linked_list_push invalid arguments");
 
     node->next = NULL;
     if (list->tail != NULL) {
@@ -61,8 +61,8 @@ void vs_linked_list_push(vs_linked_list *list, vs_linked_list_node *node) {
 }
 
 void vs_linked_list_pushfront(vs_linked_list *list, vs_linked_list_node *node) {
-    VS_ASSERT(list != NULL, "fatal: vs_linked_list_pushfront invalid arguments");
-    VS_ASSERT(node != NULL, "fatal: vs_linked_list_pushfront invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_pushfront invalid arguments");
+    VSTD_ASSERT(node != NULL, "fatal: vs_linked_list_pushfront invalid arguments");
 
     node->next = list->head;
     list->head = node;
@@ -75,7 +75,7 @@ void vs_linked_list_pushfront(vs_linked_list *list, vs_linked_list_node *node) {
 }
 
 vs_linked_list_node *vs_linked_list_popleft(vs_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_linked_list_popleft invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_popleft invalid arguments");
 
     if (list->head == NULL) {
         return NULL;
@@ -94,7 +94,7 @@ vs_linked_list_node *vs_linked_list_popleft(vs_linked_list *list) {
 }
 
 vs_linked_list_node *vs_linked_list_remove_after(vs_linked_list *list, vs_linked_list_node *prev) {
-    VS_ASSERT(list != NULL, "fatal: vs_linked_list_remove_after invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_remove_after invalid arguments");
 
     if (prev == NULL) {
         return vs_linked_list_popleft(list);
@@ -116,19 +116,19 @@ vs_linked_list_node *vs_linked_list_remove_after(vs_linked_list *list, vs_linked
 }
 
 size_t vs_linked_list_size(const vs_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_linked_list_size invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_size invalid arguments");
 
     return list->size;
 }
 
 vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_linked_list_head invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_head invalid arguments");
 
     return list->head;
 }
 
 void vs_linked_list_destroy(vs_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_linked_list_destroy invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_destroy invalid arguments");
 
     vs_allocator *allocator = list->allocator;
     vs_dealloc(allocator, list);

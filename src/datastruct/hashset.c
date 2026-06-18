@@ -27,11 +27,11 @@
 #include <string.h>
 
 #include "datastruct/hash_common.h"
+#include "vstd/assert.h"
 #include "vstd/datastruct/hashset.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocators/allocator.h"
 #include "vstd/memory/utils.h"
-#include "vstd/panic.h"
 
 typedef struct vs_hashset_entry {
     vs_linked_list_node node;
@@ -78,8 +78,7 @@ vs_hashset *vs_hashset_create(
     vs_hashset_elem_eq_fn elem_eq,
     vs_allocator *allocator
 ) {
-    VS_ASSERT(elem_eq != NULL, "fatal: vs_hashset_create invalid arguments");
-    VS_ASSERT(elem_size > 0, "fatal: vs_hashset_create invalid arguments");
+    VSTD_ASSERT(elem_size > 0, "fatal: vs_hashset_create invalid arguments");
 
     vs_hashset *set = vs_malloc(allocator, sizeof(vs_hashset));
     set->allocator = allocator;
@@ -94,8 +93,8 @@ vs_hashset *vs_hashset_create(
 }
 
 void vs_hashset_insert(vs_hashset *set, const void *elem) {
-    VS_ASSERT(set != NULL, "fatal: vs_hashset_insert invalid arguments");
-    VS_ASSERT(elem != NULL, "fatal: vs_hashset_insert invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_insert invalid arguments");
+    VSTD_ASSERT(elem != NULL, "fatal: vs_hashset_insert invalid arguments");
 
     vs_allocator *allocator = set->allocator;
     size_t bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
@@ -132,15 +131,15 @@ void vs_hashset_insert(vs_hashset *set, const void *elem) {
 }
 
 bool vs_hashset_contains(const vs_hashset *set, const void *elem) {
-    VS_ASSERT(set != NULL, "fatal: vs_hashset_contains invalid arguments");
-    VS_ASSERT(elem != NULL, "fatal: vs_hashset_contains invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_contains invalid arguments");
+    VSTD_ASSERT(elem != NULL, "fatal: vs_hashset_contains invalid arguments");
 
     return vs_hashset_entry_get(set, elem) != NULL;
 }
 
 void *vs_hashset_get(vs_hashset *set, const void *elem) {
-    VS_ASSERT(set != NULL, "fatal: vs_hashset_get invalid arguments");
-    VS_ASSERT(elem != NULL, "fatal: vs_hashset_get invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_get invalid arguments");
+    VSTD_ASSERT(elem != NULL, "fatal: vs_hashset_get invalid arguments");
 
     vs_hashset_entry *entry = vs_hashset_entry_get(set, elem);
     if (entry != NULL) {
@@ -150,8 +149,8 @@ void *vs_hashset_get(vs_hashset *set, const void *elem) {
 }
 
 const void *vs_hashset_get_const(const vs_hashset *set, const void *elem) {
-    VS_ASSERT(set != NULL, "fatal: vs_hashset_get_const invalid arguments");
-    VS_ASSERT(elem != NULL, "fatal: vs_hashset_get_const invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_get_const invalid arguments");
+    VSTD_ASSERT(elem != NULL, "fatal: vs_hashset_get_const invalid arguments");
 
     vs_hashset_entry *entry = vs_hashset_entry_get(set, elem);
     if (entry != NULL) {
@@ -161,8 +160,8 @@ const void *vs_hashset_get_const(const vs_hashset *set, const void *elem) {
 }
 
 void vs_hashset_remove(vs_hashset *set, const void *elem) {
-    VS_ASSERT(set != NULL, "fatal: vs_hashset_remove invalid arguments");
-    VS_ASSERT(elem != NULL, "fatal: vs_hashset_remove invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_remove invalid arguments");
+    VSTD_ASSERT(elem != NULL, "fatal: vs_hashset_remove invalid arguments");
 
     vs_allocator *allocator = set->allocator;
     size_t bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
@@ -181,13 +180,13 @@ void vs_hashset_remove(vs_hashset *set, const void *elem) {
 }
 
 size_t vs_hashset_size(const vs_hashset *set) {
-    VS_ASSERT(set != NULL, "fatal: vs_hashset_size invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_size invalid arguments");
 
     return set->size;
 }
 
 void vs_hashset_destroy(vs_hashset *set) {
-    VS_ASSERT(set != NULL, "fatal: vs_hashset_destroy invalid arguments");
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_destroy invalid arguments");
 
     vs_allocator *allocator = set->allocator;
     vs_hash_common_buckets_destroy(

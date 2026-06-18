@@ -3,7 +3,9 @@
 ## DESCRIPTION
 
 The hashmap module provides fixed-size key/value mapping with separate chaining for collisions.
-Hashing uses an internal FNV-1a function; key equality is provided by a caller callback.
+Hashing uses an internal FNV-1a function over stored key bytes. Key equality
+uses byte comparison when `key_eq` is `NULL`, or a caller callback when one is
+provided.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
@@ -22,7 +24,8 @@ vs_hashmap *vs_hashmap_create(size_t key_size,
 - Returns: opaque hashmap handle.
 - Notes: the hashmap stores `allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `allocator` is `NULL`, hashmap uses the C
-  library heap through `vs_malloc`.
+  library heap through `vs_malloc`. Custom `key_eq` callbacks must be
+  consistent with the byte hash used for bucket selection.
 
 ### vs_hashmap_put
 
@@ -83,7 +86,6 @@ void vs_hashmap_destroy(vs_hashmap *map);
 ## EXAMPLE
 
 ```c
-#include <vstd/compare.h>
 #include <vstd/datastruct/hashmap.h>
 #include <stdint.h>
 
@@ -94,7 +96,7 @@ int main(void) {
     uint64_t value = 9001;
     uint64_t *found = NULL;
 
-    map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), vs_eq_u64, NULL);
+    map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, NULL);
     vs_hashmap_put(map, &key, &value);
 
     found = (uint64_t *)vs_hashmap_get(map, &key);

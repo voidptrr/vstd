@@ -30,7 +30,7 @@ Copyright &copy; 2026 voidptrr
 extra_css = ["stylesheets/extra.css"]
 nav = [
   { "Overview" = "index.md" },
-  { "Compare" = "reference/vstd-compare.md" },
+  { "Assert" = "reference/vstd-assert.md" },
   { "Testing" = "reference/vstd-testing.md" },
   { "Memory" = [
     { "Utilities" = "reference/vstd-memory-utils.md" },

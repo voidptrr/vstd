@@ -26,13 +26,24 @@
 #include <string.h>
 
 #include "datastruct/hash_common.h"
-#include "vstd/compare.h"
+#include "vstd/assert.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocators/allocator.h"
-#include "vstd/panic.h"
+
+static bool vs_hash_common_value_eq(
+    const void *lhs,
+    const void *rhs,
+    size_t size,
+    vs_hash_common_eq_fn value_eq
+) {
+    if (value_eq != NULL) {
+        return value_eq(lhs, rhs);
+    }
+    return memcmp(lhs, rhs, size) == 0;
+}
 
 vs_linked_list **vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator) {
-    VS_ASSERT(capacity > 0, "fatal: vs_hash_common_buckets_create invalid arguments");
+    VSTD_ASSERT(capacity > 0, "fatal: vs_hash_common_buckets_create invalid arguments");
 
     size_t alloc_size = sizeof(vs_linked_list *) * capacity;
     vs_linked_list **buckets = (vs_linked_list **)vs_malloc(allocator, alloc_size);
@@ -53,11 +64,11 @@ vs_linked_list **vs_hash_common_buckets_rehash(
     vs_allocator *allocator,
     vs_hash_common_entry_value_fn entry_value
 ) {
-    VS_ASSERT(buckets != NULL, "fatal: vs_hash_common_buckets_rehash invalid arguments");
-    VS_ASSERT(capacity > 0, "fatal: vs_hash_common_buckets_rehash invalid arguments");
-    VS_ASSERT(new_capacity > 0, "fatal: vs_hash_common_buckets_rehash invalid arguments");
-    VS_ASSERT(value_size > 0, "fatal: vs_hash_common_buckets_rehash invalid arguments");
-    VS_ASSERT(entry_value != NULL, "fatal: vs_hash_common_buckets_rehash invalid arguments");
+    VSTD_ASSERT(buckets != NULL, "fatal: vs_hash_common_buckets_rehash invalid arguments");
+    VSTD_ASSERT(capacity > 0, "fatal: vs_hash_common_buckets_rehash invalid arguments");
+    VSTD_ASSERT(new_capacity > 0, "fatal: vs_hash_common_buckets_rehash invalid arguments");
+    VSTD_ASSERT(value_size > 0, "fatal: vs_hash_common_buckets_rehash invalid arguments");
+    VSTD_ASSERT(entry_value != NULL, "fatal: vs_hash_common_buckets_rehash invalid arguments");
 
     vs_linked_list **new_buckets = vs_hash_common_buckets_create(new_capacity, allocator);
     for (size_t i = 0; i < capacity; i++) {
@@ -81,18 +92,17 @@ vs_linked_list_node *vs_hash_common_bucket_find(
     vs_linked_list *bucket,
     const void *value,
     size_t value_size,
-    vs_eq_fn value_eq,
+    vs_hash_common_eq_fn value_eq,
     vs_hash_common_entry_value_fn entry_value
 ) {
-    VS_ASSERT(bucket != NULL, "fatal: vs_hash_common_bucket_find invalid arguments");
-    VS_ASSERT(value != NULL, "fatal: vs_hash_common_bucket_find invalid arguments");
-    VS_ASSERT(value_size > 0, "fatal: vs_hash_common_bucket_find invalid arguments");
-    VS_ASSERT(value_eq != NULL, "fatal: vs_hash_common_bucket_find invalid arguments");
-    VS_ASSERT(entry_value != NULL, "fatal: vs_hash_common_bucket_find invalid arguments");
+    VSTD_ASSERT(bucket != NULL, "fatal: vs_hash_common_bucket_find invalid arguments");
+    VSTD_ASSERT(value != NULL, "fatal: vs_hash_common_bucket_find invalid arguments");
+    VSTD_ASSERT(value_size > 0, "fatal: vs_hash_common_bucket_find invalid arguments");
+    VSTD_ASSERT(entry_value != NULL, "fatal: vs_hash_common_bucket_find invalid arguments");
 
     vs_linked_list_node *node = vs_linked_list_head(bucket);
     while (node != NULL) {
-        if (value_eq(entry_value(node), value, value_size)) {
+        if (vs_hash_common_value_eq(entry_value(node), value, value_size, value_eq)) {
             return node;
         }
         node = node->next;
@@ -105,19 +115,18 @@ vs_linked_list_node *vs_hash_common_bucket_remove(
     vs_linked_list *bucket,
     const void *value,
     size_t value_size,
-    vs_eq_fn value_eq,
+    vs_hash_common_eq_fn value_eq,
     vs_hash_common_entry_value_fn entry_value
 ) {
-    VS_ASSERT(bucket != NULL, "fatal: vs_hash_common_bucket_remove invalid arguments");
-    VS_ASSERT(value != NULL, "fatal: vs_hash_common_bucket_remove invalid arguments");
-    VS_ASSERT(value_size > 0, "fatal: vs_hash_common_bucket_remove invalid arguments");
-    VS_ASSERT(value_eq != NULL, "fatal: vs_hash_common_bucket_remove invalid arguments");
-    VS_ASSERT(entry_value != NULL, "fatal: vs_hash_common_bucket_remove invalid arguments");
+    VSTD_ASSERT(bucket != NULL, "fatal: vs_hash_common_bucket_remove invalid arguments");
+    VSTD_ASSERT(value != NULL, "fatal: vs_hash_common_bucket_remove invalid arguments");
+    VSTD_ASSERT(value_size > 0, "fatal: vs_hash_common_bucket_remove invalid arguments");
+    VSTD_ASSERT(entry_value != NULL, "fatal: vs_hash_common_bucket_remove invalid arguments");
 
     vs_linked_list_node *prev = NULL;
     vs_linked_list_node *node = vs_linked_list_head(bucket);
     while (node != NULL) {
-        if (value_eq(entry_value(node), value, value_size)) {
+        if (vs_hash_common_value_eq(entry_value(node), value, value_size, value_eq)) {
             vs_linked_list_remove_after(bucket, prev);
             return node;
         }
@@ -134,8 +143,8 @@ void vs_hash_common_buckets_destroy(
     vs_allocator *allocator,
     vs_hash_common_entry_destroy_fn entry_destroy
 ) {
-    VS_ASSERT(buckets != NULL, "fatal: vs_hash_common_buckets_destroy invalid arguments");
-    VS_ASSERT(entry_destroy != NULL, "fatal: vs_hash_common_buckets_destroy invalid arguments");
+    VSTD_ASSERT(buckets != NULL, "fatal: vs_hash_common_buckets_destroy invalid arguments");
+    VSTD_ASSERT(entry_destroy != NULL, "fatal: vs_hash_common_buckets_destroy invalid arguments");
 
     for (size_t i = 0; i < capacity; i++) {
         vs_linked_list_node *node = vs_linked_list_head(buckets[i]);

@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "vstd/panic.h"
+#include "vstd/assert.h"
 
 _Noreturn void vs_panic(const char *message) {
     if (message != NULL) {

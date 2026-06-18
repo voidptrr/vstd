@@ -3,8 +3,9 @@
 ## DESCRIPTION
 
 The hashset module provides fixed-size element storage with unique elements.
-Hashing uses an internal FNV-1a function; element equality is provided by a
-caller callback.
+Hashing uses an internal FNV-1a function over stored element bytes. Element
+equality uses byte comparison when `elem_eq` is `NULL`, or a caller callback
+when one is provided.
 
 Elements are copied into set-managed storage. Duplicate inserts leave the set
 unchanged. Collisions are resolved with bucket chains backed by intrusive linked
@@ -26,7 +27,8 @@ vs_hashset *vs_hashset_create(size_t elem_size,
 - Returns: opaque hashset handle.
 - Notes: the hashset stores `allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `allocator` is `NULL`, hashset uses the C
-  library heap through `vs_malloc`.
+  library heap through `vs_malloc`. Custom `elem_eq` callbacks must be
+  consistent with the byte hash used for bucket selection.
 
 ### vs_hashset_insert
 
@@ -97,7 +99,6 @@ void vs_hashset_destroy(vs_hashset *set);
 ## EXAMPLE
 
 ```c
-#include <vstd/compare.h>
 #include <vstd/datastruct/hashset.h>
 #include <stdint.h>
 
@@ -107,7 +108,7 @@ int main(void) {
     uint64_t value = 42;
     const uint64_t *found = NULL;
 
-    set = vs_hashset_create(sizeof(uint64_t), vs_eq_u64, NULL);
+    set = vs_hashset_create(sizeof(uint64_t), NULL, NULL);
     vs_hashset_insert(set, &value);
 
     found = (const uint64_t *)vs_hashset_get_const(set, &value);

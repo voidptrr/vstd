@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
+#include "vstd/assert.h"
 #include "vstd/memory/allocators/arena.h"
-#include "vstd/testing.h"
 
 int main(void) {
     vs_arena *arena = vs_arena_create(128);
@@ -31,14 +31,14 @@ int main(void) {
     void *after;
 
     before = vs_arena_alloc(arena, 8);
-    VS_TEST_ASSERT_PTR_NOT_NULL(before);
-    VS_TEST_ASSERT(vs_arena_used(arena) > 0);
+    VS_ASSERT_PTR_NOT_NULL(before);
+    VS_ASSERT(vs_arena_used(arena) > 0);
 
     vs_arena_reset(arena);
-    VS_TEST_ASSERT_EQ(vs_arena_used(arena), 0);
+    VS_ASSERT_EQ(vs_arena_used(arena), 0);
 
     after = vs_arena_alloc(arena, 8);
-    VS_TEST_ASSERT_PTR_EQ(after, before);
+    VS_ASSERT_PTR_EQ(after, before);
 
     vs_arena_destroy(arena);
     return 0;

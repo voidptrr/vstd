@@ -24,8 +24,8 @@
 
 #include <stdlib.h>
 
+#include "vstd/assert.h"
 #include "vstd/memory/allocators/allocator.h"
-#include "vstd/panic.h"
 
 void *vs_malloc(vs_allocator *allocator, size_t size) {
     void *ptr = NULL;
@@ -70,6 +70,6 @@ void vs_dealloc(vs_allocator *allocator, void *ptr) {
         return;
     }
 
-    VS_ASSERT(allocator->dealloc != NULL, "fatal: vs_dealloc invalid arguments");
+    VSTD_ASSERT(allocator->dealloc != NULL, "fatal: vs_dealloc invalid arguments");
     allocator->dealloc(allocator->ctx, ptr);
 }

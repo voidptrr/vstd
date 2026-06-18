@@ -28,7 +28,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/compare.h"
 #include "vstd/memory/allocators/allocator.h"
 
 /*
@@ -53,13 +52,14 @@
  */
 
 /* Element equality callback used to resolve collisions and lookups. */
-typedef vs_eq_fn vs_hashset_elem_eq_fn;
+typedef bool (*vs_hashset_elem_eq_fn)(const void *lhs, const void *rhs);
 
 typedef struct vs_hashset vs_hashset;
 
 /*
  * Create a hash set with fixed element size.
- * Hashing uses the internal FNV-1a implementation.
+ * Hashing uses the internal FNV-1a implementation over stored element bytes.
+ * When elem_eq is NULL, element equality compares stored element bytes.
  * Initial capacity is implementation-defined.
  */
 vs_hashset *vs_hashset_create(

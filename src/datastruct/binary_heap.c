@@ -24,15 +24,15 @@
 
 #include <string.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/binary_heap.h"
 #include "vstd/datastruct/vector.h"
 #include "vstd/memory/allocators/allocator.h"
 #include "vstd/memory/utils.h"
-#include "vstd/panic.h"
 
 struct vs_binary_heap {
     vs_vector *root;
-    vs_heap_cmp_fn cmp;
+    vs_binary_heap_cmp_fn cmp;
     vs_allocator *allocator;
 };
 
@@ -47,7 +47,10 @@ static void vs_binary_heap_swap_at(vs_binary_heap *heap, size_t i, size_t j) {
 static int vs_binary_heap_compare_idx(const vs_binary_heap *heap, size_t i, size_t j) {
     const void *a = vs_vector_get_const(heap->root, i);
     const void *b = vs_vector_get_const(heap->root, j);
-    return heap->cmp(a, b);
+    if (heap->cmp != NULL) {
+        return heap->cmp(a, b);
+    }
+    return memcmp(a, b, vs_vector_elem_size(heap->root));
 }
 
 static void vs_binary_heap_sift_up(vs_binary_heap *heap, size_t idx) {
@@ -86,11 +89,10 @@ static void vs_binary_heap_sift_down(vs_binary_heap *heap, size_t idx) {
 
 vs_binary_heap *vs_binary_heap_create(
     size_t elem_size,
-    vs_heap_cmp_fn cmp,
+    vs_binary_heap_cmp_fn cmp,
     vs_allocator *allocator
 ) {
-    VS_ASSERT(cmp != NULL, "fatal: vs_binary_heap_create invalid arguments");
-    VS_ASSERT(elem_size > 0, "fatal: vs_binary_heap_create invalid arguments");
+    VSTD_ASSERT(elem_size > 0, "fatal: vs_binary_heap_create invalid arguments");
 
     vs_binary_heap *heap = vs_malloc(allocator, sizeof(vs_binary_heap));
     heap->root = vs_vector_create(elem_size, allocator);
@@ -101,8 +103,8 @@ vs_binary_heap *vs_binary_heap_create(
 }
 
 void vs_binary_heap_push(vs_binary_heap *heap, const void *element) {
-    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_push invalid arguments");
-    VS_ASSERT(element != NULL, "fatal: vs_binary_heap_push invalid arguments");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_push invalid arguments");
+    VSTD_ASSERT(element != NULL, "fatal: vs_binary_heap_push invalid arguments");
 
     vs_vector_push(heap->root, element);
 
@@ -110,7 +112,7 @@ void vs_binary_heap_push(vs_binary_heap *heap, const void *element) {
 }
 
 void *vs_binary_heap_pop(vs_binary_heap *heap) {
-    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_pop invalid arguments");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_pop invalid arguments");
     size_t size = vs_vector_size(heap->root);
     if (size == 0) {
         return NULL;
@@ -126,7 +128,7 @@ void *vs_binary_heap_pop(vs_binary_heap *heap) {
 }
 
 const void *vs_binary_heap_peek(const vs_binary_heap *heap) {
-    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_peek invalid arguments");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_peek invalid arguments");
     if (vs_vector_size(heap->root) == 0) {
         return NULL;
     }
@@ -135,13 +137,13 @@ const void *vs_binary_heap_peek(const vs_binary_heap *heap) {
 }
 
 size_t vs_binary_heap_size(const vs_binary_heap *heap) {
-    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_size invalid arguments");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_size invalid arguments");
 
     return vs_vector_size(heap->root);
 }
 
 void vs_binary_heap_destroy(vs_binary_heap *heap) {
-    VS_ASSERT(heap != NULL, "fatal: vs_binary_heap_destroy invalid arguments");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_destroy invalid arguments");
     vs_allocator *allocator = heap->allocator;
     vs_vector_destroy(heap->root);
     vs_dealloc(allocator, heap);

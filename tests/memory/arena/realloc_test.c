@@ -25,9 +25,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "vstd/assert.h"
 #include "vstd/memory/allocators/arena.h"
 #include "vstd/memory/utils.h"
-#include "vstd/testing.h"
 
 int main(void) {
     vs_arena *arena = vs_arena_create(256);
@@ -36,15 +36,15 @@ int main(void) {
     size_t grown_size = VS_MEMORY_ALIGN * 2;
 
     value = (uint64_t *)vs_arena_alloc(arena, sizeof(uint64_t));
-    VS_TEST_ASSERT_PTR_NOT_NULL(value);
+    VS_ASSERT_PTR_NOT_NULL(value);
     *value = 42;
 
     grown = (uint64_t *)vs_arena_realloc(arena, value, grown_size);
-    VS_TEST_ASSERT_PTR_NOT_NULL(grown);
-    VS_TEST_ASSERT_PTR_NE(grown, value);
-    VS_TEST_ASSERT_EQ(grown[0], 42);
+    VS_ASSERT_PTR_NOT_NULL(grown);
+    VS_ASSERT_PTR_NE(grown, value);
+    VS_ASSERT_EQ(grown[0], 42);
 
-    VS_TEST_ASSERT_PTR_EQ(vs_arena_realloc(arena, grown, grown_size), grown);
+    VS_ASSERT_PTR_EQ(vs_arena_realloc(arena, grown, grown_size), grown);
 
     vs_arena_destroy(arena);
     return 0;

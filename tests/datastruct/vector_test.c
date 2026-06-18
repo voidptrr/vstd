@@ -24,6 +24,7 @@
 
 #include <stddef.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/vector.h"
 #include "vstd/memory/allocators/test_allocator.h"
 #include "vstd/testing.h"
@@ -35,13 +36,13 @@ VS_TEST(init) {
     int value = 1;
 
     v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
-    VS_TEST_ASSERT_EQ(vs_vector_size(v), 0);
+    VS_ASSERT_EQ(vs_vector_size(v), 0);
 
     vs_vector_push(v, &value);
-    VS_TEST_ASSERT_EQ(vs_vector_size(v), 1);
+    VS_ASSERT_EQ(vs_vector_size(v), 1);
 
     vs_vector_destroy(v);
-    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
@@ -54,21 +55,21 @@ VS_TEST(pop) {
     int *popped;
 
     v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
-    VS_TEST_ASSERT_PTR_NULL(vs_vector_pop(v));
+    VS_ASSERT_PTR_NULL(vs_vector_pop(v));
 
     vs_vector_push(v, &first);
     vs_vector_push(v, &second);
 
     popped = (int *)vs_vector_pop(v);
-    VS_TEST_ASSERT_PTR_NOT_NULL(popped);
-    VS_TEST_ASSERT_EQ(*popped, second);
+    VS_ASSERT_PTR_NOT_NULL(popped);
+    VS_ASSERT_EQ(*popped, second);
 
     popped = (int *)vs_vector_pop(v);
-    VS_TEST_ASSERT_PTR_NOT_NULL(popped);
-    VS_TEST_ASSERT_EQ(*popped, first);
+    VS_ASSERT_PTR_NOT_NULL(popped);
+    VS_ASSERT_EQ(*popped, first);
 
     vs_vector_destroy(v);
-    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
@@ -81,11 +82,11 @@ VS_TEST(push_single_element) {
     v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
     vs_vector_push(v, &value);
 
-    VS_TEST_ASSERT_EQ(vs_vector_size(v), 1);
-    VS_TEST_ASSERT_EQ(*(int *)vs_vector_get(v, 0), value);
+    VS_ASSERT_EQ(vs_vector_size(v), 1);
+    VS_ASSERT_EQ(*(int *)vs_vector_get(v, 0), value);
 
     vs_vector_destroy(v);
-    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
@@ -100,10 +101,10 @@ VS_TEST(push_grows_storage) {
         vs_vector_push(v, &value);
     }
 
-    VS_TEST_ASSERT_EQ(vs_vector_size(v), 17);
+    VS_ASSERT_EQ(vs_vector_size(v), 17);
 
     vs_vector_destroy(v);
-    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 
@@ -119,11 +120,11 @@ VS_TEST(push_preserves_existing_items_after_growth) {
     }
 
     for (size_t i = 0; i < 17; i++) {
-        VS_TEST_ASSERT_EQ(*(int *)vs_vector_get(v, i), (int)i);
+        VS_ASSERT_EQ(*(int *)vs_vector_get(v, i), (int)i);
     }
 
     vs_vector_destroy(v);
-    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 

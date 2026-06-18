@@ -25,9 +25,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/deque.h"
 #include "vstd/memory/allocators/allocator.h"
-#include "vstd/panic.h"
 
 #define VS_DEQUE_DEFAULT_CAPACITY 16
 
@@ -84,7 +84,7 @@ static void vs_deque_grow(vs_deque *deque) {
 }
 
 vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator) {
-    VS_ASSERT(elem_size > 0, "fatal: vs_deque_create invalid arguments");
+    VSTD_ASSERT(elem_size > 0, "fatal: vs_deque_create invalid arguments");
 
     vs_deque *deque = vs_malloc(allocator, sizeof(vs_deque));
     deque->allocator = allocator;
@@ -103,9 +103,9 @@ vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator) {
 }
 
 void vs_deque_push(vs_deque *deque, const void *element) {
-    VS_ASSERT(deque != NULL, "fatal: vs_deque_push invalid arguments");
-    VS_ASSERT(element != NULL, "fatal: vs_deque_push invalid arguments");
-    VS_ASSERT(deque->capacity > 0, "fatal: vs_deque_push invalid state");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_push invalid arguments");
+    VSTD_ASSERT(element != NULL, "fatal: vs_deque_push invalid arguments");
+    VSTD_ASSERT(deque->capacity > 0, "fatal: vs_deque_push invalid state");
 
     if (deque->size == deque->capacity) {
         vs_deque_grow(deque);
@@ -119,9 +119,9 @@ void vs_deque_push(vs_deque *deque, const void *element) {
 }
 
 void vs_deque_pushfront(vs_deque *deque, const void *element) {
-    VS_ASSERT(deque != NULL, "fatal: vs_deque_pushfront invalid arguments");
-    VS_ASSERT(element != NULL, "fatal: vs_deque_pushfront invalid arguments");
-    VS_ASSERT(deque->capacity > 0, "fatal: vs_deque_pushfront invalid state");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_pushfront invalid arguments");
+    VSTD_ASSERT(element != NULL, "fatal: vs_deque_pushfront invalid arguments");
+    VSTD_ASSERT(deque->capacity > 0, "fatal: vs_deque_pushfront invalid state");
 
     if (deque->size == deque->capacity) {
         vs_deque_grow(deque);
@@ -136,8 +136,8 @@ void vs_deque_pushfront(vs_deque *deque, const void *element) {
 }
 
 void *vs_deque_popleft(vs_deque *deque) {
-    VS_ASSERT(deque != NULL, "fatal: vs_deque_popleft invalid arguments");
-    VS_ASSERT(deque->capacity > 0, "fatal: vs_deque_popleft invalid state");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_popleft invalid arguments");
+    VSTD_ASSERT(deque->capacity > 0, "fatal: vs_deque_popleft invalid state");
 
     if (deque->size == 0) {
         return NULL;
@@ -152,8 +152,8 @@ void *vs_deque_popleft(vs_deque *deque) {
 }
 
 void *vs_deque_popback(vs_deque *deque) {
-    VS_ASSERT(deque != NULL, "fatal: vs_deque_popback invalid arguments");
-    VS_ASSERT(deque->capacity > 0, "fatal: vs_deque_popback invalid state");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_popback invalid arguments");
+    VSTD_ASSERT(deque->capacity > 0, "fatal: vs_deque_popback invalid state");
 
     if (deque->size == 0) {
         return NULL;
@@ -169,7 +169,7 @@ void *vs_deque_popback(vs_deque *deque) {
 }
 
 const void *vs_deque_peekleft(const vs_deque *deque) {
-    VS_ASSERT(deque != NULL, "fatal: vs_deque_peekleft invalid arguments");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_peekleft invalid arguments");
 
     if (deque->size == 0) {
         return NULL;
@@ -180,8 +180,8 @@ const void *vs_deque_peekleft(const vs_deque *deque) {
 }
 
 const void *vs_deque_peekback(const vs_deque *deque) {
-    VS_ASSERT(deque != NULL, "fatal: vs_deque_peekback invalid arguments");
-    VS_ASSERT(deque->capacity > 0, "fatal: vs_deque_peekback invalid state");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_peekback invalid arguments");
+    VSTD_ASSERT(deque->capacity > 0, "fatal: vs_deque_peekback invalid state");
 
     if (deque->size == 0) {
         return NULL;
@@ -193,13 +193,13 @@ const void *vs_deque_peekback(const vs_deque *deque) {
 }
 
 size_t vs_deque_size(const vs_deque *deque) {
-    VS_ASSERT(deque != NULL, "fatal: vs_deque_size invalid arguments");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_size invalid arguments");
 
     return deque->size;
 }
 
 void vs_deque_destroy(vs_deque *deque) {
-    VS_ASSERT(deque != NULL, "fatal: vs_deque_destroy invalid arguments");
+    VSTD_ASSERT(deque != NULL, "fatal: vs_deque_destroy invalid arguments");
 
     vs_allocator *allocator = deque->allocator;
     vs_dealloc(allocator, deque->buffer);

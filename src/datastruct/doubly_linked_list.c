@@ -24,9 +24,9 @@
 
 #include <stddef.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/doubly_linked_list.h"
 #include "vstd/memory/allocators/allocator.h"
-#include "vstd/panic.h"
 
 struct vs_doubly_linked_list {
     size_t size;
@@ -46,8 +46,8 @@ vs_doubly_linked_list *vs_doubly_linked_list_create(vs_allocator *allocator) {
 }
 
 void vs_doubly_linked_list_push(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_push invalid arguments");
-    VS_ASSERT(node != NULL, "fatal: vs_doubly_linked_list_push invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_push invalid arguments");
+    VSTD_ASSERT(node != NULL, "fatal: vs_doubly_linked_list_push invalid arguments");
 
     node->prev = list->tail;
     node->next = NULL;
@@ -66,8 +66,8 @@ void vs_doubly_linked_list_pushfront(
     vs_doubly_linked_list *list,
     vs_doubly_linked_list_node *node
 ) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_pushfront invalid arguments");
-    VS_ASSERT(node != NULL, "fatal: vs_doubly_linked_list_pushfront invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_pushfront invalid arguments");
+    VSTD_ASSERT(node != NULL, "fatal: vs_doubly_linked_list_pushfront invalid arguments");
 
     node->prev = NULL;
     node->next = list->head;
@@ -87,8 +87,8 @@ void vs_doubly_linked_list_insert_after(
     vs_doubly_linked_list_node *after,
     vs_doubly_linked_list_node *node
 ) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_insert_after invalid arguments");
-    VS_ASSERT(node != NULL, "fatal: vs_doubly_linked_list_insert_after invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_insert_after invalid arguments");
+    VSTD_ASSERT(node != NULL, "fatal: vs_doubly_linked_list_insert_after invalid arguments");
 
     if (after == NULL) {
         vs_doubly_linked_list_pushfront(list, node);
@@ -109,7 +109,7 @@ void vs_doubly_linked_list_insert_after(
 }
 
 vs_doubly_linked_list_node *vs_doubly_linked_list_popleft(vs_doubly_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_popleft invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_popleft invalid arguments");
 
     if (list->head == NULL) {
         return NULL;
@@ -131,7 +131,7 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_popleft(vs_doubly_linked_list 
 }
 
 vs_doubly_linked_list_node *vs_doubly_linked_list_popback(vs_doubly_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_popback invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_popback invalid arguments");
 
     if (list->tail == NULL) {
         return NULL;
@@ -153,8 +153,8 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_popback(vs_doubly_linked_list 
 }
 
 void vs_doubly_linked_list_remove(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_remove invalid arguments");
-    VS_ASSERT(node != NULL, "fatal: vs_doubly_linked_list_remove invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_remove invalid arguments");
+    VSTD_ASSERT(node != NULL, "fatal: vs_doubly_linked_list_remove invalid arguments");
 
     if (node->prev != NULL) {
         node->prev->next = node->next;
@@ -174,25 +174,25 @@ void vs_doubly_linked_list_remove(vs_doubly_linked_list *list, vs_doubly_linked_
 }
 
 size_t vs_doubly_linked_list_size(const vs_doubly_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_size invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_size invalid arguments");
 
     return list->size;
 }
 
 vs_doubly_linked_list_node *vs_doubly_linked_list_head(const vs_doubly_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_head invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_head invalid arguments");
 
     return list->head;
 }
 
 vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_tail invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_tail invalid arguments");
 
     return list->tail;
 }
 
 void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list) {
-    VS_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_destroy invalid arguments");
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_destroy invalid arguments");
 
     vs_allocator *allocator = list->allocator;
     vs_dealloc(allocator, list);

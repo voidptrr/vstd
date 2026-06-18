@@ -26,11 +26,11 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/doubly_linked_list.h"
 #include "vstd/memory/allocators/allocator.h"
 #include "vstd/memory/allocators/general_heap.h"
 #include "vstd/memory/utils.h"
-#include "vstd/panic.h"
 
 /* Header stored immediately before each heap-managed payload block. */
 typedef struct vs_heap_block {
@@ -106,7 +106,7 @@ vs_heap *vs_heap_create(size_t capacity) {
     vs_heap *heap;
 
     capacity = vs_align_up(capacity, VS_MEMORY_ALIGN);
-    VS_ASSERT(
+    VSTD_ASSERT(
         capacity > sizeof(vs_heap_block) + VS_MEMORY_ALIGN,
         "fatal: vs_heap_create invalid capacity"
     );
@@ -125,9 +125,9 @@ vs_heap *vs_heap_create(size_t capacity) {
 }
 
 vs_allocator vs_heap_adapter(vs_heap *heap) {
-    VS_ASSERT(heap != NULL, "fatal: vs_heap_adapter invalid arguments");
-    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_adapter invalid heap");
-    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_adapter invalid heap");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_heap_adapter invalid arguments");
+    VSTD_ASSERT(heap->buffer != NULL, "fatal: vs_heap_adapter invalid heap");
+    VSTD_ASSERT(heap->blocks != NULL, "fatal: vs_heap_adapter invalid heap");
 
     vs_allocator allocator;
     allocator.ctx = heap;
@@ -140,10 +140,10 @@ vs_allocator vs_heap_adapter(vs_heap *heap) {
 }
 
 void *vs_heap_alloc(vs_heap *heap, size_t size) {
-    VS_ASSERT(heap != NULL, "fatal: vs_heap_alloc invalid arguments");
-    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_alloc invalid heap");
-    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_alloc invalid heap");
-    VS_ASSERT(size > 0, "fatal: vs_heap_alloc invalid arguments");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_heap_alloc invalid arguments");
+    VSTD_ASSERT(heap->buffer != NULL, "fatal: vs_heap_alloc invalid heap");
+    VSTD_ASSERT(heap->blocks != NULL, "fatal: vs_heap_alloc invalid heap");
+    VSTD_ASSERT(size > 0, "fatal: vs_heap_alloc invalid arguments");
 
     size = vs_align_up(size, VS_MEMORY_ALIGN);
     vs_heap_block *block = vs_heap_head(heap);
@@ -160,10 +160,10 @@ void *vs_heap_alloc(vs_heap *heap, size_t size) {
 }
 
 void vs_heap_dealloc(vs_heap *heap, void *ptr) {
-    VS_ASSERT(heap != NULL, "fatal: vs_heap_dealloc invalid arguments");
-    VS_ASSERT(ptr != NULL, "fatal: vs_heap_dealloc invalid arguments");
-    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_dealloc invalid heap");
-    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_dealloc invalid heap");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_heap_dealloc invalid arguments");
+    VSTD_ASSERT(ptr != NULL, "fatal: vs_heap_dealloc invalid arguments");
+    VSTD_ASSERT(heap->buffer != NULL, "fatal: vs_heap_dealloc invalid heap");
+    VSTD_ASSERT(heap->blocks != NULL, "fatal: vs_heap_dealloc invalid heap");
 
     uintptr_t start = (uintptr_t)heap->buffer;
     uintptr_t end = start + heap->capacity;
@@ -178,9 +178,9 @@ void vs_heap_dealloc(vs_heap *heap, void *ptr) {
 }
 
 void *vs_heap_realloc(vs_heap *heap, void *ptr, size_t size) {
-    VS_ASSERT(heap != NULL, "fatal: vs_heap_realloc invalid arguments");
-    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_realloc invalid heap");
-    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_realloc invalid heap");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_heap_realloc invalid arguments");
+    VSTD_ASSERT(heap->buffer != NULL, "fatal: vs_heap_realloc invalid heap");
+    VSTD_ASSERT(heap->blocks != NULL, "fatal: vs_heap_realloc invalid heap");
 
     if (ptr == NULL) {
         return vs_heap_alloc(heap, size);
@@ -218,9 +218,9 @@ void *vs_heap_realloc(vs_heap *heap, void *ptr, size_t size) {
 }
 
 size_t vs_heap_capacity(const vs_heap *heap) {
-    VS_ASSERT(heap != NULL, "fatal: vs_heap_capacity invalid arguments");
-    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_capacity invalid heap");
-    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_capacity invalid heap");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_heap_capacity invalid arguments");
+    VSTD_ASSERT(heap->buffer != NULL, "fatal: vs_heap_capacity invalid heap");
+    VSTD_ASSERT(heap->blocks != NULL, "fatal: vs_heap_capacity invalid heap");
 
     return heap->capacity;
 }
@@ -228,9 +228,9 @@ size_t vs_heap_capacity(const vs_heap *heap) {
 size_t vs_heap_available(const vs_heap *heap) {
     size_t total = 0;
 
-    VS_ASSERT(heap != NULL, "fatal: vs_heap_available invalid arguments");
-    VS_ASSERT(heap->buffer != NULL, "fatal: vs_heap_available invalid heap");
-    VS_ASSERT(heap->blocks != NULL, "fatal: vs_heap_available invalid heap");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_heap_available invalid arguments");
+    VSTD_ASSERT(heap->buffer != NULL, "fatal: vs_heap_available invalid heap");
+    VSTD_ASSERT(heap->blocks != NULL, "fatal: vs_heap_available invalid heap");
 
     const vs_heap_block *block = vs_heap_head(heap);
     while (block != NULL) {
@@ -244,7 +244,7 @@ size_t vs_heap_available(const vs_heap *heap) {
 }
 
 void vs_heap_destroy(vs_heap *heap) {
-    VS_ASSERT(heap != NULL, "fatal: vs_heap_destroy invalid arguments");
+    VSTD_ASSERT(heap != NULL, "fatal: vs_heap_destroy invalid arguments");
 
     if (heap->blocks != NULL) {
         vs_doubly_linked_list_destroy(heap->blocks);

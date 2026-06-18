@@ -28,7 +28,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/compare.h"
 #include "vstd/memory/allocators/allocator.h"
 
 /*
@@ -53,13 +52,14 @@
  */
 
 /* Key equality callback used to resolve collisions and lookups. */
-typedef vs_eq_fn vs_hashmap_key_eq_fn;
+typedef bool (*vs_hashmap_key_eq_fn)(const void *lhs, const void *rhs);
 
 typedef struct vs_hashmap vs_hashmap;
 
 /*
  * Create a hash map with fixed key/value sizes.
- * Hashing uses the internal FNV-1a implementation.
+ * Hashing uses the internal FNV-1a implementation over stored key bytes. When
+ * key_eq is NULL, key equality compares stored key bytes.
  * Initial capacity is implementation-defined.
  */
 vs_hashmap *vs_hashmap_create(

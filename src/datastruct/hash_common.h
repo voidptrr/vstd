@@ -29,7 +29,6 @@
 #include <stddef.h>
 
 #include "hash.h"
-#include "vstd/compare.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocators/allocator.h"
 
@@ -38,6 +37,7 @@
 
 typedef void (*vs_hash_common_entry_destroy_fn)(vs_linked_list_node *node, vs_allocator *allocator);
 typedef const void *(*vs_hash_common_entry_value_fn)(const vs_linked_list_node *node);
+typedef bool (*vs_hash_common_eq_fn)(const void *lhs, const void *rhs);
 
 /* Allocate and initialize an array of empty bucket lists. */
 vs_linked_list **vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator);
@@ -61,7 +61,7 @@ vs_linked_list_node *vs_hash_common_bucket_find(
     vs_linked_list *bucket,
     const void *value,
     size_t value_size,
-    vs_eq_fn value_eq,
+    vs_hash_common_eq_fn value_eq,
     vs_hash_common_entry_value_fn entry_value
 );
 
@@ -73,7 +73,7 @@ vs_linked_list_node *vs_hash_common_bucket_remove(
     vs_linked_list *bucket,
     const void *value,
     size_t value_size,
-    vs_eq_fn value_eq,
+    vs_hash_common_eq_fn value_eq,
     vs_hash_common_entry_value_fn entry_value
 );
 

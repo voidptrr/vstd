@@ -3,7 +3,8 @@
 ## DESCRIPTION
 
 The binary_heap module provides a generic binary heap backed by contiguous vector storage.
-Heap ordering is defined by a user-supplied comparator function.
+Heap ordering is defined by a caller callback. When the callback is `NULL`,
+ordering is byte-wise with `memcmp` over stored element bytes.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
@@ -13,7 +14,7 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ```c
 vs_binary_heap *vs_binary_heap_create(size_t elem_size,
-                                        vs_heap_cmp_fn cmp,
+                                        vs_binary_heap_cmp_fn cmp,
                                         vs_allocator *allocator);
 ```
 
@@ -21,7 +22,8 @@ vs_binary_heap *vs_binary_heap_create(size_t elem_size,
 - Returns: opaque binary-heap handle.
 - Notes: the binary heap stores `allocator` and reuses it for growth and
   destroy. When `allocator` is `NULL`, binary heap storage uses the C library
-  heap through `vs_malloc`/`vs_realloc`.
+  heap through `vs_malloc`/`vs_realloc`. When `cmp` is `NULL`, element ordering
+  uses byte comparison.
 
 ### vs_binary_heap_push
 
@@ -72,26 +74,25 @@ void vs_binary_heap_destroy(vs_binary_heap *heap);
 ## EXAMPLE
 
 ```c
-#include <vstd/compare.h>
 #include <vstd/datastruct/binary_heap.h>
 #include <stdint.h>
 
 int main(void) {
     int status = 0;
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int32_t), vs_cmp_i32, NULL);
-    int32_t values[] = {5, 2, 8, 1};
+    vs_binary_heap *heap = vs_binary_heap_create(sizeof(uint8_t), NULL, NULL);
+    uint8_t values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
         vs_binary_heap_push(heap, &values[i]);
     }
 
-    const int32_t *top = (const int32_t *)vs_binary_heap_peek(heap);
+    const uint8_t *top = (const uint8_t *)vs_binary_heap_peek(heap);
     if (top == NULL || *top != 1) {
         status = 1;
         goto cleanup;
     }
 
-    int32_t *popped = (int32_t *)vs_binary_heap_pop(heap);
+    uint8_t *popped = (uint8_t *)vs_binary_heap_pop(heap);
     if (popped == NULL || *popped != 1) {
         status = 1;
         goto cleanup;

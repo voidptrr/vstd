@@ -22,24 +22,22 @@
  * SOFTWARE.
  */
 
+#include "vstd/assert.h"
 #include "vstd/memory/allocators/allocator.h"
 #include "vstd/memory/allocators/arena.h"
-#include "vstd/testing.h"
 
 int main(void) {
     vs_arena *arena = vs_arena_create(128);
     vs_allocator allocator = vs_arena_adapter(arena);
 
-    VS_TEST_ASSERT_PTR_EQ(allocator.ctx, arena);
-    VS_TEST_ASSERT(allocator.alloc != NULL);
-    VS_TEST_ASSERT(allocator.realloc != NULL);
-    VS_TEST_ASSERT(allocator.dealloc == NULL);
-    VS_TEST_ASSERT(
-        allocator.features == (VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET)
-    );
+    VS_ASSERT_PTR_EQ(allocator.ctx, arena);
+    VS_ASSERT(allocator.alloc != NULL);
+    VS_ASSERT(allocator.realloc != NULL);
+    VS_ASSERT(allocator.dealloc == NULL);
+    VS_ASSERT(allocator.features == (VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET));
 
-    VS_TEST_ASSERT(vs_arena_capacity(arena) >= 128);
-    VS_TEST_ASSERT_EQ(vs_arena_used(arena), 0);
+    VS_ASSERT(vs_arena_capacity(arena) >= 128);
+    VS_ASSERT_EQ(vs_arena_used(arena), 0);
 
     vs_arena_destroy(arena);
     return 0;

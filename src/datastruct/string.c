@@ -26,9 +26,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/string.h"
 #include "vstd/memory/allocators/allocator.h"
-#include "vstd/panic.h"
 
 #define VS_STRING_DEFAULT_CAPACITY 16
 
@@ -92,9 +92,9 @@ vs_string vs_string_create(const char *initial, vs_allocator *allocator) {
 }
 
 void vs_string_append(vs_string *string, const char *suffix) {
-    VS_ASSERT(string != NULL, "fatal: vs_string_append invalid arguments");
-    VS_ASSERT(*string != NULL, "fatal: vs_string_append invalid arguments");
-    VS_ASSERT(suffix != NULL, "fatal: vs_string_append invalid arguments");
+    VSTD_ASSERT(string != NULL, "fatal: vs_string_append invalid arguments");
+    VSTD_ASSERT(*string != NULL, "fatal: vs_string_append invalid arguments");
+    VSTD_ASSERT(suffix != NULL, "fatal: vs_string_append invalid arguments");
 
     size_t suffix_len = strlen(suffix);
     if (suffix_len == 0) {
@@ -111,9 +111,9 @@ void vs_string_append(vs_string *string, const char *suffix) {
 }
 
 void vs_string_prepend(vs_string *string, const char *prefix) {
-    VS_ASSERT(string != NULL, "fatal: vs_string_prepend invalid arguments");
-    VS_ASSERT(*string != NULL, "fatal: vs_string_prepend invalid arguments");
-    VS_ASSERT(prefix != NULL, "fatal: vs_string_prepend invalid arguments");
+    VSTD_ASSERT(string != NULL, "fatal: vs_string_prepend invalid arguments");
+    VSTD_ASSERT(*string != NULL, "fatal: vs_string_prepend invalid arguments");
+    VSTD_ASSERT(prefix != NULL, "fatal: vs_string_prepend invalid arguments");
 
     size_t prefix_len = strlen(prefix);
     if (prefix_len == 0) {
@@ -162,7 +162,7 @@ bool vs_string_ends_with(const vs_string string, const char *suffix) {
 }
 
 void vs_string_clear(vs_string string) {
-    VS_ASSERT(string != NULL, "fatal: vs_string_clear invalid arguments");
+    VSTD_ASSERT(string != NULL, "fatal: vs_string_clear invalid arguments");
 
     vs_string_header *header = vs_string_header_from_buf(string);
     header->len = 0;
@@ -170,14 +170,14 @@ void vs_string_clear(vs_string string) {
 }
 
 size_t vs_string_len(const vs_string string) {
-    VS_ASSERT(string != NULL, "fatal: vs_string_len invalid arguments");
+    VSTD_ASSERT(string != NULL, "fatal: vs_string_len invalid arguments");
 
     vs_string_header *header = vs_string_header_from_buf(string);
     return header->len;
 }
 
 void vs_string_destroy(vs_string string) {
-    VS_ASSERT(string != NULL, "fatal: vs_string_destroy invalid arguments");
+    VSTD_ASSERT(string != NULL, "fatal: vs_string_destroy invalid arguments");
 
     vs_string_header *header = vs_string_header_from_buf(string);
     vs_allocator *allocator = header->allocator;

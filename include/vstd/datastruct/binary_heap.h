@@ -28,7 +28,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/compare.h"
 #include "vstd/memory/allocators/allocator.h"
 
 /*
@@ -55,14 +54,14 @@
  */
 
 /* Comparator callback: negative if a < b, zero if equal, positive if a > b. */
-typedef vs_cmp_fn vs_heap_cmp_fn;
+typedef int (*vs_binary_heap_cmp_fn)(const void *lhs, const void *rhs);
 
 typedef struct vs_binary_heap vs_binary_heap;
 
-/* Create a heap for elements of size elem_size using cmp ordering. */
+/* Create a heap for elements of size elem_size. NULL cmp uses byte-wise ordering. */
 vs_binary_heap *vs_binary_heap_create(
     size_t elem_size,
-    vs_heap_cmp_fn cmp,
+    vs_binary_heap_cmp_fn cmp,
     vs_allocator *allocator
 );
 

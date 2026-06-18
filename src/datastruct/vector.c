@@ -25,9 +25,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/vector.h"
 #include "vstd/memory/allocators/allocator.h"
-#include "vstd/panic.h"
 
 #define VS_VECTOR_DEFAULT_CAPACITY 16
 
@@ -40,7 +40,7 @@ struct vs_vector {
 };
 
 vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator) {
-    VS_ASSERT(elem_size > 0, "fatal: vs_vector_create invalid arguments");
+    VSTD_ASSERT(elem_size > 0, "fatal: vs_vector_create invalid arguments");
 
     vs_vector *vector = vs_malloc(allocator, sizeof(vs_vector));
     vector->allocator = allocator;
@@ -57,8 +57,8 @@ vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator) {
 }
 
 void vs_vector_push(vs_vector *vector, const void *element) {
-    VS_ASSERT(vector != NULL, "fatal: vs_vector_push invalid arguments");
-    VS_ASSERT(element != NULL, "fatal: vs_vector_push invalid arguments");
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_push invalid arguments");
+    VSTD_ASSERT(element != NULL, "fatal: vs_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
         vs_allocator *allocator = vector->allocator;
@@ -77,7 +77,7 @@ void vs_vector_push(vs_vector *vector, const void *element) {
 }
 
 void *vs_vector_pop(vs_vector *vector) {
-    VS_ASSERT(vector != NULL, "fatal: vs_vector_pop invalid arguments");
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_pop invalid arguments");
 
     if (vector->size == 0) {
         return NULL;
@@ -108,13 +108,13 @@ const void *vs_vector_get_const(const vs_vector *vector, size_t index) {
 }
 
 size_t vs_vector_elem_size(const vs_vector *vector) {
-    VS_ASSERT(vector != NULL, "fatal: vs_vector_elem_size invalid arguments");
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_elem_size invalid arguments");
 
     return vector->elem_size;
 }
 
 void *vs_vector_swap_remove(vs_vector *vector, size_t index) {
-    VS_ASSERT(vector != NULL, "fatal: vs_vector_swap_remove invalid arguments");
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_swap_remove invalid arguments");
 
     if (index >= vector->size) {
         return NULL;
@@ -134,13 +134,13 @@ void *vs_vector_swap_remove(vs_vector *vector, size_t index) {
 }
 
 size_t vs_vector_size(const vs_vector *vector) {
-    VS_ASSERT(vector != NULL, "fatal: vs_vector_size invalid arguments");
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_size invalid arguments");
 
     return vector->size;
 }
 
 void vs_vector_destroy(vs_vector *vector) {
-    VS_ASSERT(vector != NULL, "fatal: vs_vector_destroy invalid arguments");
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_destroy invalid arguments");
 
     vs_allocator *allocator = vector->allocator;
     vs_dealloc(allocator, vector->buffer);

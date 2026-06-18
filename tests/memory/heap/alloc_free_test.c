@@ -24,8 +24,8 @@
 
 #include <stddef.h>
 
+#include "vstd/assert.h"
 #include "vstd/memory/allocators/general_heap.h"
-#include "vstd/testing.h"
 
 int main(void) {
     vs_heap *heap = vs_heap_create(2048);
@@ -38,11 +38,11 @@ int main(void) {
 
     a = (int *)vs_heap_alloc(heap, sizeof(int));
     b = (int *)vs_heap_alloc(heap, sizeof(int));
-    VS_TEST_ASSERT_PTR_NOT_NULL(a);
-    VS_TEST_ASSERT_PTR_NOT_NULL(b);
+    VS_ASSERT_PTR_NOT_NULL(a);
+    VS_ASSERT_PTR_NOT_NULL(b);
 
     after = vs_heap_available(heap);
-    VS_TEST_ASSERT(after < before);
+    VS_ASSERT(after < before);
 
     vs_heap_dealloc(heap, a);
     vs_heap_dealloc(heap, b);

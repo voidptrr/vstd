@@ -27,11 +27,11 @@
 #include <string.h>
 
 #include "datastruct/hash_common.h"
+#include "vstd/assert.h"
 #include "vstd/datastruct/hashmap.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocators/allocator.h"
 #include "vstd/memory/utils.h"
-#include "vstd/panic.h"
 
 typedef struct vs_hashmap_entry {
     vs_linked_list_node node;
@@ -93,9 +93,8 @@ vs_hashmap *vs_hashmap_create(
     vs_hashmap_key_eq_fn key_eq,
     vs_allocator *allocator
 ) {
-    VS_ASSERT(key_eq != NULL, "fatal: vs_hashmap_create invalid arguments");
-    VS_ASSERT(key_size > 0, "fatal: vs_hashmap_create invalid arguments");
-    VS_ASSERT(value_size > 0, "fatal: vs_hashmap_create invalid arguments");
+    VSTD_ASSERT(key_size > 0, "fatal: vs_hashmap_create invalid arguments");
+    VSTD_ASSERT(value_size > 0, "fatal: vs_hashmap_create invalid arguments");
 
     vs_hashmap *map = vs_malloc(allocator, sizeof(vs_hashmap));
     map->allocator = allocator;
@@ -111,9 +110,9 @@ vs_hashmap *vs_hashmap_create(
 }
 
 void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
-    VS_ASSERT(map != NULL, "fatal: vs_hashmap_put invalid arguments");
-    VS_ASSERT(key != NULL, "fatal: vs_hashmap_put invalid arguments");
-    VS_ASSERT(value != NULL, "fatal: vs_hashmap_put invalid arguments");
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_put invalid arguments");
+    VSTD_ASSERT(key != NULL, "fatal: vs_hashmap_put invalid arguments");
+    VSTD_ASSERT(value != NULL, "fatal: vs_hashmap_put invalid arguments");
 
     vs_allocator *allocator = map->allocator;
     size_t bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
@@ -156,8 +155,8 @@ void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
 }
 
 void *vs_hashmap_get(vs_hashmap *map, const void *key) {
-    VS_ASSERT(map != NULL, "fatal: vs_hashmap_get invalid arguments");
-    VS_ASSERT(key != NULL, "fatal: vs_hashmap_get invalid arguments");
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_get invalid arguments");
+    VSTD_ASSERT(key != NULL, "fatal: vs_hashmap_get invalid arguments");
 
     vs_hashmap_entry *entry = vs_hashmap_entry_get(map, key);
     if (entry != NULL) {
@@ -167,8 +166,8 @@ void *vs_hashmap_get(vs_hashmap *map, const void *key) {
 }
 
 const void *vs_hashmap_get_const(const vs_hashmap *map, const void *key) {
-    VS_ASSERT(map != NULL, "fatal: vs_hashmap_get_const invalid arguments");
-    VS_ASSERT(key != NULL, "fatal: vs_hashmap_get_const invalid arguments");
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_get_const invalid arguments");
+    VSTD_ASSERT(key != NULL, "fatal: vs_hashmap_get_const invalid arguments");
 
     vs_hashmap_entry *entry = vs_hashmap_entry_get(map, key);
     if (entry != NULL) {
@@ -178,8 +177,8 @@ const void *vs_hashmap_get_const(const vs_hashmap *map, const void *key) {
 }
 
 void vs_hashmap_remove(vs_hashmap *map, const void *key) {
-    VS_ASSERT(map != NULL, "fatal: vs_hashmap_remove invalid arguments");
-    VS_ASSERT(key != NULL, "fatal: vs_hashmap_remove invalid arguments");
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_remove invalid arguments");
+    VSTD_ASSERT(key != NULL, "fatal: vs_hashmap_remove invalid arguments");
 
     vs_allocator *allocator = map->allocator;
     size_t bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
@@ -198,13 +197,13 @@ void vs_hashmap_remove(vs_hashmap *map, const void *key) {
 }
 
 size_t vs_hashmap_size(const vs_hashmap *map) {
-    VS_ASSERT(map != NULL, "fatal: vs_hashmap_size invalid arguments");
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_size invalid arguments");
 
     return map->size;
 }
 
 void vs_hashmap_destroy(vs_hashmap *map) {
-    VS_ASSERT(map != NULL, "fatal: vs_hashmap_destroy invalid arguments");
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_destroy invalid arguments");
 
     vs_allocator *allocator = map->allocator;
     vs_hash_common_buckets_destroy(

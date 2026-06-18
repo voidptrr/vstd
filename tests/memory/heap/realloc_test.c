@@ -24,22 +24,22 @@
 
 #include <string.h>
 
+#include "vstd/assert.h"
 #include "vstd/memory/allocators/general_heap.h"
-#include "vstd/testing.h"
 
 int main(void) {
     vs_heap *heap = vs_heap_create(4096);
     char *ptr;
 
     ptr = (char *)vs_heap_realloc(heap, NULL, 32);
-    VS_TEST_ASSERT_PTR_NOT_NULL(ptr);
+    VS_ASSERT_PTR_NOT_NULL(ptr);
 
     memcpy(ptr, "hello", 6);
     ptr = (char *)vs_heap_realloc(heap, ptr, 128);
-    VS_TEST_ASSERT_PTR_NOT_NULL(ptr);
-    VS_TEST_ASSERT_EQ(memcmp(ptr, "hello", 6), 0);
+    VS_ASSERT_PTR_NOT_NULL(ptr);
+    VS_ASSERT_EQ(memcmp(ptr, "hello", 6), 0);
 
-    VS_TEST_ASSERT_PTR_NULL(vs_heap_realloc(heap, ptr, 0));
+    VS_ASSERT_PTR_NULL(vs_heap_realloc(heap, ptr, 0));
 
     vs_heap_destroy(heap);
     return 0;

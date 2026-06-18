@@ -8,7 +8,7 @@ adapter.
 
 It belongs with the memory allocator APIs rather than the assertion helpers in
 `vstd/testing.h`. Tests that use it should include both headers when they also
-use `VS_TEST_ASSERT*` macros.
+use `VS_ASSERT*` macros.
 
 ## TYPES
 
@@ -90,10 +90,10 @@ int main(void) {
     int value = 7;
 
     vs_vector_push(vector, &value);
-    VS_TEST_ASSERT_EQ(vs_vector_size(vector), 1);
+    VS_ASSERT_EQ(vs_vector_size(vector), 1);
 
     vs_vector_destroy(vector);
-    VS_TEST_ASSERT(vs_test_allocator_is_clean(&test_allocator));
+    VS_ASSERT(vs_test_allocator_is_clean(&test_allocator));
     return 0;
 }
 ```
