@@ -46,21 +46,22 @@
     formatter = forEachSystem ({pkgs}: pkgs.alejandra);
 
     packages = forEachSystem ({pkgs}: {
-      default = pkgs.callPackage ./tools/nix/package.nix {};
-      vstd = pkgs.callPackage ./tools/nix/package.nix {};
+      default = pkgs.callPackage ./nix/package.nix {};
+      vstd = pkgs.callPackage ./nix/package.nix {};
     });
 
     devShells = forEachSystem ({pkgs}: {
       default = ctools.lib.mkCShell {
         inherit pkgs;
         extraPackages = [
+          pkgs.zig
           pkgs.zensical
         ];
       };
     });
 
     checks = forEachSystem ({pkgs}:
-      ctools.lib.mkCChecks {
+      ctools.lib.mkZigCChecks {
         inherit pkgs;
         src = ./.;
       });

@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1781350858,
-        "narHash": "sha256-qvB7scpQDhVuviNH2RdTMhanzbiT3YHPzKN98CKfuy0=",
+        "lastModified": 1781874179,
+        "narHash": "sha256-XYZ03ZF0+cZIyTVqp9eaMKvg2RIB39TTYHDmjUexCtg=",
         "owner": "voidptrr",
         "repo": "ctools",
-        "rev": "c515d3e2f639cce88846a6927f57f2426d129c95",
+        "rev": "2246015f1f288ff280dad2040ee8e51578841af9",
         "type": "github"
       },
       "original": {

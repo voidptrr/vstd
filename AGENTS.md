@@ -8,4 +8,4 @@
 ## Directory Structure
 - Core: `src/`
 - Public headers: `include/`
-- Nix and CMake: `tools/`
+- Nix packaging: `nix/`

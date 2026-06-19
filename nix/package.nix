@@ -19,46 +19,55 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+#
+{
+  lib,
+  stdenv,
+  zig,
+}:
+stdenv.mkDerivation {
+  pname = "vstd";
+  version = "0.2.0";
 
-cmake_minimum_required(VERSION 3.20)
+  src = ../.;
 
-project(vstd VERSION 0.2.0 LANGUAGES C)
+  nativeBuildInputs = [
+    zig
+  ];
 
-include(CTest)
-enable_testing()
+  doCheck = true;
 
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
+  dontConfigure = true;
 
-add_compile_options(-Wall -Wextra -Wpedantic)
+  prePhases = [
+    "zigCachePhase"
+  ];
 
-file(GLOB_RECURSE VSTD_SRC_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
+  zigCachePhase = ''
+    export ZIG_GLOBAL_CACHE_DIR="$TMPDIR/zig-global-cache"
+  '';
 
-add_library(vstd ${VSTD_SRC_FILES})
-add_library(vstd::vstd ALIAS vstd)
+  buildPhase = ''
+    runHook preBuild
+    zig build -Doptimize=ReleaseSafe
+    runHook postBuild
+  '';
 
-target_compile_features(vstd PUBLIC c_std_17)
-target_include_directories(
-  vstd
-  PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
-  PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
-)
+  checkPhase = ''
+    runHook preCheck
+    zig build test
+    runHook postCheck
+  '';
 
-set_target_properties(
-  vstd
-  PROPERTIES
-    VERSION "${PROJECT_VERSION}"
-    SOVERSION "${PROJECT_VERSION_MAJOR}"
-    EXPORT_NAME vstd
-)
+  installPhase = ''
+    runHook preInstall
+    zig build install -Doptimize=ReleaseSafe --prefix "$out"
+    runHook postInstall
+  '';
 
-include(tools/cmake/install.cmake)
-
-if(BUILD_TESTING)
-  include(tools/cmake/tests.cmake)
-  vs_discover_tests()
-endif()
+  meta = {
+    description = "Enhanced C standard library";
+    license = lib.licenses.mit;
+    platforms = lib.platforms.linux;
+  };
+}
