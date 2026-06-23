@@ -4,6 +4,8 @@
 
 The logging module provides a small printf-backed global logger with severity levels,
 optional ANSI colors, optional C-library timestamps, and configurable prefixes.
+Messages include a bracketed level marker such as `[INFO]`, `[WARN]`, `[ERROR]`,
+or `[DEBUG]`.
 
 ## TYPES
 

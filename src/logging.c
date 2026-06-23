@@ -146,9 +146,9 @@ static void vs_logv(vs_log_level level, const char *fmt, va_list args) {
         printf("%s ", prefix);
     }
     if (vs_config.use_color) {
-        printf("%s%s%s: ", vs_log_level_color(level), level_name, VS_LOG_COLOR_RESET);
+        printf("%s[%s]%s ", vs_log_level_color(level), level_name, VS_LOG_COLOR_RESET);
     } else {
-        printf("%s: ", level_name);
+        printf("[%s] ", level_name);
     }
 
     vprintf(fmt, args);
