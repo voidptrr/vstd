@@ -31,6 +31,7 @@ extra_css = ["stylesheets/extra.css"]
 nav = [
   { "Overview" = "index.md" },
   { "Assert" = "reference/vstd-assert.md" },
+  { "Logging" = "reference/vstd-logging.md" },
   { "Testing" = "reference/vstd-testing.md" },
   { "Memory" = [
     { "Utilities" = "reference/vstd-memory-utils.md" },
