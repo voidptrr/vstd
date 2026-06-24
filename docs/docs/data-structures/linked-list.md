@@ -22,13 +22,13 @@ typedef struct vs_linked_list_node {
 
 Embed this node in the object you want to link.
 
-### vs_linked_list_iterator_state
+### vs_linked_list_iterator
 
 ```c
-typedef struct vs_linked_list_iterator_state vs_linked_list_iterator_state;
+typedef struct vs_linked_list_iterator vs_linked_list_iterator;
 ```
 
-Caller-owned cursor state for `vs_linked_list_iterator`.
+Typed cursor for walking linked-list nodes.
 
 ### VS_CONTAINER_OF
 
@@ -154,22 +154,20 @@ vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list);
 vs_linked_list_node *head = vs_linked_list_head(list);
 ```
 
-### vs_linked_list_iterator
+### vs_linked_list_get_iterator
 
 ```c
-vs_iterator vs_linked_list_iterator(vs_linked_list_iterator_state *state,
-                                    const vs_linked_list *list);
+vs_iterator vs_linked_list_get_iterator(const vs_linked_list *list);
 ```
 
-- Parameters: `state`, `list`
+- Parameters: `list`
 - Returns: iterator over list nodes from head to tail.
-- Notes: `state` must outlive the returned iterator. Yielded pointers are
-  `const vs_linked_list_node *`. Use `VS_CONTAINER_OF` to recover the owning object.
+- Notes: yielded pointers are `const vs_linked_list_node *`. Use
+  `VS_CONTAINER_OF` to recover the owning object.
 - Example:
 
 ```c
-vs_linked_list_iterator_state state;
-vs_iterator iter = vs_linked_list_iterator(&state, list);
+vs_iterator iter = vs_linked_list_get_iterator(list);
 
 const vs_linked_list_node *node;
 while ((node = (const vs_linked_list_node *)vs_iterator_next(&iter)) != NULL) {

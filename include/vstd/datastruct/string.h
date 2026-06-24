@@ -52,11 +52,6 @@
  */
 typedef char *vs_string;
 
-typedef struct vs_string_iterator_state {
-    const char *string;
-    size_t index;
-} vs_string_iterator_state;
-
 /* Create a string from initial, or an empty string when initial is NULL. */
 vs_string vs_string_create(const char *initial, vs_allocator *allocator);
 
@@ -82,7 +77,7 @@ void vs_string_clear(vs_string string);
 size_t vs_string_len(const vs_string string);
 
 /* Return an iterator over bytes before the terminating NUL. */
-vs_iterator vs_string_iterator(vs_string_iterator_state *state, const vs_string string);
+vs_iterator vs_string_get_iterator(const vs_string string);
 
 /* Destroy and release owned storage. */
 void vs_string_destroy(vs_string string);

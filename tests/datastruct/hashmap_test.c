@@ -249,7 +249,6 @@ VS_TEST(iterator_walks_entries) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_hashmap *map;
-    vs_hashmap_iterator_state state;
     vs_iterator iter;
     const vs_hashmap_entry_view *entry;
     uint64_t key_sum = 0;
@@ -268,7 +267,7 @@ VS_TEST(iterator_walks_entries) {
         vs_hashmap_put(map, &i, &value);
     }
 
-    iter = vs_hashmap_iterator(&state, map);
+    iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_ENTRY);
     while ((entry = (const vs_hashmap_entry_view *)vs_iterator_next(&iter)) != NULL) {
         key_sum += *(const uint64_t *)entry->key;
         value_sum += *(const uint64_t *)entry->value;
@@ -295,7 +294,6 @@ VS_TEST(key_iterator_walks_keys) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_hashmap *map;
-    vs_hashmap_iterator_state state;
     vs_iterator iter;
     const uint64_t *key;
     uint64_t key_sum = 0;
@@ -313,7 +311,7 @@ VS_TEST(key_iterator_walks_keys) {
         vs_hashmap_put(map, &i, &value);
     }
 
-    iter = vs_hashmap_key_iterator(&state, map);
+    iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_KEY);
     while ((key = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
         key_sum += *key;
         count += 1;
@@ -336,7 +334,6 @@ VS_TEST(value_iterator_walks_values) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_hashmap *map;
-    vs_hashmap_iterator_state state;
     vs_iterator iter;
     const uint64_t *value;
     uint64_t value_sum = 0;
@@ -354,7 +351,7 @@ VS_TEST(value_iterator_walks_values) {
         vs_hashmap_put(map, &i, &stored);
     }
 
-    iter = vs_hashmap_value_iterator(&state, map);
+    iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_VALUE);
     while ((value = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
         value_sum += *value;
         count += 1;

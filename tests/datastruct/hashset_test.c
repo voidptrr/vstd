@@ -295,7 +295,6 @@ VS_TEST(iterator_walks_elements) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_hashset *set;
-    vs_hashset_iterator_state state;
     vs_iterator iter;
     const uint64_t *elem;
     uint64_t sum = 0;
@@ -306,7 +305,7 @@ VS_TEST(iterator_walks_elements) {
         vs_hashset_insert(set, &i);
     }
 
-    iter = vs_hashset_iterator(&state, set);
+    iter = vs_hashset_get_iterator(set);
     while ((elem = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
         sum += *elem;
         count += 1;

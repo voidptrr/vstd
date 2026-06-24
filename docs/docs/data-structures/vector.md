@@ -9,13 +9,13 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_vector_iterator_state
+### vs_vector_iterator
 
 ```c
-typedef struct vs_vector_iterator_state vs_vector_iterator_state;
+typedef struct vs_vector_iterator vs_vector_iterator;
 ```
 
-Caller-owned cursor state for `vs_vector_iterator`.
+Typed cursor for walking vector elements.
 
 ## FUNCTIONS
 
@@ -148,21 +148,20 @@ size_t vs_vector_size(const vs_vector *vector);
 size_t count = vs_vector_size(vector);
 ```
 
-### vs_vector_iterator
+### vs_vector_get_iterator
 
 ```c
-vs_iterator vs_vector_iterator(vs_vector_iterator_state *state, const vs_vector *vector);
+vs_iterator vs_vector_get_iterator(const vs_vector *vector);
 ```
 
-- Parameters: `state`, `vector`
+- Parameters: `vector`
 - Returns: iterator over vector elements from index `0` to `size - 1`.
-- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
-  vector-managed storage. Do not mutate the vector while iterating.
+- Notes: yielded pointers refer to vector-managed storage. Do not mutate the
+  vector while iterating.
 - Example:
 
 ```c
-vs_vector_iterator_state state;
-vs_iterator iter = vs_vector_iterator(&state, vector);
+vs_iterator iter = vs_vector_get_iterator(vector);
 
 const int *item;
 while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {

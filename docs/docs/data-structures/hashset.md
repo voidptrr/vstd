@@ -15,14 +15,6 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_hashset_iterator_state
-
-```c
-typedef struct vs_hashset_iterator_state vs_hashset_iterator_state;
-```
-
-Caller-owned cursor state for `vs_hashset_iterator`.
-
 ## FUNCTIONS
 
 ### vs_hashset_create
@@ -135,21 +127,20 @@ size_t vs_hashset_size(const vs_hashset *set);
 size_t count = vs_hashset_size(set);
 ```
 
-### vs_hashset_iterator
+### vs_hashset_get_iterator
 
 ```c
-vs_iterator vs_hashset_iterator(vs_hashset_iterator_state *state, const vs_hashset *set);
+vs_iterator vs_hashset_get_iterator(const vs_hashset *set);
 ```
 
-- Parameters: `state`, `set`
+- Parameters: `set`
 - Returns: iterator over stored elements in bucket order.
-- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
-  set-managed storage. Do not mutate the set while iterating.
+- Notes: yielded pointers refer to set-managed storage. Do not mutate the set
+  while iterating.
 - Example:
 
 ```c
-vs_hashset_iterator_state state;
-vs_iterator iter = vs_hashset_iterator(&state, set);
+vs_iterator iter = vs_hashset_get_iterator(set);
 
 const uint64_t *value;
 while ((value = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {

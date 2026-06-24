@@ -143,27 +143,37 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap) {
     return vs_vector_size(heap->root);
 }
 
-static const void *vs_binary_heap_iterator_next(void *context) {
-    vs_binary_heap_iterator_state *state = context;
-    const vs_binary_heap *heap = state->heap;
+typedef struct vs_binary_heap_iterator_state {
+    const vs_binary_heap *heap;
+    size_t index;
+} vs_binary_heap_iterator_state;
 
-    if (state->index >= vs_vector_size(heap->root)) {
+_Static_assert(
+    sizeof(vs_binary_heap_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_binary_heap_iterator_state must fit in vs_iterator"
+);
+
+static const void *vs_binary_heap_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_binary_heap_iterator_next invalid arguments");
+
+    vs_binary_heap_iterator_state *iterator = context;
+    const vs_binary_heap *heap = iterator->heap;
+
+    if (iterator->index >= vs_vector_size(heap->root)) {
         return NULL;
     }
 
-    return vs_vector_get_const(heap->root, state->index++);
+    return vs_vector_get_const(heap->root, iterator->index++);
 }
 
-vs_iterator vs_binary_heap_iterator(
-    vs_binary_heap_iterator_state *state,
-    const vs_binary_heap *heap
-) {
-    VSTD_ASSERT(state != NULL, "fatal: vs_binary_heap_iterator invalid arguments");
-    VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_iterator invalid arguments");
+vs_iterator vs_binary_heap_get_iterator(const vs_binary_heap *heap) {
+    VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_get_iterator invalid arguments");
 
+    vs_iterator iter = vs_iterator_from_state(vs_binary_heap_iterator_next);
+    vs_binary_heap_iterator_state *state = vs_iterator_state(&iter);
     state->heap = heap;
     state->index = 0;
-    return vs_iterator_from_callback(state, vs_binary_heap_iterator_next);
+    return iter;
 }
 
 void vs_binary_heap_destroy(vs_binary_heap *heap) {

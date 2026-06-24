@@ -20,17 +20,21 @@ typedef struct vs_hashmap_entry_view {
 } vs_hashmap_entry_view;
 ```
 
-Hashmap iterators yield pointers to this view. The view is stored inside the
-iterator state and is overwritten by the next `vs_iterator_next` call on that
+Hashmap entry iterators yield pointers to this view. The view is stored inside
+the iterator and is overwritten by the next `vs_iterator_next` call on that
 iterator.
 
-### vs_hashmap_iterator_state
+### vs_hashmap_iterator_type
 
 ```c
-typedef struct vs_hashmap_iterator_state vs_hashmap_iterator_state;
+typedef enum vs_hashmap_iterator_type {
+    VS_HASHMAP_ITERATOR_ENTRY,
+    VS_HASHMAP_ITERATOR_KEY,
+    VS_HASHMAP_ITERATOR_VALUE,
+} vs_hashmap_iterator_type;
 ```
 
-Caller-owned cursor state for `vs_hashmap_iterator`.
+Selects whether `vs_hashmap_get_iterator` yields entry views, keys, or values.
 
 ## FUNCTIONS
 
@@ -131,23 +135,21 @@ size_t vs_hashmap_size(const vs_hashmap *map);
 size_t count = vs_hashmap_size(map);
 ```
 
-### vs_hashmap_iterator
+### vs_hashmap_get_iterator
 
 ```c
-vs_iterator vs_hashmap_iterator(vs_hashmap_iterator_state *state, const vs_hashmap *map);
+vs_iterator vs_hashmap_get_iterator(const vs_hashmap *map,
+                                    vs_hashmap_iterator_type type);
 ```
 
-- Parameters: `state`, `map`
-- Returns: iterator over key/value entry views in bucket order.
-- Notes: `state` must outlive the returned iterator. Yielded pointers are
-  `const vs_hashmap_entry_view *`. The view is stored inside `state` and is
-  overwritten by the next `vs_iterator_next` call on that iterator. Do not
-  mutate the hashmap while iterating.
+- Parameters: `map`, `type`
+- Returns: iterator over entry views, keys, or values in bucket order.
+- Notes: do not mutate the hashmap while iterating. Entry views are stored
+  inside the iterator and are overwritten by the next `vs_iterator_next` call.
 - Example:
 
 ```c
-vs_hashmap_iterator_state state;
-vs_iterator iter = vs_hashmap_iterator(&state, map);
+vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_ENTRY);
 
 const vs_hashmap_entry_view *entry;
 while ((entry = (const vs_hashmap_entry_view *)vs_iterator_next(&iter)) != NULL) {
@@ -156,22 +158,10 @@ while ((entry = (const vs_hashmap_entry_view *)vs_iterator_next(&iter)) != NULL)
 }
 ```
 
-### vs_hashmap_key_iterator
+Key iterator example:
 
 ```c
-vs_iterator vs_hashmap_key_iterator(vs_hashmap_iterator_state *state,
-                                    const vs_hashmap *map);
-```
-
-- Parameters: `state`, `map`
-- Returns: iterator over keys in bucket order.
-- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
-  map-managed key storage. Do not mutate the hashmap while iterating.
-- Example:
-
-```c
-vs_hashmap_iterator_state state;
-vs_iterator iter = vs_hashmap_key_iterator(&state, map);
+vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_KEY);
 
 const uint64_t *key;
 while ((key = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
@@ -179,22 +169,10 @@ while ((key = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
 }
 ```
 
-### vs_hashmap_value_iterator
+Value iterator example:
 
 ```c
-vs_iterator vs_hashmap_value_iterator(vs_hashmap_iterator_state *state,
-                                      const vs_hashmap *map);
-```
-
-- Parameters: `state`, `map`
-- Returns: iterator over values in bucket order.
-- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
-  map-managed value storage. Do not mutate the hashmap while iterating.
-- Example:
-
-```c
-vs_hashmap_iterator_state state;
-vs_iterator iter = vs_hashmap_value_iterator(&state, map);
+vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_VALUE);
 
 const uint64_t *value;
 while ((value = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {

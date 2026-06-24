@@ -58,10 +58,6 @@ typedef struct vs_linked_list_node {
 
 typedef struct vs_linked_list vs_linked_list;
 
-typedef struct vs_linked_list_iterator_state {
-    vs_linked_list_node *node;
-} vs_linked_list_iterator_state;
-
 /* Create an intrusive linked list. */
 vs_linked_list *vs_linked_list_create(vs_allocator *allocator);
 
@@ -84,10 +80,7 @@ size_t vs_linked_list_size(const vs_linked_list *list);
 vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list);
 
 /* Return an iterator over list nodes from head to tail. */
-vs_iterator vs_linked_list_iterator(
-    vs_linked_list_iterator_state *state,
-    const vs_linked_list *list
-);
+vs_iterator vs_linked_list_get_iterator(const vs_linked_list *list);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
 void vs_linked_list_destroy(vs_linked_list *list);

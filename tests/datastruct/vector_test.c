@@ -212,7 +212,6 @@ VS_TEST(iterator_walks_vector) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_vector *v;
-    vs_vector_iterator_state state;
     vs_iterator iter;
     const int *item;
     int expected = 0;
@@ -222,7 +221,7 @@ VS_TEST(iterator_walks_vector) {
         vs_vector_push(v, &i);
     }
 
-    iter = vs_vector_iterator(&state, v);
+    iter = vs_vector_get_iterator(v);
 
     while ((item = vs_iterator_next(&iter)) != NULL) {
         if (vs_test_equal(*item, expected) != 0) {
@@ -281,7 +280,6 @@ VS_TEST(iterator_collect_copies_items) {
     vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     vs_vector *out;
-    vs_vector_iterator_state vector_state;
     vs_iterator iter;
     int expected[] = {1, 2, 3};
 
@@ -290,7 +288,7 @@ VS_TEST(iterator_collect_copies_items) {
         vs_vector_push(v, &expected[i]);
     }
 
-    iter = vs_vector_iterator(&vector_state, v);
+    iter = vs_vector_get_iterator(v);
     out = vs_iterator_collect(&iter, sizeof(int), vs_test_allocator_adapter(&test_allocator));
     vs_vector_destroy(v);
 
@@ -315,7 +313,6 @@ VS_TEST(iterator_collect_map_changes_type) {
     vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     vs_vector *out;
-    vs_vector_iterator_state vector_state;
     vs_iterator iter;
     int values[] = {1, 2, 3};
 
@@ -324,7 +321,7 @@ VS_TEST(iterator_collect_map_changes_type) {
         vs_vector_push(v, &values[i]);
     }
 
-    iter = vs_vector_iterator(&vector_state, v);
+    iter = vs_vector_get_iterator(v);
     out = vs_iterator_collect_map(
         &iter,
         sizeof(double),

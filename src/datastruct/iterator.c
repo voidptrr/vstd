@@ -33,7 +33,7 @@ const void *vs_iterator_next(vs_iterator *iter) {
     VSTD_ASSERT(iter != NULL, "fatal: vs_iterator_next invalid arguments");
     VSTD_ASSERT(iter->next != NULL, "fatal: vs_iterator_next invalid arguments");
 
-    return iter->next(iter->context);
+    return iter->next(iter->context != NULL ? iter->context : iter->state.bytes);
 }
 
 vs_vector *vs_iterator_collect(vs_iterator *source, size_t elem_size, vs_allocator *allocator) {
@@ -80,4 +80,20 @@ vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next) {
     out.context = context;
     out.next = next;
     return out;
+}
+
+vs_iterator vs_iterator_from_state(vs_iterator_next_fn next) {
+    vs_iterator out;
+
+    VSTD_ASSERT(next != NULL, "fatal: vs_iterator_from_state invalid arguments");
+
+    out.context = NULL;
+    out.next = next;
+    return out;
+}
+
+void *vs_iterator_state(vs_iterator *iter) {
+    VSTD_ASSERT(iter != NULL, "fatal: vs_iterator_state invalid arguments");
+
+    return iter->state.bytes;
 }

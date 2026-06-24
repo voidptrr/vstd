@@ -140,23 +140,35 @@ size_t vs_vector_size(const vs_vector *vector) {
     return vector->size;
 }
 
-static const void *vs_vector_iterator_next(void *context) {
-    vs_vector_iterator_state *state = context;
+typedef struct vs_vector_iterator_state {
+    const vs_vector *vector;
+    size_t index;
+} vs_vector_iterator_state;
 
-    if (state->index >= vs_vector_size(state->vector)) {
+_Static_assert(
+    sizeof(vs_vector_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_vector_iterator_state must fit in vs_iterator"
+);
+
+static const void *vs_vector_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_vector_iterator_next invalid arguments");
+
+    vs_vector_iterator_state *iterator = context;
+    if (iterator->index >= vs_vector_size(iterator->vector)) {
         return NULL;
     }
 
-    return vs_vector_get_const(state->vector, state->index++);
+    return vs_vector_get_const(iterator->vector, iterator->index++);
 }
 
-vs_iterator vs_vector_iterator(vs_vector_iterator_state *state, const vs_vector *vector) {
-    VSTD_ASSERT(state != NULL, "fatal: vs_vector_iterator invalid arguments");
-    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_iterator invalid arguments");
+vs_iterator vs_vector_get_iterator(const vs_vector *vector) {
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_get_iterator invalid arguments");
 
+    vs_iterator iter = vs_iterator_from_state(vs_vector_iterator_next);
+    vs_vector_iterator_state *state = vs_iterator_state(&iter);
     state->vector = vector;
     state->index = 0;
-    return vs_iterator_from_callback(state, vs_vector_iterator_next);
+    return iter;
 }
 
 size_t vs_vector_lower_bound(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp) {

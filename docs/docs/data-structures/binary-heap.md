@@ -10,13 +10,13 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_binary_heap_iterator_state
+### vs_binary_heap_iterator
 
 ```c
-typedef struct vs_binary_heap_iterator_state vs_binary_heap_iterator_state;
+typedef struct vs_binary_heap_iterator vs_binary_heap_iterator;
 ```
 
-Caller-owned cursor state for `vs_binary_heap_iterator`.
+Typed cursor for walking heap backing storage.
 
 ## FUNCTIONS
 
@@ -106,22 +106,20 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap);
 size_t count = vs_binary_heap_size(heap);
 ```
 
-### vs_binary_heap_iterator
+### vs_binary_heap_get_iterator
 
 ```c
-vs_iterator vs_binary_heap_iterator(vs_binary_heap_iterator_state *state,
-                                    const vs_binary_heap *heap);
+vs_iterator vs_binary_heap_get_iterator(const vs_binary_heap *heap);
 ```
 
-- Parameters: `state`, `heap`
+- Parameters: `heap`
 - Returns: iterator over the heap's backing-storage order.
-- Notes: `state` must outlive the returned iterator. Iteration order is not
-  sorted order. Do not mutate the heap while iterating.
+- Notes: iteration order is not sorted order. Do not mutate the heap while
+  iterating.
 - Example:
 
 ```c
-vs_binary_heap_iterator_state state;
-vs_iterator iter = vs_binary_heap_iterator(&state, heap);
+vs_iterator iter = vs_binary_heap_get_iterator(heap);
 
 const int *item;
 while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {

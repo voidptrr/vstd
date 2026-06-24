@@ -58,12 +58,6 @@ typedef bool (*vs_hashset_elem_eq_fn)(const void *lhs, const void *rhs);
 typedef struct vs_hashset vs_hashset;
 typedef struct vs_linked_list_node vs_linked_list_node;
 
-typedef struct vs_hashset_iterator_state {
-    const vs_hashset *set;
-    size_t bucket;
-    vs_linked_list_node *node;
-} vs_hashset_iterator_state;
-
 /*
  * Create a hash set with fixed element size.
  * Hashing uses the internal FNV-1a implementation over stored element bytes.
@@ -106,7 +100,7 @@ void vs_hashset_remove(vs_hashset *set, const void *elem);
 size_t vs_hashset_size(const vs_hashset *set);
 
 /* Return an iterator over stored elements in bucket order. */
-vs_iterator vs_hashset_iterator(vs_hashset_iterator_state *state, const vs_hashset *set);
+vs_iterator vs_hashset_get_iterator(const vs_hashset *set);
 
 /*
  * Release all entries and the hashset handle.
