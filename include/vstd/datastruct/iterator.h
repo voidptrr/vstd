@@ -25,57 +25,23 @@
 #ifndef VSTD_ITERATOR_H
 #define VSTD_ITERATOR_H
 
-#include <stdbool.h>
 #include <stddef.h>
 
 /*
  * Generic iterator over caller-owned data.
  *
- * Iterator constructors return fully initialized iterator values. Adapters keep
- * pointers to their source iterators, so the source iterator must outlive any
- * adapter built from it.
- *
+ * Iterator constructors return fully initialized iterator values.
  * vs_iterator_next returns the next item pointer, or NULL when exhausted.
  */
 typedef const void *(*vs_iterator_next_fn)(void *context);
-typedef bool (*vs_iterator_predicate_fn)(void *context, const void *item);
-typedef const void *(*vs_iterator_map_fn)(void *context, const void *item);
+typedef void (*vs_iterator_map_into_fn)(void *context, const void *src, void *dst);
 
-typedef enum vs_iterator_type {
-    VS_ITERATOR_CALLBACK,
-    VS_ITERATOR_FILTER,
-    VS_ITERATOR_MAP,
-    VS_ITERATOR_TAKE_WHILE,
-} vs_iterator_type;
+typedef struct vs_allocator vs_allocator;
+typedef struct vs_vector vs_vector;
 
 typedef struct vs_iterator {
-    vs_iterator_type type;
-
-    union {
-        struct {
-            void *context;
-            vs_iterator_next_fn next;
-        } callback;
-
-        struct {
-            struct vs_iterator *source;
-            vs_iterator_predicate_fn predicate;
-            void *context;
-        } filter;
-
-        struct {
-            struct vs_iterator *source;
-            vs_iterator_map_fn map;
-            void *context;
-        } map;
-
-        struct {
-            struct vs_iterator *source;
-            vs_iterator_predicate_fn predicate;
-            void *context;
-            bool done;
-        } take_while;
-    } as;
+    void *context;
+    vs_iterator_next_fn next;
 } vs_iterator;
 
 /* Return an iterator backed by caller-owned context and a next callback. */
@@ -84,21 +50,16 @@ vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next);
 /* Return the next item from iter, or NULL when exhausted. */
 const void *vs_iterator_next(vs_iterator *iter);
 
-/* Return an iterator that yields only source items accepted by predicate. */
-vs_iterator vs_iterator_filter(
-    vs_iterator *source,
-    vs_iterator_predicate_fn predicate,
-    void *context
-);
+/* Collect remaining source items by copying elem_size bytes into a new vector. */
+vs_vector *vs_iterator_collect(vs_iterator *source, size_t elem_size, vs_allocator *allocator);
 
-/* Return an iterator that yields map(context, item) for each source item. */
-vs_iterator vs_iterator_map(vs_iterator *source, vs_iterator_map_fn map, void *context);
-
-/* Return an iterator that stops after the first source item rejected by predicate. */
-vs_iterator vs_iterator_take_while(
+/* Map each remaining source item into dst_elem_size bytes and collect into a new vector. */
+vs_vector *vs_iterator_collect_map(
     vs_iterator *source,
-    vs_iterator_predicate_fn predicate,
-    void *context
+    size_t dst_elem_size,
+    vs_iterator_map_into_fn map,
+    void *context,
+    vs_allocator *allocator
 );
 
 #endif

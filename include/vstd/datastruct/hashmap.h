@@ -110,6 +110,12 @@ size_t vs_hashmap_size(const vs_hashmap *map);
 /* Return an iterator over key/value entry views in bucket order. */
 vs_iterator vs_hashmap_iterator(vs_hashmap_iterator_state *state, const vs_hashmap *map);
 
+/* Return an iterator over keys in bucket order. */
+vs_iterator vs_hashmap_key_iterator(vs_hashmap_iterator_state *state, const vs_hashmap *map);
+
+/* Return an iterator over values in bucket order. */
+vs_iterator vs_hashmap_value_iterator(vs_hashmap_iterator_state *state, const vs_hashmap *map);
+
 /*
  * Release all entries, bucket storage, and the hashmap handle.
  */

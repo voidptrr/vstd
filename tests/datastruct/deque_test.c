@@ -23,6 +23,7 @@
  */
 
 #include "vstd/datastruct/deque.h"
+#include "vstd/datastruct/vector.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
@@ -243,6 +244,40 @@ VS_TEST(iterator_walks_front_to_back) {
     return 0;
 }
 
+VS_TEST(iterator_collect_copies_items) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_deque *q;
+    vs_vector *out;
+    vs_deque_iterator_state state;
+    vs_iterator iter;
+    int expected[] = {1, 2, 3, 4};
+
+    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
+        vs_deque_push(q, &expected[i]);
+    }
+
+    iter = vs_deque_iterator(&state, q);
+    out = vs_iterator_collect(&iter, sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_deque_destroy(q);
+
+    if (vs_vector_size(out) != sizeof(expected) / sizeof(expected[0])) {
+        return 1;
+    }
+    for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
+        if (vs_test_equal(*(const int *)vs_vector_get_const(out, i), expected[i]) != 0) {
+            return 1;
+        }
+    }
+
+    vs_vector_destroy(out);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 VS_TEST_MAIN(
     VS_TEST_CASE(init),
     VS_TEST_CASE(peekback),
@@ -251,5 +286,6 @@ VS_TEST_MAIN(
     VS_TEST_CASE(popleft),
     VS_TEST_CASE(push),
     VS_TEST_CASE(pushfront),
-    VS_TEST_CASE(iterator_walks_front_to_back)
+    VS_TEST_CASE(iterator_walks_front_to_back),
+    VS_TEST_CASE(iterator_collect_copies_items)
 )

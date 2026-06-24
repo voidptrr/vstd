@@ -34,7 +34,17 @@ vs_binary_heap *vs_binary_heap_create(size_t elem_size,
   destroy. When `allocator` is `NULL`, binary heap storage uses the C library
   heap through `vs_malloc`/`vs_realloc`. When `cmp` is `NULL`, element ordering
   uses byte comparison.
-- Example: `vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int, NULL);`
+- Example:
+
+```c
+static int cmp_int(const void *lhs, const void *rhs) {
+    int a = *(const int *)lhs;
+    int b = *(const int *)rhs;
+    return (a > b) - (a < b);
+}
+
+vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int, NULL);
+```
 
 ### vs_binary_heap_push
 
@@ -44,7 +54,12 @@ void vs_binary_heap_push(vs_binary_heap *heap, const void *element);
 
 - Parameters: `heap`, `element`
 - Returns: none.
-- Example: `vs_binary_heap_push(heap, &value);`
+- Example:
+
+```c
+int value = 42;
+vs_binary_heap_push(heap, &value);
+```
 
 ### vs_binary_heap_pop
 
@@ -54,7 +69,14 @@ void *vs_binary_heap_pop(vs_binary_heap *heap);
 
 - Parameters: `heap`
 - Returns: pointer to removed top element in heap-managed storage, or `NULL` when empty.
-- Example: `int *top = (int *)vs_binary_heap_pop(heap);`
+- Example:
+
+```c
+int *top = (int *)vs_binary_heap_pop(heap);
+if (top != NULL) {
+    /* use *top */
+}
+```
 
 ### vs_binary_heap_peek
 
@@ -64,7 +86,11 @@ const void *vs_binary_heap_peek(const vs_binary_heap *heap);
 
 - Parameters: `heap`
 - Returns: pointer to top element in heap-managed storage, or `NULL` when empty.
-- Example: `const int *top = (const int *)vs_binary_heap_peek(heap);`
+- Example:
+
+```c
+const int *top = (const int *)vs_binary_heap_peek(heap);
+```
 
 ### vs_binary_heap_size
 
@@ -74,7 +100,11 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap);
 
 - Parameters: `heap`
 - Returns: current element count.
-- Example: `size_t count = vs_binary_heap_size(heap);`
+- Example:
+
+```c
+size_t count = vs_binary_heap_size(heap);
+```
 
 ### vs_binary_heap_iterator
 
@@ -87,7 +117,17 @@ vs_iterator vs_binary_heap_iterator(vs_binary_heap_iterator_state *state,
 - Returns: iterator over the heap's backing-storage order.
 - Notes: `state` must outlive the returned iterator. Iteration order is not
   sorted order. Do not mutate the heap while iterating.
-- Example: `vs_iterator iter = vs_binary_heap_iterator(&state, heap);`
+- Example:
+
+```c
+vs_binary_heap_iterator_state state;
+vs_iterator iter = vs_binary_heap_iterator(&state, heap);
+
+const int *item;
+while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {
+    /* backing-storage order, not sorted order */
+}
+```
 
 ### vs_binary_heap_destroy
 
@@ -98,5 +138,8 @@ void vs_binary_heap_destroy(vs_binary_heap *heap);
 - Parameters: `heap`
 - Returns: none.
 - Notes: releases heap storage and the opaque handle. Do not use `heap` after this call.
-- Example: `vs_binary_heap_destroy(heap);`
+- Example:
 
+```c
+vs_binary_heap_destroy(heap);
+```
