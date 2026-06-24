@@ -30,7 +30,11 @@ vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator);
 - Notes: the deque stores `allocator` and reuses it for growth and destroy.
   When `allocator` is `NULL`, deque uses the C library heap through
   `vs_malloc`/`vs_realloc`.
-- Example: `vs_deque *deque = vs_deque_create(sizeof(int), NULL);`
+- Example:
+
+```c
+vs_deque *deque = vs_deque_create(sizeof(int), NULL);
+```
 
 ### vs_deque_push
 
@@ -40,7 +44,12 @@ void vs_deque_push(vs_deque *deque, const void *element);
 
 - Parameters: `deque`, `element`
 - Returns: none.
-- Example: `vs_deque_push(deque, &value);`
+- Example:
+
+```c
+int value = 2;
+vs_deque_push(deque, &value);
+```
 
 ### vs_deque_pushfront
 
@@ -50,7 +59,12 @@ void vs_deque_pushfront(vs_deque *deque, const void *element);
 
 - Parameters: `deque`, `element`
 - Returns: none.
-- Example: `vs_deque_pushfront(deque, &value);`
+- Example:
+
+```c
+int value = 1;
+vs_deque_pushfront(deque, &value);
+```
 
 ### vs_deque_popleft
 
@@ -60,7 +74,14 @@ void *vs_deque_popleft(vs_deque *deque);
 
 - Parameters: `deque`
 - Returns: pointer to removed front element in deque-managed storage, or `NULL` when empty.
-- Example: `int *front = (int *)vs_deque_popleft(deque);`
+- Example:
+
+```c
+int *front = (int *)vs_deque_popleft(deque);
+if (front != NULL) {
+    /* use *front */
+}
+```
 
 ### vs_deque_popback
 
@@ -70,7 +91,14 @@ void *vs_deque_popback(vs_deque *deque);
 
 - Parameters: `deque`
 - Returns: pointer to removed back element in deque-managed storage, or `NULL` when empty.
-- Example: `int *back = (int *)vs_deque_popback(deque);`
+- Example:
+
+```c
+int *back = (int *)vs_deque_popback(deque);
+if (back != NULL) {
+    /* use *back */
+}
+```
 
 ### vs_deque_peekleft
 
@@ -80,7 +108,11 @@ const void *vs_deque_peekleft(const vs_deque *deque);
 
 - Parameters: `deque`
 - Returns: pointer to front element in deque-managed storage, or `NULL` when empty.
-- Example: `const int *front = (const int *)vs_deque_peekleft(deque);`
+- Example:
+
+```c
+const int *front = (const int *)vs_deque_peekleft(deque);
+```
 
 ### vs_deque_peekback
 
@@ -90,7 +122,11 @@ const void *vs_deque_peekback(const vs_deque *deque);
 
 - Parameters: `deque`
 - Returns: pointer to back element in deque-managed storage, or `NULL` when empty.
-- Example: `const int *back = (const int *)vs_deque_peekback(deque);`
+- Example:
+
+```c
+const int *back = (const int *)vs_deque_peekback(deque);
+```
 
 ### vs_deque_size
 
@@ -100,7 +136,11 @@ size_t vs_deque_size(const vs_deque *deque);
 
 - Parameters: `deque`
 - Returns: current element count.
-- Example: `size_t count = vs_deque_size(deque);`
+- Example:
+
+```c
+size_t count = vs_deque_size(deque);
+```
 
 ### vs_deque_iterator
 
@@ -112,7 +152,17 @@ vs_iterator vs_deque_iterator(vs_deque_iterator_state *state, const vs_deque *de
 - Returns: iterator over deque elements from front to back.
 - Notes: `state` must outlive the returned iterator. Yielded pointers refer to
   deque-managed storage. Do not mutate the deque while iterating.
-- Example: `vs_iterator iter = vs_deque_iterator(&state, deque);`
+- Example:
+
+```c
+vs_deque_iterator_state state;
+vs_iterator iter = vs_deque_iterator(&state, deque);
+
+const int *item;
+while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {
+    /* use *item */
+}
+```
 
 ### vs_deque_destroy
 
@@ -123,5 +173,8 @@ void vs_deque_destroy(vs_deque *deque);
 - Parameters: `deque`
 - Returns: none.
 - Notes: releases deque storage and the opaque handle. Do not use `deque` after this call.
-- Example: `vs_deque_destroy(deque);`
+- Example:
 
+```c
+vs_deque_destroy(deque);
+```

@@ -291,6 +291,88 @@ VS_TEST(iterator_walks_entries) {
     return 0;
 }
 
+VS_TEST(key_iterator_walks_keys) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map;
+    vs_hashmap_iterator_state state;
+    vs_iterator iter;
+    const uint64_t *key;
+    uint64_t key_sum = 0;
+    size_t count = 0;
+
+    map = vs_hashmap_create(
+        sizeof(uint64_t),
+        sizeof(uint64_t),
+        NULL,
+        vs_test_allocator_adapter(&test_allocator)
+    );
+
+    for (uint64_t i = 1; i <= 4; i++) {
+        uint64_t value = i * 10;
+        vs_hashmap_put(map, &i, &value);
+    }
+
+    iter = vs_hashmap_key_iterator(&state, map);
+    while ((key = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
+        key_sum += *key;
+        count += 1;
+    }
+    if (count != 4) {
+        return 1;
+    }
+    if (key_sum != 10) {
+        return 1;
+    }
+
+    vs_hashmap_destroy(map);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(value_iterator_walks_values) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_hashmap *map;
+    vs_hashmap_iterator_state state;
+    vs_iterator iter;
+    const uint64_t *value;
+    uint64_t value_sum = 0;
+    size_t count = 0;
+
+    map = vs_hashmap_create(
+        sizeof(uint64_t),
+        sizeof(uint64_t),
+        NULL,
+        vs_test_allocator_adapter(&test_allocator)
+    );
+
+    for (uint64_t i = 1; i <= 4; i++) {
+        uint64_t stored = i * 10;
+        vs_hashmap_put(map, &i, &stored);
+    }
+
+    iter = vs_hashmap_value_iterator(&state, map);
+    while ((value = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
+        value_sum += *value;
+        count += 1;
+    }
+    if (count != 4) {
+        return 1;
+    }
+    if (value_sum != 100) {
+        return 1;
+    }
+
+    vs_hashmap_destroy(map);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 VS_TEST_MAIN(
     VS_TEST_CASE(allocator),
     VS_TEST_CASE(init),
@@ -298,5 +380,7 @@ VS_TEST_MAIN(
     VS_TEST_CASE(custom_equality),
     VS_TEST_CASE(put_get),
     VS_TEST_CASE(remove_growth),
-    VS_TEST_CASE(iterator_walks_entries)
+    VS_TEST_CASE(iterator_walks_entries),
+    VS_TEST_CASE(key_iterator_walks_keys),
+    VS_TEST_CASE(value_iterator_walks_values)
 )

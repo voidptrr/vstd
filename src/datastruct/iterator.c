@@ -26,65 +26,50 @@
 
 #include "vstd/assert.h"
 #include "vstd/datastruct/iterator.h"
-
-static const void *vs_iterator_next_callback(vs_iterator *iter) {
-    return iter->as.callback.next(iter->as.callback.context);
-}
-
-static const void *vs_iterator_next_filter(vs_iterator *iter) {
-    const void *item;
-
-    while ((item = vs_iterator_next(iter->as.filter.source)) != NULL) {
-        if (iter->as.filter.predicate(iter->as.filter.context, item)) {
-            return item;
-        }
-    }
-
-    return NULL;
-}
-
-static const void *vs_iterator_next_map(vs_iterator *iter) {
-    const void *item = vs_iterator_next(iter->as.map.source);
-
-    if (item == NULL) {
-        return NULL;
-    }
-
-    return iter->as.map.map(iter->as.map.context, item);
-}
-
-static const void *vs_iterator_next_take_while(vs_iterator *iter) {
-    const void *item;
-
-    if (iter->as.take_while.done) {
-        return NULL;
-    }
-
-    item = vs_iterator_next(iter->as.take_while.source);
-    if (item == NULL || !iter->as.take_while.predicate(iter->as.take_while.context, item)) {
-        iter->as.take_while.done = true;
-        return NULL;
-    }
-
-    return item;
-}
+#include "vstd/datastruct/vector.h"
+#include "vstd/memory/allocator.h"
 
 const void *vs_iterator_next(vs_iterator *iter) {
     VSTD_ASSERT(iter != NULL, "fatal: vs_iterator_next invalid arguments");
+    VSTD_ASSERT(iter->next != NULL, "fatal: vs_iterator_next invalid arguments");
 
-    switch (iter->type) {
-        case VS_ITERATOR_CALLBACK:
-            return vs_iterator_next_callback(iter);
-        case VS_ITERATOR_FILTER:
-            return vs_iterator_next_filter(iter);
-        case VS_ITERATOR_MAP:
-            return vs_iterator_next_map(iter);
-        case VS_ITERATOR_TAKE_WHILE:
-            return vs_iterator_next_take_while(iter);
+    return iter->next(iter->context);
+}
+
+vs_vector *vs_iterator_collect(vs_iterator *source, size_t elem_size, vs_allocator *allocator) {
+    VSTD_ASSERT(source != NULL, "fatal: vs_iterator_collect invalid arguments");
+    VSTD_ASSERT(elem_size > 0, "fatal: vs_iterator_collect invalid arguments");
+
+    vs_vector *out = vs_vector_create(elem_size, allocator);
+    const void *item;
+    while ((item = vs_iterator_next(source)) != NULL) {
+        vs_vector_push(out, item);
     }
 
-    VSTD_ASSERT(false, "fatal: vs_iterator_next invalid iterator type");
-    return NULL;
+    return out;
+}
+
+vs_vector *vs_iterator_collect_map(
+    vs_iterator *source,
+    size_t dst_elem_size,
+    vs_iterator_map_into_fn map,
+    void *context,
+    vs_allocator *allocator
+) {
+    VSTD_ASSERT(source != NULL, "fatal: vs_iterator_collect_map invalid arguments");
+    VSTD_ASSERT(dst_elem_size > 0, "fatal: vs_iterator_collect_map invalid arguments");
+    VSTD_ASSERT(map != NULL, "fatal: vs_iterator_collect_map invalid arguments");
+
+    vs_vector *out = vs_vector_create(dst_elem_size, allocator);
+    void *dst = vs_malloc(allocator, dst_elem_size);
+    const void *item;
+    while ((item = vs_iterator_next(source)) != NULL) {
+        map(context, item, dst);
+        vs_vector_push(out, dst);
+    }
+    vs_dealloc(allocator, dst);
+
+    return out;
 }
 
 vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next) {
@@ -92,56 +77,7 @@ vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next) {
 
     VSTD_ASSERT(next != NULL, "fatal: vs_iterator_from_callback invalid arguments");
 
-    out.type = VS_ITERATOR_CALLBACK;
-    out.as.callback.context = context;
-    out.as.callback.next = next;
-    return out;
-}
-
-vs_iterator vs_iterator_filter(
-    vs_iterator *source,
-    vs_iterator_predicate_fn predicate,
-    void *context
-) {
-    vs_iterator out;
-
-    VSTD_ASSERT(source != NULL, "fatal: vs_iterator_filter invalid arguments");
-    VSTD_ASSERT(predicate != NULL, "fatal: vs_iterator_filter invalid arguments");
-
-    out.type = VS_ITERATOR_FILTER;
-    out.as.filter.source = source;
-    out.as.filter.predicate = predicate;
-    out.as.filter.context = context;
-    return out;
-}
-
-vs_iterator vs_iterator_map(vs_iterator *source, vs_iterator_map_fn map, void *context) {
-    vs_iterator out;
-
-    VSTD_ASSERT(source != NULL, "fatal: vs_iterator_map invalid arguments");
-    VSTD_ASSERT(map != NULL, "fatal: vs_iterator_map invalid arguments");
-
-    out.type = VS_ITERATOR_MAP;
-    out.as.map.source = source;
-    out.as.map.map = map;
-    out.as.map.context = context;
-    return out;
-}
-
-vs_iterator vs_iterator_take_while(
-    vs_iterator *source,
-    vs_iterator_predicate_fn predicate,
-    void *context
-) {
-    vs_iterator out;
-
-    VSTD_ASSERT(source != NULL, "fatal: vs_iterator_take_while invalid arguments");
-    VSTD_ASSERT(predicate != NULL, "fatal: vs_iterator_take_while invalid arguments");
-
-    out.type = VS_ITERATOR_TAKE_WHILE;
-    out.as.take_while.source = source;
-    out.as.take_while.predicate = predicate;
-    out.as.take_while.context = context;
-    out.as.take_while.done = false;
+    out.context = context;
+    out.next = next;
     return out;
 }

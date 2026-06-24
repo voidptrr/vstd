@@ -49,7 +49,11 @@ vs_hashmap *vs_hashmap_create(size_t key_size,
   rehashing, and destroy. When `allocator` is `NULL`, hashmap uses the C
   library heap through `vs_malloc`. Custom `key_eq` callbacks must be
   consistent with the byte hash used for bucket selection.
-- Example: `vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, NULL);`
+- Example:
+
+```c
+vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, NULL);
+```
 
 ### vs_hashmap_put
 
@@ -59,7 +63,13 @@ void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
 
 - Parameters: `map`, `key`, `value`
 - Returns: none.
-- Example: `vs_hashmap_put(map, &key, &value);`
+- Example:
+
+```c
+uint64_t key = 42;
+uint64_t value = 9001;
+vs_hashmap_put(map, &key, &value);
+```
 
 ### vs_hashmap_get
 
@@ -69,7 +79,14 @@ void *vs_hashmap_get(vs_hashmap *map, const void *key);
 
 - Parameters: `map`, `key`
 - Returns: pointer to stored value in map-managed storage, or `NULL` when key is missing.
-- Example: `uint64_t *value = (uint64_t *)vs_hashmap_get(map, &key);`
+- Example:
+
+```c
+uint64_t *value = (uint64_t *)vs_hashmap_get(map, &key);
+if (value != NULL) {
+    *value = 7;
+}
+```
 
 ### vs_hashmap_get_const
 
@@ -79,7 +96,11 @@ const void *vs_hashmap_get_const(const vs_hashmap *map, const void *key);
 
 - Parameters: `map`, `key`
 - Returns: pointer to stored value in map-managed storage, or `NULL` when key is missing.
-- Example: `const uint64_t *value = (const uint64_t *)vs_hashmap_get_const(map, &key);`
+- Example:
+
+```c
+const uint64_t *value = (const uint64_t *)vs_hashmap_get_const(map, &key);
+```
 
 ### vs_hashmap_remove
 
@@ -90,7 +111,11 @@ void vs_hashmap_remove(vs_hashmap *map, const void *key);
 - Parameters: `map`, `key`
 - Returns: none.
 - Notes: missing keys are ignored.
-- Example: `vs_hashmap_remove(map, &key);`
+- Example:
+
+```c
+vs_hashmap_remove(map, &key);
+```
 
 ### vs_hashmap_size
 
@@ -100,7 +125,11 @@ size_t vs_hashmap_size(const vs_hashmap *map);
 
 - Parameters: `map`
 - Returns: current entry count.
-- Example: `size_t count = vs_hashmap_size(map);`
+- Example:
+
+```c
+size_t count = vs_hashmap_size(map);
+```
 
 ### vs_hashmap_iterator
 
@@ -114,7 +143,64 @@ vs_iterator vs_hashmap_iterator(vs_hashmap_iterator_state *state, const vs_hashm
   `const vs_hashmap_entry_view *`. The view is stored inside `state` and is
   overwritten by the next `vs_iterator_next` call on that iterator. Do not
   mutate the hashmap while iterating.
-- Example: `vs_iterator iter = vs_hashmap_iterator(&state, map);`
+- Example:
+
+```c
+vs_hashmap_iterator_state state;
+vs_iterator iter = vs_hashmap_iterator(&state, map);
+
+const vs_hashmap_entry_view *entry;
+while ((entry = (const vs_hashmap_entry_view *)vs_iterator_next(&iter)) != NULL) {
+    const uint64_t *key = (const uint64_t *)entry->key;
+    const uint64_t *value = (const uint64_t *)entry->value;
+}
+```
+
+### vs_hashmap_key_iterator
+
+```c
+vs_iterator vs_hashmap_key_iterator(vs_hashmap_iterator_state *state,
+                                    const vs_hashmap *map);
+```
+
+- Parameters: `state`, `map`
+- Returns: iterator over keys in bucket order.
+- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
+  map-managed key storage. Do not mutate the hashmap while iterating.
+- Example:
+
+```c
+vs_hashmap_iterator_state state;
+vs_iterator iter = vs_hashmap_key_iterator(&state, map);
+
+const uint64_t *key;
+while ((key = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
+    /* use *key */
+}
+```
+
+### vs_hashmap_value_iterator
+
+```c
+vs_iterator vs_hashmap_value_iterator(vs_hashmap_iterator_state *state,
+                                      const vs_hashmap *map);
+```
+
+- Parameters: `state`, `map`
+- Returns: iterator over values in bucket order.
+- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
+  map-managed value storage. Do not mutate the hashmap while iterating.
+- Example:
+
+```c
+vs_hashmap_iterator_state state;
+vs_iterator iter = vs_hashmap_value_iterator(&state, map);
+
+const uint64_t *value;
+while ((value = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
+    /* use *value */
+}
+```
 
 ### vs_hashmap_destroy
 
@@ -125,5 +211,8 @@ void vs_hashmap_destroy(vs_hashmap *map);
 - Parameters: `map`
 - Returns: none.
 - Notes: releases entries, buckets, and the opaque handle. Do not use `map` after this call.
-- Example: `vs_hashmap_destroy(map);`
+- Example:
 
+```c
+vs_hashmap_destroy(map);
+```

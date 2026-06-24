@@ -36,23 +36,10 @@ static int cmp_int(const void *lhs, const void *rhs) {
     return (a > b) - (a < b);
 }
 
-static bool int_is_even(void *context, const void *item) {
+static void int_to_double(void *context, const void *src, void *dst) {
     (void)context;
 
-    return (*(const int *)item % 2) == 0;
-}
-
-static bool int_less_than(void *context, const void *item) {
-    int limit = *(const int *)context;
-
-    return *(const int *)item < limit;
-}
-
-static const void *int_square(void *context, const void *item) {
-    int *out = context;
-
-    *out = *(const int *)item * *(const int *)item;
-    return out;
+    *(double *)dst = (double)*(const int *)src;
 }
 
 typedef struct paged_array_iterator {
@@ -254,54 +241,6 @@ VS_TEST(iterator_walks_vector) {
     return 0;
 }
 
-VS_TEST(filter_map_take_while_iterators_compose) {
-    vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
-    vs_vector *v;
-    vs_vector_iterator_state vector_state;
-    vs_iterator base;
-    vs_iterator even;
-    vs_iterator squares;
-    vs_iterator small;
-    const int *item;
-    int mapped = 0;
-    int limit = 20;
-    int expected[] = {0, 4, 16};
-    size_t index = 0;
-
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
-    for (int i = 0; i < 8; i++) {
-        vs_vector_push(v, &i);
-    }
-
-    base = vs_vector_iterator(&vector_state, v);
-    even = vs_iterator_filter(&base, int_is_even, NULL);
-    squares = vs_iterator_map(&even, int_square, &mapped);
-    small = vs_iterator_take_while(&squares, int_less_than, &limit);
-
-    while ((item = vs_iterator_next(&small)) != NULL) {
-        if (index >= sizeof(expected) / sizeof(expected[0])) {
-            return 1;
-        }
-        if (vs_test_equal(*item, expected[index]) != 0) {
-            return 1;
-        }
-        index += 1;
-    }
-    if (index != 3) {
-        return 1;
-    }
-    if (vs_test_null(vs_iterator_next(&small)) != 0) {
-        return 1;
-    }
-
-    vs_vector_destroy(v);
-    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
-        return 1;
-    }
-    return 0;
-}
-
 VS_TEST(custom_callback_iterator_takes_ten_at_a_time) {
     int values[25];
     paged_array_iterator state;
@@ -337,39 +276,78 @@ VS_TEST(custom_callback_iterator_takes_ten_at_a_time) {
     return 0;
 }
 
-VS_TEST(custom_callback_iterator_composes_with_adapters) {
-    int values[25];
-    paged_array_iterator state;
-    vs_iterator base;
-    vs_iterator even;
-    vs_iterator first_small;
-    const int *item;
-    int limit = 13;
-    int expected[] = {0, 2, 4, 6, 8, 10, 12};
-    size_t index = 0;
+VS_TEST(iterator_collect_copies_items) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
+    vs_vector *out;
+    vs_vector_iterator_state vector_state;
+    vs_iterator iter;
+    int expected[] = {1, 2, 3};
 
-    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
-        values[i] = (int)i;
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
+        vs_vector_push(v, &expected[i]);
     }
 
-    base = paged_array_iter(&state, values, sizeof(values) / sizeof(values[0]));
-    even = vs_iterator_filter(&base, int_is_even, NULL);
-    first_small = vs_iterator_take_while(&even, int_less_than, &limit);
+    iter = vs_vector_iterator(&vector_state, v);
+    out = vs_iterator_collect(&iter, sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_vector_destroy(v);
 
-    while ((item = vs_iterator_next(&first_small)) != NULL) {
-        if (index >= sizeof(expected) / sizeof(expected[0])) {
-            return 1;
-        }
-        if (vs_test_equal(*item, expected[index]) != 0) {
-            return 1;
-        }
-        index += 1;
-    }
-
-    if (index != sizeof(expected) / sizeof(expected[0])) {
+    if (vs_vector_size(out) != sizeof(expected) / sizeof(expected[0])) {
         return 1;
     }
+    for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
+        if (vs_test_equal(*(int *)vs_vector_get(out, i), expected[i]) != 0) {
+            return 1;
+        }
+    }
 
+    vs_vector_destroy(out);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(iterator_collect_map_changes_type) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
+    vs_vector *out;
+    vs_vector_iterator_state vector_state;
+    vs_iterator iter;
+    int values[] = {1, 2, 3};
+
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
+        vs_vector_push(v, &values[i]);
+    }
+
+    iter = vs_vector_iterator(&vector_state, v);
+    out = vs_iterator_collect_map(
+        &iter,
+        sizeof(double),
+        int_to_double,
+        NULL,
+        vs_test_allocator_adapter(&test_allocator)
+    );
+    vs_vector_destroy(v);
+
+    if (vs_vector_size(out) != sizeof(values) / sizeof(values[0])) {
+        return 1;
+    }
+    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
+        const double *value = (const double *)vs_vector_get_const(out, i);
+        if (vs_test_equal((int)*value, values[i]) != 0) {
+            return 1;
+        }
+    }
+
+    vs_vector_destroy(out);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
     return 0;
 }
 
@@ -430,8 +408,8 @@ VS_TEST_MAIN(
     VS_TEST_CASE(push_grows_storage),
     VS_TEST_CASE(push_preserves_existing_items_after_growth),
     VS_TEST_CASE(iterator_walks_vector),
-    VS_TEST_CASE(filter_map_take_while_iterators_compose),
     VS_TEST_CASE(custom_callback_iterator_takes_ten_at_a_time),
-    VS_TEST_CASE(custom_callback_iterator_composes_with_adapters),
+    VS_TEST_CASE(iterator_collect_copies_items),
+    VS_TEST_CASE(iterator_collect_map_changes_type),
     VS_TEST_CASE(binary_search_bounds)
 )
