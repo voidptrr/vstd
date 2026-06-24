@@ -39,7 +39,6 @@ VS_TEST(iterator_walks_nodes) {
     test_item first = {.value = 1};
     test_item second = {.value = 2};
     test_item third = {.value = 3};
-    vs_doubly_linked_list_iterator_state state;
     vs_iterator iter;
     const vs_doubly_linked_list_node *node;
     int expected = 1;
@@ -49,7 +48,7 @@ VS_TEST(iterator_walks_nodes) {
     vs_doubly_linked_list_push(list, &second.node);
     vs_doubly_linked_list_push(list, &third.node);
 
-    iter = vs_doubly_linked_list_iterator(&state, list);
+    iter = vs_doubly_linked_list_get_iterator(list);
     while ((node = (const vs_doubly_linked_list_node *)vs_iterator_next(&iter)) != NULL) {
         const test_item *item = VS_CONTAINER_OF(node, test_item, node);
         if (vs_test_equal(item->value, expected) != 0) {

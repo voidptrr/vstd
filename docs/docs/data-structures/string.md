@@ -16,14 +16,6 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 typedef char *vs_string;
 ```
 
-### vs_string_iterator_state
-
-```c
-typedef struct vs_string_iterator_state vs_string_iterator_state;
-```
-
-Caller-owned cursor state for `vs_string_iterator`.
-
 ## FUNCTIONS
 
 ### vs_string_create
@@ -148,21 +140,20 @@ size_t vs_string_len(const vs_string string);
 size_t len = vs_string_len(string);
 ```
 
-### vs_string_iterator
+### vs_string_get_iterator
 
 ```c
-vs_iterator vs_string_iterator(vs_string_iterator_state *state, const vs_string string);
+vs_iterator vs_string_get_iterator(const vs_string string);
 ```
 
-- Parameters: `state`, `string`
+- Parameters: `string`
 - Returns: iterator over bytes before the terminating NUL.
-- Notes: `state` must outlive the returned iterator. Yielded pointers are
-  `const char *`. Do not mutate or reallocate the string while iterating.
+- Notes: yielded pointers are `const char *`. Do not mutate or reallocate the
+  string while iterating.
 - Example:
 
 ```c
-vs_string_iterator_state state;
-vs_iterator iter = vs_string_iterator(&state, string);
+vs_iterator iter = vs_string_get_iterator(string);
 
 const char *ch;
 while ((ch = (const char *)vs_iterator_next(&iter)) != NULL) {

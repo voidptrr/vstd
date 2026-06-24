@@ -192,26 +192,35 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_li
     return list->tail;
 }
 
+typedef struct vs_doubly_linked_list_iterator_state {
+    vs_doubly_linked_list_node *node;
+} vs_doubly_linked_list_iterator_state;
+
+_Static_assert(
+    sizeof(vs_doubly_linked_list_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_doubly_linked_list_iterator_state must fit in vs_iterator"
+);
+
 static const void *vs_doubly_linked_list_iterator_next(void *context) {
-    vs_doubly_linked_list_iterator_state *state = context;
-    vs_doubly_linked_list_node *node = state->node;
+    VSTD_ASSERT(context != NULL, "fatal: vs_doubly_linked_list_iterator_next invalid arguments");
+
+    vs_doubly_linked_list_iterator_state *iterator = context;
+    vs_doubly_linked_list_node *node = iterator->node;
     if (node == NULL) {
         return NULL;
     }
 
-    state->node = node->next;
+    iterator->node = node->next;
     return node;
 }
 
-vs_iterator vs_doubly_linked_list_iterator(
-    vs_doubly_linked_list_iterator_state *state,
-    const vs_doubly_linked_list *list
-) {
-    VSTD_ASSERT(state != NULL, "fatal: vs_doubly_linked_list_iterator invalid arguments");
-    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_iterator invalid arguments");
+vs_iterator vs_doubly_linked_list_get_iterator(const vs_doubly_linked_list *list) {
+    VSTD_ASSERT(list != NULL, "fatal: vs_doubly_linked_list_get_iterator invalid arguments");
 
+    vs_iterator iter = vs_iterator_from_state(vs_doubly_linked_list_iterator_next);
+    vs_doubly_linked_list_iterator_state *state = vs_iterator_state(&iter);
     state->node = list->head;
-    return vs_iterator_from_callback(state, vs_doubly_linked_list_iterator_next);
+    return iter;
 }
 
 void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list) {

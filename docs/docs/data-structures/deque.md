@@ -9,13 +9,13 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_deque_iterator_state
+### vs_deque_iterator
 
 ```c
-typedef struct vs_deque_iterator_state vs_deque_iterator_state;
+typedef struct vs_deque_iterator vs_deque_iterator;
 ```
 
-Caller-owned cursor state for `vs_deque_iterator`.
+Typed cursor for walking deque elements.
 
 ## FUNCTIONS
 
@@ -142,21 +142,20 @@ size_t vs_deque_size(const vs_deque *deque);
 size_t count = vs_deque_size(deque);
 ```
 
-### vs_deque_iterator
+### vs_deque_get_iterator
 
 ```c
-vs_iterator vs_deque_iterator(vs_deque_iterator_state *state, const vs_deque *deque);
+vs_iterator vs_deque_get_iterator(const vs_deque *deque);
 ```
 
-- Parameters: `state`, `deque`
+- Parameters: `deque`
 - Returns: iterator over deque elements from front to back.
-- Notes: `state` must outlive the returned iterator. Yielded pointers refer to
-  deque-managed storage. Do not mutate the deque while iterating.
+- Notes: yielded pointers refer to deque-managed storage. Do not mutate the
+  deque while iterating.
 - Example:
 
 ```c
-vs_deque_iterator_state state;
-vs_iterator iter = vs_deque_iterator(&state, deque);
+vs_iterator iter = vs_deque_get_iterator(deque);
 
 const int *item;
 while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {

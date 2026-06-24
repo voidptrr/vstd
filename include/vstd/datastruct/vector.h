@@ -50,11 +50,6 @@ typedef struct vs_vector vs_vector;
 /* Comparator callback: negative if lhs < rhs, zero if equal, positive if lhs > rhs. */
 typedef int (*vs_vector_cmp_fn)(const void *lhs, const void *rhs);
 
-typedef struct vs_vector_iterator_state {
-    const vs_vector *vector;
-    size_t index;
-} vs_vector_iterator_state;
-
 /* Create a vector with element size elem_size. */
 vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator);
 
@@ -80,7 +75,7 @@ void *vs_vector_swap_remove(vs_vector *vector, size_t index);
 size_t vs_vector_size(const vs_vector *vector);
 
 /* Return an iterator over vector from index 0 to size - 1. */
-vs_iterator vs_vector_iterator(vs_vector_iterator_state *state, const vs_vector *vector);
+vs_iterator vs_vector_get_iterator(const vs_vector *vector);
 
 /* Return the first sorted index whose item is not less than key. */
 size_t vs_vector_lower_bound(const vs_vector *vector, const void *key, vs_vector_cmp_fn cmp);

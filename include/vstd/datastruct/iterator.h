@@ -39,13 +39,27 @@ typedef void (*vs_iterator_map_into_fn)(void *context, const void *src, void *ds
 typedef struct vs_allocator vs_allocator;
 typedef struct vs_vector vs_vector;
 
+#define VS_ITERATOR_STATE_SIZE 64
+
+typedef union vs_iterator_storage {
+    max_align_t align;
+    unsigned char bytes[VS_ITERATOR_STATE_SIZE];
+} vs_iterator_storage;
+
 typedef struct vs_iterator {
     void *context;
     vs_iterator_next_fn next;
+    vs_iterator_storage state;
 } vs_iterator;
 
 /* Return an iterator backed by caller-owned context and a next callback. */
 vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next);
+
+/* Return an iterator backed by its internal state storage and a next callback. */
+vs_iterator vs_iterator_from_state(vs_iterator_next_fn next);
+
+/* Return iter's internal state storage. */
+void *vs_iterator_state(vs_iterator *iter);
 
 /* Return the next item from iter, or NULL when exhausted. */
 const void *vs_iterator_next(vs_iterator *iter);

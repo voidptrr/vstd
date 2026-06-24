@@ -222,8 +222,7 @@ VS_TEST(iterator_walks_bytes) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_string value = vs_string_create("abc", vs_test_allocator_adapter(&test_allocator));
-    vs_string_iterator_state state;
-    vs_iterator iter = vs_string_iterator(&state, value);
+    vs_iterator iter = vs_string_get_iterator(value);
     const char *out;
     const char *expected = "abc";
     size_t index = 0;

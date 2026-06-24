@@ -177,24 +177,37 @@ size_t vs_string_len(const vs_string string) {
     return header->len;
 }
 
-static const void *vs_string_iterator_next(void *context) {
-    vs_string_iterator_state *state = context;
-    const char *string = state->string;
+typedef struct vs_string_iterator_state {
+    const char *string;
+    size_t index;
+} vs_string_iterator_state;
 
-    if (state->index >= vs_string_len((vs_string)string)) {
+_Static_assert(
+    sizeof(vs_string_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_string_iterator_state must fit in vs_iterator"
+);
+
+static const void *vs_string_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_string_iterator_next invalid arguments");
+
+    vs_string_iterator_state *iterator = context;
+    const char *string = iterator->string;
+
+    if (iterator->index >= vs_string_len((vs_string)string)) {
         return NULL;
     }
 
-    return &string[state->index++];
+    return &string[iterator->index++];
 }
 
-vs_iterator vs_string_iterator(vs_string_iterator_state *state, const vs_string string) {
-    VSTD_ASSERT(state != NULL, "fatal: vs_string_iterator invalid arguments");
-    VSTD_ASSERT(string != NULL, "fatal: vs_string_iterator invalid arguments");
+vs_iterator vs_string_get_iterator(const vs_string string) {
+    VSTD_ASSERT(string != NULL, "fatal: vs_string_get_iterator invalid arguments");
 
+    vs_iterator iter = vs_iterator_from_state(vs_string_iterator_next);
+    vs_string_iterator_state *state = vs_iterator_state(&iter);
     state->string = string;
     state->index = 0;
-    return vs_iterator_from_callback(state, vs_string_iterator_next);
+    return iter;
 }
 
 void vs_string_destroy(vs_string string) {

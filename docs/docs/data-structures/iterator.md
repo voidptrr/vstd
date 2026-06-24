@@ -115,8 +115,7 @@ int two = 2;
 vs_vector_push(values, &one);
 vs_vector_push(values, &two);
 
-vs_vector_iterator_state state;
-vs_iterator iter = vs_vector_iterator(&state, values);
+vs_iterator iter = vs_vector_get_iterator(values);
 vs_vector *copy = vs_iterator_collect(&iter, sizeof(int), NULL);
 
 vs_vector_destroy(values);
@@ -150,8 +149,7 @@ vs_vector *ints = vs_vector_create(sizeof(int), NULL);
 int value = 42;
 vs_vector_push(ints, &value);
 
-vs_vector_iterator_state state;
-vs_iterator iter = vs_vector_iterator(&state, ints);
+vs_iterator iter = vs_vector_get_iterator(ints);
 vs_vector *doubles =
     vs_iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL);
 

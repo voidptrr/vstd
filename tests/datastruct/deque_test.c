@@ -212,7 +212,6 @@ VS_TEST(iterator_walks_front_to_back) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
     vs_deque *q;
-    vs_deque_iterator_state state;
     vs_iterator iter;
     const int *out;
     int expected[] = {1, 2, 3, 4};
@@ -223,7 +222,7 @@ VS_TEST(iterator_walks_front_to_back) {
         vs_deque_push(q, &expected[i]);
     }
 
-    iter = vs_deque_iterator(&state, q);
+    iter = vs_deque_get_iterator(q);
     while ((out = (const int *)vs_iterator_next(&iter)) != NULL) {
         if (index >= sizeof(expected) / sizeof(expected[0])) {
             return 1;
@@ -249,7 +248,6 @@ VS_TEST(iterator_collect_copies_items) {
     vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     vs_vector *out;
-    vs_deque_iterator_state state;
     vs_iterator iter;
     int expected[] = {1, 2, 3, 4};
 
@@ -258,7 +256,7 @@ VS_TEST(iterator_collect_copies_items) {
         vs_deque_push(q, &expected[i]);
     }
 
-    iter = vs_deque_iterator(&state, q);
+    iter = vs_deque_get_iterator(q);
     out = vs_iterator_collect(&iter, sizeof(int), vs_test_allocator_adapter(&test_allocator));
     vs_deque_destroy(q);
 
