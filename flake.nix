@@ -25,7 +25,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    vtools.url = "github:voidptrr/vtools";
+    vtools.url = "github:voidptrr/vtools/67ebc2f56d6536f9d37c65b249c8c51b2dbcf511";
   };
 
   outputs = {
@@ -60,10 +60,23 @@
       };
     });
 
-    checks = forEachSystem ({pkgs}:
-      vtools.lib.mkZigCChecks {
+    checks = forEachSystem ({pkgs}: let
+      checks = vtools.lib.mkChecks {
         inherit pkgs;
         src = ./.;
-      });
+        extraPackages = [
+          pkgs.zensical
+        ];
+      };
+    in {
+      inherit
+        (checks)
+        build-check
+        code-check
+        format-check
+        lint-check
+        test-check
+        ;
+    });
   };
 }
