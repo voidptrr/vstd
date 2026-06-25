@@ -43,25 +43,10 @@ fn discoverCFiles(b: *std.Build, root_path: []const u8) []const []const u8 {
     return files.toOwnedSlice() catch @panic("OOM");
 }
 
-fn testNameFromPath(b: *std.Build, path: []const u8) []const u8 {
-    const prefix = "tests/";
-    const suffix = "_test.c";
-    const relative = if (std.mem.startsWith(u8, path, prefix)) path[prefix.len..] else path;
-    const without_suffix = if (std.mem.endsWith(u8, relative, suffix))
-        relative[0 .. relative.len - suffix.len]
-    else
-        relative;
-    const name = b.allocator.dupe(u8, without_suffix) catch @panic("OOM");
-    std.mem.replaceScalar(u8, name, '/', '-');
-    std.mem.replaceScalar(u8, name, '_', '-');
-    return name;
-}
-
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const sources = discoverCFiles(b, "src");
-    const tests = discoverCFiles(b, "tests");
 
     const lib_mod = b.createModule(.{
         .target = target,
@@ -86,26 +71,11 @@ pub fn build(b: *std.Build) void {
         .install_subdir = "",
     }).step);
 
-    const test_step = b.step("test", "Build and run the C test suite");
-    for (tests) |test_path| {
-        const test_mod = b.createModule(.{
-            .target = target,
-            .optimize = optimize,
-            .link_libc = true,
-        });
-        addCommonSettings(b, test_mod);
-        test_mod.addCSourceFile(.{
-            .file = b.path(test_path),
-            .flags = c_flags,
-        });
-
-        const exe = b.addExecutable(.{
-            .name = testNameFromPath(b, test_path),
-            .root_module = test_mod,
-        });
-        test_mod.linkLibrary(lib);
-
-        const run = b.addRunArtifact(exe);
-        test_step.dependOn(&run.step);
-    }
+    const test_step = b.step("test", "Build and run the C test suite with CTest");
+    const ctests = b.addSystemCommand(&.{
+        "sh",
+        "scripts/ctests",
+        ".zig-cache/ctests",
+    });
+    test_step.dependOn(&ctests.step);
 }

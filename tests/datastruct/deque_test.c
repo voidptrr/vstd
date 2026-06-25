@@ -22,7 +22,10 @@
  * SOFTWARE.
  */
 
+#include <stddef.h>
+
 #include "vstd/datastruct/deque.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/vector.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"

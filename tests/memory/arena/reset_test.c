@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include <stdint.h>
+
 #include "vstd/memory/arena.h"
 #include "vstd/testing.h"
 
@@ -39,7 +41,7 @@ int main(void) {
     }
 
     vs_arena_reset(arena);
-    if (vs_test_equal(vs_arena_used(arena), 0) != 0) {
+    if (vs_test_equal((intmax_t)vs_arena_used(arena), 0) != 0) {
         return 1;
     }
 

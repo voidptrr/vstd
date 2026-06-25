@@ -208,6 +208,42 @@ VS_TEST(push_preserves_existing_items_after_growth) {
     return 0;
 }
 
+VS_TEST(reserve_and_data_access) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
+
+    v = vs_vector_create_with_capacity(sizeof(int), 2, vs_test_allocator_adapter(&test_allocator));
+    if (vs_vector_capacity(v) != 2) {
+        return 1;
+    }
+
+    vs_vector_reserve(v, 32);
+    if (vs_vector_capacity(v) < 32) {
+        return 1;
+    }
+
+    VS_VECTOR_PUSH_AS(v, int, 7);
+    VS_VECTOR_PUSH_AS(v, int, 11);
+
+    const int *items = (const int *)vs_vector_data_const(v);
+    if (vs_test_equal(items[0], 7) != 0) {
+        return 1;
+    }
+    if (vs_test_equal(items[1], 11) != 0) {
+        return 1;
+    }
+    if (vs_test_not_null(vs_vector_data(v)) != 0) {
+        return 1;
+    }
+
+    vs_vector_destroy(v);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 VS_TEST(iterator_walks_vector) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
@@ -230,6 +266,37 @@ VS_TEST(iterator_walks_vector) {
         expected += 1;
     }
     if (vs_test_equal(expected, 4) != 0) {
+        return 1;
+    }
+
+    vs_vector_destroy(v);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(vector_for_each_macro_walks_items) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
+    int sum = 0;
+    size_t count = 0;
+
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (int i = 1; i <= 4; i++) {
+        VS_VECTOR_PUSH_AS(v, int, i);
+    }
+
+    VS_VECTOR_FOR_EACH(int, item, v) {
+        sum += *item;
+        count += 1;
+    }
+
+    if (vs_test_equal(sum, 10) != 0) {
+        return 1;
+    }
+    if (count != 4) {
         return 1;
     }
 
@@ -302,6 +369,36 @@ VS_TEST(iterator_collect_copies_items) {
     }
 
     vs_vector_destroy(out);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(iterator_collect_reserves_from_size_hint) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_vector *v;
+    vs_vector *out;
+    vs_iterator iter;
+
+    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    for (int i = 0; i < 25; i++) {
+        vs_vector_push(v, &i);
+    }
+
+    iter = vs_vector_get_iterator(v);
+    out = vs_iterator_collect(&iter, sizeof(int), vs_test_allocator_adapter(&test_allocator));
+
+    if (vs_vector_size(out) != 25) {
+        return 1;
+    }
+    if (vs_vector_capacity(out) < 25) {
+        return 1;
+    }
+
+    vs_vector_destroy(out);
+    vs_vector_destroy(v);
     if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
         return 1;
     }
@@ -404,9 +501,12 @@ VS_TEST_MAIN(
     VS_TEST_CASE(push_single_element),
     VS_TEST_CASE(push_grows_storage),
     VS_TEST_CASE(push_preserves_existing_items_after_growth),
+    VS_TEST_CASE(reserve_and_data_access),
     VS_TEST_CASE(iterator_walks_vector),
+    VS_TEST_CASE(vector_for_each_macro_walks_items),
     VS_TEST_CASE(custom_callback_iterator_takes_ten_at_a_time),
     VS_TEST_CASE(iterator_collect_copies_items),
+    VS_TEST_CASE(iterator_collect_reserves_from_size_hint),
     VS_TEST_CASE(iterator_collect_map_changes_type),
     VS_TEST_CASE(binary_search_bounds)
 )

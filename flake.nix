@@ -55,6 +55,9 @@
         inherit pkgs;
         src = ./.;
         extraPackages = [
+          pkgs.cmake
+          pkgs.gcc
+          pkgs.zig
           pkgs.zensical
         ];
       };
@@ -65,6 +68,9 @@
         inherit pkgs;
         src = ./.;
         extraPackages = [
+          pkgs.cmake
+          pkgs.gcc
+          pkgs.zig
           pkgs.zensical
         ];
       };
@@ -75,8 +81,8 @@
         code-check
         format-check
         lint-check
-        test-check
         ;
+      test-check = pkgs.callPackage ./nix/package.nix {};
     });
   };
 }

@@ -30,6 +30,7 @@
 
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
+#include "vstd/memory/utils.h"
 
 /*
  * Opaque intrusive singly linked list.
@@ -57,6 +58,16 @@ typedef struct vs_linked_list_node {
 } vs_linked_list_node;
 
 typedef struct vs_linked_list vs_linked_list;
+
+#define VS_LINKED_LIST_FOR_EACH_NODE(item, list) \
+    for (vs_iterator item##_vs_iter__ = vs_linked_list_get_iterator((list)); \
+         ((item) = VS_ITER_NEXT_AS(vs_linked_list_node, &item##_vs_iter__)) != NULL;)
+
+#define VS_LINKED_LIST_FOR_EACH_ENTRY(type, member, item, list) \
+    for (vs_iterator item##_vs_iter__ = vs_linked_list_get_iterator((list)); \
+         ((item) = \
+              VS_CONTAINER_OF_CONST_OR_NULL(vs_iterator_next(&item##_vs_iter__), type, member)) \
+         != NULL;)
 
 /* Create an intrusive linked list. */
 vs_linked_list *vs_linked_list_create(vs_allocator *allocator);

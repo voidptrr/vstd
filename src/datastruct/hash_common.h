@@ -28,41 +28,47 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "hash.h"
 #include "vstd/datastruct/linked_list.h"
 #include "vstd/memory/allocator.h"
 
 #define VS_HASH_COMMON_DEFAULT_CAPACITY 16
-#define VS_HASH_COMMON_MAX_LOAD 0.75
+#define VS_HASH_COMMON_MAX_LOAD_NUMERATOR 3
+#define VS_HASH_COMMON_MAX_LOAD_DENOMINATOR 4
 
 typedef void (*vs_hash_common_entry_destroy_fn)(vs_linked_list_node *node, vs_allocator *allocator);
 typedef const void *(*vs_hash_common_entry_value_fn)(const vs_linked_list_node *node);
+typedef size_t (*vs_hash_common_entry_hash_fn)(const vs_linked_list_node *node);
 typedef bool (*vs_hash_common_eq_fn)(const void *lhs, const void *rhs);
 
+typedef struct vs_hash_common_bucket {
+    vs_linked_list_node *head;
+} vs_hash_common_bucket;
+
 /* Allocate and initialize an array of empty bucket lists. */
-vs_linked_list **vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator);
+vs_hash_common_bucket *vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator);
 
 /*
  * Move all nodes into a newly allocated bucket array sized to new_capacity.
- * The old bucket list wrappers and bucket array are destroyed, but entries are
- * preserved and relinked into the new buckets.
+ * The old bucket array is destroyed, but entries are preserved and relinked
+ * into the new buckets.
  */
-vs_linked_list **vs_hash_common_buckets_rehash(
-    vs_linked_list **buckets,
+vs_hash_common_bucket *vs_hash_common_buckets_rehash(
+    vs_hash_common_bucket *buckets,
     size_t capacity,
     size_t new_capacity,
-    size_t value_size,
     vs_allocator *allocator,
-    vs_hash_common_entry_value_fn entry_value
+    vs_hash_common_entry_hash_fn entry_hash
 );
 
 /* Return the first node whose extracted value equals value, or NULL. */
 vs_linked_list_node *vs_hash_common_bucket_find(
-    vs_linked_list *bucket,
+    const vs_hash_common_bucket *bucket,
     const void *value,
     size_t value_size,
+    size_t hash,
     vs_hash_common_eq_fn value_eq,
-    vs_hash_common_entry_value_fn entry_value
+    vs_hash_common_entry_value_fn entry_value,
+    vs_hash_common_entry_hash_fn entry_hash
 );
 
 /*
@@ -70,33 +76,48 @@ vs_linked_list_node *vs_hash_common_bucket_find(
  * is found. The returned node remains owned by the caller.
  */
 vs_linked_list_node *vs_hash_common_bucket_remove(
-    vs_linked_list *bucket,
+    vs_hash_common_bucket *bucket,
     const void *value,
     size_t value_size,
+    size_t hash,
     vs_hash_common_eq_fn value_eq,
-    vs_hash_common_entry_value_fn entry_value
+    vs_hash_common_entry_value_fn entry_value,
+    vs_hash_common_entry_hash_fn entry_hash
 );
 
 /* Destroy all entries, bucket lists, and the bucket array. */
 void vs_hash_common_buckets_destroy(
-    vs_linked_list **buckets,
+    vs_hash_common_bucket *buckets,
     size_t capacity,
     vs_allocator *allocator,
     vs_hash_common_entry_destroy_fn entry_destroy
 );
 
+/* Link node at the front of bucket. */
+void vs_hash_common_bucket_pushfront(vs_hash_common_bucket *bucket, vs_linked_list_node *node);
+
+/* Return the first node in bucket, or NULL when empty. */
+vs_linked_list_node *vs_hash_common_bucket_head(const vs_hash_common_bucket *bucket);
+
 /* Hash value and map it into the bucket range [0, capacity). */
-static inline size_t vs_hash_common_bucket_index(
-    const void *value,
-    size_t value_size,
-    size_t capacity
-) {
-    return vs_fnv1a_hash(value, value_size) % capacity;
+static inline size_t vs_hash_common_bucket_index(size_t hash, size_t capacity) {
+    return hash % capacity;
 }
 
 /* Return true when inserting one more item would exceed the load limit. */
 static inline bool vs_hash_common_should_grow(size_t size, size_t capacity) {
-    return ((double)(size + 1) / (double)capacity) > VS_HASH_COMMON_MAX_LOAD;
+    return ((size + 1) * VS_HASH_COMMON_MAX_LOAD_DENOMINATOR)
+           > (capacity * VS_HASH_COMMON_MAX_LOAD_NUMERATOR);
+}
+
+/* Return a power-of-two capacity that can hold size items at the max load. */
+static inline size_t vs_hash_common_capacity_for_size(size_t size) {
+    size_t capacity = VS_HASH_COMMON_DEFAULT_CAPACITY;
+    while ((size * VS_HASH_COMMON_MAX_LOAD_DENOMINATOR)
+           > (capacity * VS_HASH_COMMON_MAX_LOAD_NUMERATOR)) {
+        capacity *= 2;
+    }
+    return capacity;
 }
 
 #endif

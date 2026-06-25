@@ -44,11 +44,17 @@ typedef struct vs_test_case {
         return vs_test_run(vs_test_cases, sizeof(vs_test_cases) / sizeof(vs_test_cases[0])); \
     }
 
+#define vs_test_equal(actual, expected) \
+    vs_test_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
+
+#define vs_test_not_equal(actual, expected) \
+    vs_test_not_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
+
 /* Return 0 when scalar values are equal, otherwise print both values and return 1. */
-int vs_test_equal(intmax_t actual, intmax_t expected);
+int vs_test_equal_intmax(intmax_t actual, intmax_t expected);
 
 /* Return 0 when scalar values differ, otherwise print both values and return 1. */
-int vs_test_not_equal(intmax_t actual, intmax_t expected);
+int vs_test_not_equal_intmax(intmax_t actual, intmax_t expected);
 
 /* Return 0 when pointers are equal, otherwise print both addresses and return 1. */
 int vs_test_equal_ptr(const void *actual, const void *expected);

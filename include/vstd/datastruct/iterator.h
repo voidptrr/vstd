@@ -49,8 +49,15 @@ typedef union vs_iterator_storage {
 typedef struct vs_iterator {
     void *context;
     vs_iterator_next_fn next;
+    size_t size_hint;
     vs_iterator_storage state;
 } vs_iterator;
+
+#define VS_ITER_NEXT_AS(type, iter) ((const type *)vs_iterator_next((iter)))
+
+#define VS_ITERATOR_FOR_EACH(type, item, iter) \
+    for (const type *(item) = VS_ITER_NEXT_AS(type, (iter)); (item) != NULL; \
+         (item) = VS_ITER_NEXT_AS(type, (iter)))
 
 /* Return an iterator backed by caller-owned context and a next callback. */
 vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next);
@@ -60,6 +67,12 @@ vs_iterator vs_iterator_from_state(vs_iterator_next_fn next);
 
 /* Return iter's internal state storage. */
 void *vs_iterator_state(vs_iterator *iter);
+
+/* Set a conservative count of remaining items, used by collectors to reserve storage. */
+void vs_iterator_set_size_hint(vs_iterator *iter, size_t size_hint);
+
+/* Return a conservative count of remaining items when known, or zero otherwise. */
+size_t vs_iterator_size_hint(const vs_iterator *iter);
 
 /* Return the next item from iter, or NULL when exhausted. */
 const void *vs_iterator_next(vs_iterator *iter);

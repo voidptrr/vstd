@@ -38,6 +38,42 @@ Selects whether `vs_hashmap_get_iterator` yields entry views, keys, or values.
 
 ## FUNCTIONS
 
+### VS_HASHMAP_FOR_EACH_ENTRY
+
+```c
+#define VS_HASHMAP_FOR_EACH_ENTRY(item, map)
+```
+
+- Parameters: `item`, `map`
+- Notes: assigns each `const vs_hashmap_entry_view *` to a caller-declared
+  `item` pointer.
+- Example:
+
+```c
+const vs_hashmap_entry_view *entry;
+VS_HASHMAP_FOR_EACH_ENTRY(entry, map) {
+    /* use entry->key and entry->value */
+}
+```
+
+### VS_HASHMAP_FOR_EACH_KEY
+
+```c
+#define VS_HASHMAP_FOR_EACH_KEY(type, item, map)
+```
+
+- Parameters: `type`, `item`, `map`
+- Notes: assigns each key pointer to a caller-declared `const type *item`.
+
+### VS_HASHMAP_FOR_EACH_VALUE
+
+```c
+#define VS_HASHMAP_FOR_EACH_VALUE(type, item, map)
+```
+
+- Parameters: `type`, `item`, `map`
+- Notes: assigns each value pointer to a caller-declared `const type *item`.
+
 ### vs_hashmap_create
 
 ```c
@@ -57,6 +93,22 @@ vs_hashmap *vs_hashmap_create(size_t key_size,
 
 ```c
 vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, NULL);
+```
+
+### vs_hashmap_reserve
+
+```c
+void vs_hashmap_reserve(vs_hashmap *map, size_t size);
+```
+
+- Parameters: `map`, `size`
+- Returns: none.
+- Notes: grows bucket storage so at least `size` entries fit without another
+  rehash at the default load factor.
+- Example:
+
+```c
+vs_hashmap_reserve(map, 1024);
 ```
 
 ### vs_hashmap_put

@@ -46,6 +46,36 @@ destination storage has the element size passed to `vs_iterator_collect_map`.
 
 ## FUNCTIONS
 
+### VS_ITER_NEXT_AS
+
+```c
+#define VS_ITER_NEXT_AS(type, iter)
+```
+
+- Parameters: `type`, `iter`
+- Returns: typed pointer from `vs_iterator_next`.
+- Example:
+
+```c
+const int *item = VS_ITER_NEXT_AS(int, &iter);
+```
+
+### VS_ITERATOR_FOR_EACH
+
+```c
+#define VS_ITERATOR_FOR_EACH(type, item, iter)
+```
+
+- Parameters: `type`, `item`, `iter`
+- Notes: declares `const type *item` scoped to the loop body.
+- Example:
+
+```c
+VS_ITERATOR_FOR_EACH(int, item, &iter) {
+    /* use *item */
+}
+```
+
 ### vs_iterator_from_callback
 
 ```c
@@ -93,6 +123,26 @@ while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {
     /* use *item */
 }
 ```
+
+### vs_iterator_set_size_hint
+
+```c
+void vs_iterator_set_size_hint(vs_iterator *iter, size_t size_hint);
+```
+
+- Parameters: `iter`, `size_hint`
+- Returns: none.
+- Notes: sets a conservative remaining-item count used by collect helpers to
+  reserve output storage.
+
+### vs_iterator_size_hint
+
+```c
+size_t vs_iterator_size_hint(const vs_iterator *iter);
+```
+
+- Parameters: `iter`
+- Returns: remaining-item hint, or zero when unknown.
 
 ### vs_iterator_collect
 

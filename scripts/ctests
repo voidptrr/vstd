@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+set -eu
+
+build_dir="${1:-build/ctests}"
+
+cmake -S . -B "$build_dir"
+cmake --build "$build_dir" --target vstd_ctests
+ctest --test-dir "$build_dir" --output-on-failure

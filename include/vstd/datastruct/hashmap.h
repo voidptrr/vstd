@@ -69,6 +69,18 @@ typedef enum vs_hashmap_iterator_type {
     VS_HASHMAP_ITERATOR_VALUE,
 } vs_hashmap_iterator_type;
 
+#define VS_HASHMAP_FOR_EACH_ENTRY(item, map) \
+    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_ENTRY); \
+         ((item) = VS_ITER_NEXT_AS(vs_hashmap_entry_view, &item##_vs_iter__)) != NULL;)
+
+#define VS_HASHMAP_FOR_EACH_KEY(type, item, map) \
+    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_KEY); \
+         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
+
+#define VS_HASHMAP_FOR_EACH_VALUE(type, item, map) \
+    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_VALUE); \
+         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
+
 /*
  * Create a hash map with fixed key/value sizes.
  * Hashing uses the internal FNV-1a implementation over stored key bytes. When
@@ -81,6 +93,9 @@ vs_hashmap *vs_hashmap_create(
     vs_hashmap_key_eq_fn key_eq,
     vs_allocator *allocator
 );
+
+/* Ensure map can hold at least size entries without growing. */
+void vs_hashmap_reserve(vs_hashmap *map, size_t size);
 
 /*
  * Insert or update an entry.

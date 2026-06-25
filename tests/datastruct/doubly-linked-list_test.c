@@ -23,6 +23,7 @@
  */
 
 #include "vstd/datastruct/doubly_linked_list.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/memory/utils.h"
 #include "vstd/testing.h"

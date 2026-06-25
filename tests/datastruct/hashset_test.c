@@ -27,6 +27,7 @@
 #include <stdint.h>
 
 #include "vstd/datastruct/hashset.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
@@ -245,6 +246,31 @@ VS_TEST(insert) {
     return 0;
 }
 
+VS_TEST(reserve) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_hashset *set;
+
+    set = vs_hashset_create(sizeof(uint64_t), NULL, vs_test_allocator_adapter(&test_allocator));
+    vs_hashset_reserve(set, 512);
+
+    for (uint64_t i = 0; i < 512; i++) {
+        vs_hashset_insert(set, &i);
+    }
+
+    for (uint64_t i = 0; i < 512; i++) {
+        if (vs_test_equal(vs_hashset_contains(set, &i), true) != 0) {
+            return 1;
+        }
+    }
+
+    vs_hashset_destroy(set);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 VS_TEST(remove) {
     vs_test_allocator test_allocator;
     vs_test_allocator_init(&test_allocator);
@@ -281,6 +307,38 @@ VS_TEST(remove) {
         return 1;
     }
     if (vs_hashset_size(set) != 253) {
+        return 1;
+    }
+
+    vs_hashset_destroy(set);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(foreach_macro_walks_elements) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_hashset *set;
+    const uint64_t *elem;
+    uint64_t sum = 0;
+    size_t count = 0;
+
+    set = vs_hashset_create(sizeof(uint64_t), NULL, vs_test_allocator_adapter(&test_allocator));
+    for (uint64_t i = 1; i <= 4; i++) {
+        vs_hashset_insert(set, &i);
+    }
+
+    VS_HASHSET_FOR_EACH(uint64_t, elem, set) {
+        sum += *elem;
+        count += 1;
+    }
+
+    if (count != 4) {
+        return 1;
+    }
+    if (sum != 10) {
         return 1;
     }
 
@@ -332,6 +390,8 @@ VS_TEST_MAIN(
     VS_TEST_CASE(default_byte_equality),
     VS_TEST_CASE(custom_equality),
     VS_TEST_CASE(insert),
+    VS_TEST_CASE(reserve),
     VS_TEST_CASE(remove),
+    VS_TEST_CASE(foreach_macro_walks_elements),
     VS_TEST_CASE(iterator_walks_elements)
 )

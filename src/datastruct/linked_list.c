@@ -156,6 +156,7 @@ vs_iterator vs_linked_list_get_iterator(const vs_linked_list *list) {
     vs_iterator iter = vs_iterator_from_state(vs_linked_list_iterator_next);
     vs_linked_list_iterator_state *state = vs_iterator_state(&iter);
     state->node = list->head;
+    vs_iterator_set_size_hint(&iter, list->size);
     return iter;
 }
 

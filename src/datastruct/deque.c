@@ -200,8 +200,11 @@ size_t vs_deque_size(const vs_deque *deque) {
 }
 
 typedef struct vs_deque_iterator_state {
-    const vs_deque *deque;
+    const uint8_t *base;
+    size_t elem_size;
     size_t index;
+    size_t mask;
+    size_t remaining;
 } vs_deque_iterator_state;
 
 _Static_assert(
@@ -213,25 +216,28 @@ static const void *vs_deque_iterator_next(void *context) {
     VSTD_ASSERT(context != NULL, "fatal: vs_deque_iterator_next invalid arguments");
 
     vs_deque_iterator_state *iterator = context;
-    const vs_deque *deque = iterator->deque;
-
-    if (iterator->index >= deque->size) {
+    if (iterator->remaining == 0) {
         return NULL;
     }
 
-    size_t storage_index = (deque->head + iterator->index) % deque->capacity;
-    const uint8_t *base = (const uint8_t *)deque->buffer;
+    size_t storage_index = iterator->index & iterator->mask;
     iterator->index += 1;
-    return base + (storage_index * deque->elem_size);
+    iterator->remaining -= 1;
+    return iterator->base + (storage_index * iterator->elem_size);
 }
 
 vs_iterator vs_deque_get_iterator(const vs_deque *deque) {
     VSTD_ASSERT(deque != NULL, "fatal: vs_deque_get_iterator invalid arguments");
+    VSTD_ASSERT((deque->capacity & (deque->capacity - 1)) == 0, "fatal: vs_deque invalid state");
 
     vs_iterator iter = vs_iterator_from_state(vs_deque_iterator_next);
     vs_deque_iterator_state *state = vs_iterator_state(&iter);
-    state->deque = deque;
-    state->index = 0;
+    state->base = (const uint8_t *)deque->buffer;
+    state->elem_size = deque->elem_size;
+    state->index = deque->head;
+    state->mask = deque->capacity - 1;
+    state->remaining = deque->size;
+    vs_iterator_set_size_hint(&iter, deque->size);
     return iter;
 }
 

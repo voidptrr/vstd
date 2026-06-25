@@ -22,6 +22,7 @@
 #
 {
   lib,
+  cmake,
   stdenv,
   zig,
 }:
@@ -32,6 +33,7 @@ stdenv.mkDerivation {
   src = ../.;
 
   nativeBuildInputs = [
+    cmake
     zig
   ];
 
@@ -55,7 +57,9 @@ stdenv.mkDerivation {
 
   checkPhase = ''
     runHook preCheck
-    zig build test
+    cmake -S . -B build/ctests
+    cmake --build build/ctests --target vstd_ctests
+    ctest --test-dir build/ctests --output-on-failure
     runHook postCheck
   '';
 

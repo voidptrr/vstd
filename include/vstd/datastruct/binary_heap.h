@@ -59,6 +59,12 @@ typedef int (*vs_binary_heap_cmp_fn)(const void *lhs, const void *rhs);
 
 typedef struct vs_binary_heap vs_binary_heap;
 
+#define VS_BINARY_HEAP_FOR_EACH(type, item, heap) \
+    for (vs_iterator item##_vs_iter__ = vs_binary_heap_get_iterator((heap)); \
+         item##_vs_iter__.next != NULL; \
+         item##_vs_iter__.next = NULL) \
+    VS_ITERATOR_FOR_EACH(type, item, &item##_vs_iter__)
+
 /* Create a heap for elements of size elem_size. NULL cmp uses byte-wise ordering. */
 vs_binary_heap *vs_binary_heap_create(
     size_t elem_size,

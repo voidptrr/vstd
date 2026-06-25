@@ -178,8 +178,8 @@ size_t vs_string_len(const vs_string string) {
 }
 
 typedef struct vs_string_iterator_state {
-    const char *string;
-    size_t index;
+    const char *cursor;
+    const char *end;
 } vs_string_iterator_state;
 
 _Static_assert(
@@ -191,22 +191,23 @@ static const void *vs_string_iterator_next(void *context) {
     VSTD_ASSERT(context != NULL, "fatal: vs_string_iterator_next invalid arguments");
 
     vs_string_iterator_state *iterator = context;
-    const char *string = iterator->string;
 
-    if (iterator->index >= vs_string_len((vs_string)string)) {
+    if (iterator->cursor == iterator->end) {
         return NULL;
     }
 
-    return &string[iterator->index++];
+    return iterator->cursor++;
 }
 
 vs_iterator vs_string_get_iterator(const vs_string string) {
     VSTD_ASSERT(string != NULL, "fatal: vs_string_get_iterator invalid arguments");
 
+    size_t len = vs_string_len(string);
     vs_iterator iter = vs_iterator_from_state(vs_string_iterator_next);
     vs_string_iterator_state *state = vs_iterator_state(&iter);
-    state->string = string;
-    state->index = 0;
+    state->cursor = string;
+    state->end = string + len;
+    vs_iterator_set_size_hint(&iter, len);
     return iter;
 }
 

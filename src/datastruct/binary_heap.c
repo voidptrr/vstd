@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <stdint.h>
 #include <string.h>
 
 #include "vstd/assert.h"
@@ -119,11 +120,13 @@ void *vs_binary_heap_pop(vs_binary_heap *heap) {
         return NULL;
     }
 
-    void *out = vs_vector_swap_remove(heap->root, 0);
-
-    if (size > 1) {
-        vs_binary_heap_sift_down(heap, 0);
+    if (size == 1) {
+        return vs_vector_pop(heap->root);
     }
+
+    vs_binary_heap_swap_at(heap, 0, size - 1);
+    void *out = vs_vector_pop(heap->root);
+    vs_binary_heap_sift_down(heap, 0);
 
     return out;
 }
@@ -144,8 +147,9 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap) {
 }
 
 typedef struct vs_binary_heap_iterator_state {
-    const vs_binary_heap *heap;
-    size_t index;
+    const uint8_t *cursor;
+    size_t elem_size;
+    size_t remaining;
 } vs_binary_heap_iterator_state;
 
 _Static_assert(
@@ -157,13 +161,14 @@ static const void *vs_binary_heap_iterator_next(void *context) {
     VSTD_ASSERT(context != NULL, "fatal: vs_binary_heap_iterator_next invalid arguments");
 
     vs_binary_heap_iterator_state *iterator = context;
-    const vs_binary_heap *heap = iterator->heap;
-
-    if (iterator->index >= vs_vector_size(heap->root)) {
+    if (iterator->remaining == 0) {
         return NULL;
     }
 
-    return vs_vector_get_const(heap->root, iterator->index++);
+    const void *item = iterator->cursor;
+    iterator->cursor += iterator->elem_size;
+    iterator->remaining -= 1;
+    return item;
 }
 
 vs_iterator vs_binary_heap_get_iterator(const vs_binary_heap *heap) {
@@ -171,8 +176,10 @@ vs_iterator vs_binary_heap_get_iterator(const vs_binary_heap *heap) {
 
     vs_iterator iter = vs_iterator_from_state(vs_binary_heap_iterator_next);
     vs_binary_heap_iterator_state *state = vs_iterator_state(&iter);
-    state->heap = heap;
-    state->index = 0;
+    state->cursor = (const uint8_t *)vs_vector_data_const(heap->root);
+    state->elem_size = vs_vector_elem_size(heap->root);
+    state->remaining = vs_vector_size(heap->root);
+    vs_iterator_set_size_hint(&iter, vs_vector_size(heap->root));
     return iter;
 }
 

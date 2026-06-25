@@ -41,20 +41,41 @@ struct vs_vector {
 };
 
 vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator) {
+    return vs_vector_create_with_capacity(elem_size, VS_VECTOR_DEFAULT_CAPACITY, allocator);
+}
+
+vs_vector *vs_vector_create_with_capacity(
+    size_t elem_size,
+    size_t capacity,
+    vs_allocator *allocator
+) {
     VSTD_ASSERT(elem_size > 0, "fatal: vs_vector_create invalid arguments");
+    VSTD_ASSERT(capacity > 0, "fatal: vs_vector_create invalid arguments");
 
     vs_vector *vector = vs_malloc(allocator, sizeof(vs_vector));
     vector->allocator = allocator;
 
-    size_t alloc_size = elem_size * VS_VECTOR_DEFAULT_CAPACITY;
+    size_t alloc_size = elem_size * capacity;
     void *buffer = vs_malloc(allocator, alloc_size);
 
     vector->buffer = buffer;
     vector->size = 0;
     vector->elem_size = elem_size;
-    vector->capacity = VS_VECTOR_DEFAULT_CAPACITY;
+    vector->capacity = capacity;
 
     return vector;
+}
+
+void vs_vector_reserve(vs_vector *vector, size_t capacity) {
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_reserve invalid arguments");
+
+    if (capacity <= vector->capacity) {
+        return;
+    }
+
+    size_t alloc_size = capacity * vector->elem_size;
+    vector->buffer = vs_realloc(vector->allocator, vector->buffer, alloc_size);
+    vector->capacity = capacity;
 }
 
 void vs_vector_push(vs_vector *vector, const void *element) {
@@ -62,13 +83,7 @@ void vs_vector_push(vs_vector *vector, const void *element) {
     VSTD_ASSERT(element != NULL, "fatal: vs_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
-        vs_allocator *allocator = vector->allocator;
-        size_t new_capacity = vector->capacity * 2;
-        size_t alloc_size = new_capacity * vector->elem_size;
-
-        void *tmp = vs_realloc(allocator, vector->buffer, alloc_size);
-        vector->buffer = tmp;
-        vector->capacity = new_capacity;
+        vs_vector_reserve(vector, vector->capacity * 2);
     }
 
     uint8_t *base = (uint8_t *)vector->buffer;
@@ -114,6 +129,24 @@ size_t vs_vector_elem_size(const vs_vector *vector) {
     return vector->elem_size;
 }
 
+size_t vs_vector_capacity(const vs_vector *vector) {
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_capacity invalid arguments");
+
+    return vector->capacity;
+}
+
+void *vs_vector_data(vs_vector *vector) {
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_data invalid arguments");
+
+    return vector->buffer;
+}
+
+const void *vs_vector_data_const(const vs_vector *vector) {
+    VSTD_ASSERT(vector != NULL, "fatal: vs_vector_data_const invalid arguments");
+
+    return vector->buffer;
+}
+
 void *vs_vector_swap_remove(vs_vector *vector, size_t index) {
     VSTD_ASSERT(vector != NULL, "fatal: vs_vector_swap_remove invalid arguments");
 
@@ -141,8 +174,9 @@ size_t vs_vector_size(const vs_vector *vector) {
 }
 
 typedef struct vs_vector_iterator_state {
-    const vs_vector *vector;
-    size_t index;
+    const uint8_t *cursor;
+    size_t elem_size;
+    size_t remaining;
 } vs_vector_iterator_state;
 
 _Static_assert(
@@ -154,11 +188,14 @@ static const void *vs_vector_iterator_next(void *context) {
     VSTD_ASSERT(context != NULL, "fatal: vs_vector_iterator_next invalid arguments");
 
     vs_vector_iterator_state *iterator = context;
-    if (iterator->index >= vs_vector_size(iterator->vector)) {
+    if (iterator->remaining == 0) {
         return NULL;
     }
 
-    return vs_vector_get_const(iterator->vector, iterator->index++);
+    const void *item = iterator->cursor;
+    iterator->cursor += iterator->elem_size;
+    iterator->remaining -= 1;
+    return item;
 }
 
 vs_iterator vs_vector_get_iterator(const vs_vector *vector) {
@@ -166,8 +203,10 @@ vs_iterator vs_vector_get_iterator(const vs_vector *vector) {
 
     vs_iterator iter = vs_iterator_from_state(vs_vector_iterator_next);
     vs_vector_iterator_state *state = vs_iterator_state(&iter);
-    state->vector = vector;
-    state->index = 0;
+    state->cursor = (const uint8_t *)vector->buffer;
+    state->elem_size = vector->elem_size;
+    state->remaining = vector->size;
+    vs_iterator_set_size_hint(&iter, vector->size);
     return iter;
 }
 

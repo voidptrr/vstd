@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -35,7 +36,7 @@ bool vs_test_str_eq(const char *actual, const char *expected) {
     return strcmp(actual, expected) == 0;
 }
 
-int vs_test_equal(intmax_t actual, intmax_t expected) {
+int vs_test_equal_intmax(intmax_t actual, intmax_t expected) {
     if (actual == expected) {
         return 0;
     }
@@ -44,7 +45,7 @@ int vs_test_equal(intmax_t actual, intmax_t expected) {
     return 1;
 }
 
-int vs_test_not_equal(intmax_t actual, intmax_t expected) {
+int vs_test_not_equal_intmax(intmax_t actual, intmax_t expected) {
     if (actual != expected) {
         return 0;
     }

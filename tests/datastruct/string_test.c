@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <stddef.h>
+
+#include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/string.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"

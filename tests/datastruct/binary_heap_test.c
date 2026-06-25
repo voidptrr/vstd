@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 #include "vstd/datastruct/binary_heap.h"
+#include "vstd/datastruct/iterator.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
@@ -102,15 +103,52 @@ VS_TEST(pop) {
         vs_binary_heap_push(heap, &values[i]);
     }
 
+    int expected[] = {1, 3, 4};
     for (size_t i = 0; i < 3; i++) {
         int *out = (int *)vs_binary_heap_pop(heap);
         if (vs_test_not_null(out) != 0) {
+            return 1;
+        }
+        if (vs_test_equal(*out, expected[i]) != 0) {
             return 1;
         }
     }
 
     if (vs_test_null(vs_binary_heap_pop(heap)) != 0) {
         return 1;
+    }
+
+    vs_binary_heap_destroy(heap);
+    if (vs_test_equal(vs_test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+VS_TEST(pop_uses_custom_comparator_order) {
+    vs_test_allocator test_allocator;
+    vs_test_allocator_init(&test_allocator);
+    vs_binary_heap *heap;
+    int values[] = {5, 2, 8, 1};
+    int expected[] = {8, 5, 2, 1};
+
+    heap = vs_binary_heap_create(
+        sizeof(int),
+        cmp_int_desc,
+        vs_test_allocator_adapter(&test_allocator)
+    );
+    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
+        vs_binary_heap_push(heap, &values[i]);
+    }
+
+    for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
+        int *out = (int *)vs_binary_heap_pop(heap);
+        if (vs_test_not_null(out) != 0) {
+            return 1;
+        }
+        if (vs_test_equal(*out, expected[i]) != 0) {
+            return 1;
+        }
     }
 
     vs_binary_heap_destroy(heap);
@@ -248,6 +286,7 @@ VS_TEST_MAIN(
     VS_TEST_CASE(init),
     VS_TEST_CASE(peek),
     VS_TEST_CASE(pop),
+    VS_TEST_CASE(pop_uses_custom_comparator_order),
     VS_TEST_CASE(push),
     VS_TEST_CASE(default_byte_ordering),
     VS_TEST_CASE(custom_comparator),

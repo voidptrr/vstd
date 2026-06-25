@@ -19,6 +19,36 @@ Typed cursor for walking vector elements.
 
 ## FUNCTIONS
 
+### VS_VECTOR_PUSH_AS
+
+```c
+#define VS_VECTOR_PUSH_AS(vector, type, value)
+```
+
+- Parameters: `vector`, `type`, `value`
+- Notes: creates a temporary `type` value and pushes it by address.
+- Example:
+
+```c
+VS_VECTOR_PUSH_AS(vector, int, 42);
+```
+
+### VS_VECTOR_FOR_EACH
+
+```c
+#define VS_VECTOR_FOR_EACH(type, item, vector)
+```
+
+- Parameters: `type`, `item`, `vector`
+- Notes: declares `const type *item` scoped to the loop body.
+- Example:
+
+```c
+VS_VECTOR_FOR_EACH(int, item, vector) {
+    /* use *item */
+}
+```
+
 ### vs_vector_create
 
 ```c
@@ -34,6 +64,37 @@ vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator);
 
 ```c
 vs_vector *vector = vs_vector_create(sizeof(int), NULL);
+```
+
+### vs_vector_create_with_capacity
+
+```c
+vs_vector *vs_vector_create_with_capacity(size_t elem_size,
+                                          size_t capacity,
+                                          vs_allocator *allocator);
+```
+
+- Parameters: `elem_size`, `capacity`, `allocator`
+- Returns: opaque vector handle with at least `capacity` slots allocated.
+- Example:
+
+```c
+vs_vector *vector = vs_vector_create_with_capacity(sizeof(int), 128, NULL);
+```
+
+### vs_vector_reserve
+
+```c
+void vs_vector_reserve(vs_vector *vector, size_t capacity);
+```
+
+- Parameters: `vector`, `capacity`
+- Returns: none.
+- Notes: grows backing storage when needed; existing items are preserved.
+- Example:
+
+```c
+vs_vector_reserve(vector, 1024);
 ```
 
 ### vs_vector_push
@@ -115,6 +176,35 @@ size_t vs_vector_elem_size(const vs_vector *vector);
 ```c
 size_t elem_size = vs_vector_elem_size(vector);
 ```
+
+### vs_vector_capacity
+
+```c
+size_t vs_vector_capacity(const vs_vector *vector);
+```
+
+- Parameters: `vector`
+- Returns: number of elements that fit without another allocation.
+
+### vs_vector_data
+
+```c
+void *vs_vector_data(vs_vector *vector);
+```
+
+- Parameters: `vector`
+- Returns: mutable pointer to vector backing storage.
+- Notes: the pointer may be invalidated by later growth.
+
+### vs_vector_data_const
+
+```c
+const void *vs_vector_data_const(const vs_vector *vector);
+```
+
+- Parameters: `vector`
+- Returns: const pointer to vector backing storage.
+- Notes: the pointer may be invalidated by later growth.
 
 ### vs_vector_swap_remove
 

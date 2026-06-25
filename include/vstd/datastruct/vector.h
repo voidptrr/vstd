@@ -50,8 +50,30 @@ typedef struct vs_vector vs_vector;
 /* Comparator callback: negative if lhs < rhs, zero if equal, positive if lhs > rhs. */
 typedef int (*vs_vector_cmp_fn)(const void *lhs, const void *rhs);
 
+#define VS_VECTOR_PUSH_AS(vector, type, value) \
+    do { \
+        type vs_vector_push_value__ = (value); \
+        vs_vector_push((vector), &vs_vector_push_value__); \
+    } while (0)
+
+#define VS_VECTOR_FOR_EACH(type, item, vector) \
+    for (vs_iterator item##_vs_iter__ = vs_vector_get_iterator((vector)); \
+         item##_vs_iter__.next != NULL; \
+         item##_vs_iter__.next = NULL) \
+    VS_ITERATOR_FOR_EACH(type, item, &item##_vs_iter__)
+
 /* Create a vector with element size elem_size. */
 vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator);
+
+/* Create a vector with element size elem_size and at least capacity slots. */
+vs_vector *vs_vector_create_with_capacity(
+    size_t elem_size,
+    size_t capacity,
+    vs_allocator *allocator
+);
+
+/* Ensure vector can hold at least capacity elements without growing. */
+void vs_vector_reserve(vs_vector *vector, size_t capacity);
 
 /* Append one element by copying elem_size bytes from element. */
 void vs_vector_push(vs_vector *vector, const void *element);
@@ -67,6 +89,15 @@ const void *vs_vector_get_const(const vs_vector *vector, size_t index);
 
 /* Return the configured element size. */
 size_t vs_vector_elem_size(const vs_vector *vector);
+
+/* Return the number of elements vector can store without growing. */
+size_t vs_vector_capacity(const vs_vector *vector);
+
+/* Return the backing storage pointer. */
+void *vs_vector_data(vs_vector *vector);
+
+/* Return the const backing storage pointer. */
+const void *vs_vector_data_const(const vs_vector *vector);
 
 /* Remove item at index by moving the last item into its slot. */
 void *vs_vector_swap_remove(vs_vector *vector, size_t index);

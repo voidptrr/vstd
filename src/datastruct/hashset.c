@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "datastruct/hash_common.h"
+#include "hash.h"
 #include "vstd/assert.h"
 #include "vstd/datastruct/hashset.h"
 #include "vstd/datastruct/iterator.h"
@@ -36,6 +37,7 @@
 
 typedef struct vs_hashset_entry {
     vs_linked_list_node node;
+    size_t hash;
     max_align_t align;
     uint8_t data[];
 } vs_hashset_entry;
@@ -44,7 +46,7 @@ struct vs_hashset {
     size_t size;
     size_t elem_size;
     size_t capacity;
-    vs_linked_list **buckets;
+    vs_hash_common_bucket *buckets;
     vs_hashset_elem_eq_fn elem_eq;
     vs_allocator *allocator;
 };
@@ -59,14 +61,22 @@ static const void *vs_hashset_entry_elem(const vs_linked_list_node *node) {
     return entry->data;
 }
 
+static size_t vs_hashset_entry_hash(const vs_linked_list_node *node) {
+    const vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
+    return entry->hash;
+}
+
 static vs_hashset_entry *vs_hashset_entry_get(const vs_hashset *set, const void *elem) {
-    size_t bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
+    size_t hash = vs_fnv1a_hash(elem, set->elem_size);
+    size_t bucket = vs_hash_common_bucket_index(hash, set->capacity);
     vs_linked_list_node *node = vs_hash_common_bucket_find(
-        set->buckets[bucket],
+        &set->buckets[bucket],
         elem,
         set->elem_size,
+        hash,
         set->elem_eq,
-        vs_hashset_entry_elem
+        vs_hashset_entry_elem,
+        vs_hashset_entry_hash
     );
     if (node != NULL) {
         return VS_CONTAINER_OF(node, vs_hashset_entry, node);
@@ -93,41 +103,54 @@ vs_hashset *vs_hashset_create(
     return set;
 }
 
+void vs_hashset_reserve(vs_hashset *set, size_t size) {
+    VSTD_ASSERT(set != NULL, "fatal: vs_hashset_reserve invalid arguments");
+
+    size_t new_capacity = vs_hash_common_capacity_for_size(size);
+    if (new_capacity <= set->capacity) {
+        return;
+    }
+
+    set->buckets = vs_hash_common_buckets_rehash(
+        set->buckets,
+        set->capacity,
+        new_capacity,
+        set->allocator,
+        vs_hashset_entry_hash
+    );
+    set->capacity = new_capacity;
+}
+
 void vs_hashset_insert(vs_hashset *set, const void *elem) {
     VSTD_ASSERT(set != NULL, "fatal: vs_hashset_insert invalid arguments");
     VSTD_ASSERT(elem != NULL, "fatal: vs_hashset_insert invalid arguments");
 
     vs_allocator *allocator = set->allocator;
-    size_t bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
+    size_t hash = vs_fnv1a_hash(elem, set->elem_size);
+    size_t bucket = vs_hash_common_bucket_index(hash, set->capacity);
     vs_linked_list_node *node = vs_hash_common_bucket_find(
-        set->buckets[bucket],
+        &set->buckets[bucket],
         elem,
         set->elem_size,
+        hash,
         set->elem_eq,
-        vs_hashset_entry_elem
+        vs_hashset_entry_elem,
+        vs_hashset_entry_hash
     );
     if (node != NULL) {
         return;
     }
 
     if (vs_hash_common_should_grow(set->size, set->capacity)) {
-        size_t new_capacity = set->capacity * 2;
-        set->buckets = vs_hash_common_buckets_rehash(
-            set->buckets,
-            set->capacity,
-            new_capacity,
-            set->elem_size,
-            allocator,
-            vs_hashset_entry_elem
-        );
-        set->capacity = new_capacity;
-        bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
+        vs_hashset_reserve(set, set->size + 1);
+        bucket = vs_hash_common_bucket_index(hash, set->capacity);
     }
 
     vs_hashset_entry *entry = vs_malloc(allocator, sizeof(vs_hashset_entry) + set->elem_size);
+    entry->hash = hash;
     memcpy(entry->data, elem, set->elem_size);
 
-    vs_linked_list_pushfront(set->buckets[bucket], &entry->node);
+    vs_hash_common_bucket_pushfront(&set->buckets[bucket], &entry->node);
     set->size += 1;
 }
 
@@ -165,13 +188,16 @@ void vs_hashset_remove(vs_hashset *set, const void *elem) {
     VSTD_ASSERT(elem != NULL, "fatal: vs_hashset_remove invalid arguments");
 
     vs_allocator *allocator = set->allocator;
-    size_t bucket = vs_hash_common_bucket_index(elem, set->elem_size, set->capacity);
+    size_t hash = vs_fnv1a_hash(elem, set->elem_size);
+    size_t bucket = vs_hash_common_bucket_index(hash, set->capacity);
     vs_linked_list_node *node = vs_hash_common_bucket_remove(
-        set->buckets[bucket],
+        &set->buckets[bucket],
         elem,
         set->elem_size,
+        hash,
         set->elem_eq,
-        vs_hashset_entry_elem
+        vs_hashset_entry_elem,
+        vs_hashset_entry_hash
     );
     if (node != NULL) {
         vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
@@ -204,7 +230,7 @@ static const void *vs_hashset_iterator_next(void *context) {
     const vs_hashset *set = iterator->set;
 
     while (iterator->node == NULL && iterator->bucket < set->capacity) {
-        iterator->node = vs_linked_list_head(set->buckets[iterator->bucket]);
+        iterator->node = vs_hash_common_bucket_head(&set->buckets[iterator->bucket]);
         iterator->bucket += 1;
     }
 
@@ -226,6 +252,7 @@ vs_iterator vs_hashset_get_iterator(const vs_hashset *set) {
     state->set = set;
     state->bucket = 0;
     state->node = NULL;
+    vs_iterator_set_size_hint(&iter, set->size);
     return iter;
 }
 

@@ -17,6 +17,23 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
+### VS_HASHSET_FOR_EACH
+
+```c
+#define VS_HASHSET_FOR_EACH(type, item, set)
+```
+
+- Parameters: `type`, `item`, `set`
+- Notes: assigns each element pointer to a caller-declared `const type *item`.
+- Example:
+
+```c
+const uint64_t *value;
+VS_HASHSET_FOR_EACH(uint64_t, value, set) {
+    /* use *value */
+}
+```
+
 ### vs_hashset_create
 
 ```c
@@ -35,6 +52,22 @@ vs_hashset *vs_hashset_create(size_t elem_size,
 
 ```c
 vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, NULL);
+```
+
+### vs_hashset_reserve
+
+```c
+void vs_hashset_reserve(vs_hashset *set, size_t size);
+```
+
+- Parameters: `set`, `size`
+- Returns: none.
+- Notes: grows bucket storage so at least `size` elements fit without another
+  rehash at the default load factor.
+- Example:
+
+```c
+vs_hashset_reserve(set, 1024);
 ```
 
 ### vs_hashset_insert

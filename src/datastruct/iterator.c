@@ -33,7 +33,11 @@ const void *vs_iterator_next(vs_iterator *iter) {
     VSTD_ASSERT(iter != NULL, "fatal: vs_iterator_next invalid arguments");
     VSTD_ASSERT(iter->next != NULL, "fatal: vs_iterator_next invalid arguments");
 
-    return iter->next(iter->context != NULL ? iter->context : iter->state.bytes);
+    const void *item = iter->next(iter->context != NULL ? iter->context : iter->state.bytes);
+    if (item != NULL && iter->size_hint > 0) {
+        iter->size_hint -= 1;
+    }
+    return item;
 }
 
 vs_vector *vs_iterator_collect(vs_iterator *source, size_t elem_size, vs_allocator *allocator) {
@@ -41,6 +45,9 @@ vs_vector *vs_iterator_collect(vs_iterator *source, size_t elem_size, vs_allocat
     VSTD_ASSERT(elem_size > 0, "fatal: vs_iterator_collect invalid arguments");
 
     vs_vector *out = vs_vector_create(elem_size, allocator);
+    if (source->size_hint > 0) {
+        vs_vector_reserve(out, source->size_hint);
+    }
     const void *item;
     while ((item = vs_iterator_next(source)) != NULL) {
         vs_vector_push(out, item);
@@ -61,6 +68,9 @@ vs_vector *vs_iterator_collect_map(
     VSTD_ASSERT(map != NULL, "fatal: vs_iterator_collect_map invalid arguments");
 
     vs_vector *out = vs_vector_create(dst_elem_size, allocator);
+    if (source->size_hint > 0) {
+        vs_vector_reserve(out, source->size_hint);
+    }
     void *dst = vs_malloc(allocator, dst_elem_size);
     const void *item;
     while ((item = vs_iterator_next(source)) != NULL) {
@@ -79,6 +89,7 @@ vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next) {
 
     out.context = context;
     out.next = next;
+    out.size_hint = 0;
     return out;
 }
 
@@ -89,6 +100,7 @@ vs_iterator vs_iterator_from_state(vs_iterator_next_fn next) {
 
     out.context = NULL;
     out.next = next;
+    out.size_hint = 0;
     return out;
 }
 
@@ -96,4 +108,16 @@ void *vs_iterator_state(vs_iterator *iter) {
     VSTD_ASSERT(iter != NULL, "fatal: vs_iterator_state invalid arguments");
 
     return iter->state.bytes;
+}
+
+void vs_iterator_set_size_hint(vs_iterator *iter, size_t size_hint) {
+    VSTD_ASSERT(iter != NULL, "fatal: vs_iterator_set_size_hint invalid arguments");
+
+    iter->size_hint = size_hint;
+}
+
+size_t vs_iterator_size_hint(const vs_iterator *iter) {
+    VSTD_ASSERT(iter != NULL, "fatal: vs_iterator_size_hint invalid arguments");
+
+    return iter->size_hint;
 }

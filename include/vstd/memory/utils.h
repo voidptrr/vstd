@@ -30,6 +30,12 @@
 
 #define VS_CONTAINER_OF(ptr, type, member) ((type *)((uint8_t *)(ptr) - offsetof(type, member)))
 
+#define VS_CONTAINER_OF_CONST(ptr, type, member) \
+    ((const type *)((const uint8_t *)(ptr) - offsetof(type, member)))
+
+#define VS_CONTAINER_OF_CONST_OR_NULL(ptr, type, member) \
+    ((ptr) != NULL ? VS_CONTAINER_OF_CONST((ptr), type, member) : NULL)
+
 #define VS_MEMORY_ALIGN (_Alignof(max_align_t))
 
 /*

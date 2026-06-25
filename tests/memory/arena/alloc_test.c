@@ -45,10 +45,10 @@ int main(void) {
         return 1;
     }
 
-    if (vs_test_equal((uintptr_t)first % VS_MEMORY_ALIGN, 0) != 0) {
+    if (vs_test_equal((intmax_t)((uintptr_t)first % VS_MEMORY_ALIGN), 0) != 0) {
         return 1;
     }
-    if (vs_test_equal((uintptr_t)second % VS_MEMORY_ALIGN, 0) != 0) {
+    if (vs_test_equal((intmax_t)((uintptr_t)second % VS_MEMORY_ALIGN), 0) != 0) {
         return 1;
     }
 

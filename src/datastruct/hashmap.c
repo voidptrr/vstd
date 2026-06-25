@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "datastruct/hash_common.h"
+#include "hash.h"
 #include "vstd/assert.h"
 #include "vstd/datastruct/hashmap.h"
 #include "vstd/datastruct/iterator.h"
@@ -36,6 +37,7 @@
 
 typedef struct vs_hashmap_entry {
     vs_linked_list_node node;
+    size_t hash;
     max_align_t align;
     uint8_t data[];
 } vs_hashmap_entry;
@@ -45,7 +47,7 @@ struct vs_hashmap {
     size_t key_size;
     size_t value_size;
     size_t capacity;
-    vs_linked_list **buckets;
+    vs_hash_common_bucket *buckets;
     vs_hashmap_key_eq_fn key_eq;
     vs_allocator *allocator;
 };
@@ -58,6 +60,11 @@ static void vs_hashmap_entry_destroy(vs_linked_list_node *node, vs_allocator *al
 static const void *vs_hashmap_entry_key(const vs_linked_list_node *node) {
     const vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
     return entry->data;
+}
+
+static size_t vs_hashmap_entry_hash(const vs_linked_list_node *node) {
+    const vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
+    return entry->hash;
 }
 
 static void *vs_hashmap_entry_value(const vs_hashmap *map, vs_hashmap_entry *entry) {
@@ -74,13 +81,16 @@ static const void *vs_hashmap_entry_value_const(
 }
 
 static vs_hashmap_entry *vs_hashmap_entry_get(const vs_hashmap *map, const void *key) {
-    size_t bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
+    size_t hash = vs_fnv1a_hash(key, map->key_size);
+    size_t bucket = vs_hash_common_bucket_index(hash, map->capacity);
     vs_linked_list_node *node = vs_hash_common_bucket_find(
-        map->buckets[bucket],
+        &map->buckets[bucket],
         key,
         map->key_size,
+        hash,
         map->key_eq,
-        vs_hashmap_entry_key
+        vs_hashmap_entry_key,
+        vs_hashmap_entry_hash
     );
     if (node != NULL) {
         return VS_CONTAINER_OF(node, vs_hashmap_entry, node);
@@ -110,19 +120,40 @@ vs_hashmap *vs_hashmap_create(
     return map;
 }
 
+void vs_hashmap_reserve(vs_hashmap *map, size_t size) {
+    VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_reserve invalid arguments");
+
+    size_t new_capacity = vs_hash_common_capacity_for_size(size);
+    if (new_capacity <= map->capacity) {
+        return;
+    }
+
+    map->buckets = vs_hash_common_buckets_rehash(
+        map->buckets,
+        map->capacity,
+        new_capacity,
+        map->allocator,
+        vs_hashmap_entry_hash
+    );
+    map->capacity = new_capacity;
+}
+
 void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
     VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_put invalid arguments");
     VSTD_ASSERT(key != NULL, "fatal: vs_hashmap_put invalid arguments");
     VSTD_ASSERT(value != NULL, "fatal: vs_hashmap_put invalid arguments");
 
     vs_allocator *allocator = map->allocator;
-    size_t bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
+    size_t hash = vs_fnv1a_hash(key, map->key_size);
+    size_t bucket = vs_hash_common_bucket_index(hash, map->capacity);
     vs_linked_list_node *node = vs_hash_common_bucket_find(
-        map->buckets[bucket],
+        &map->buckets[bucket],
         key,
         map->key_size,
+        hash,
         map->key_eq,
-        vs_hashmap_entry_key
+        vs_hashmap_entry_key,
+        vs_hashmap_entry_hash
     );
     if (node != NULL) {
         vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
@@ -131,27 +162,19 @@ void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
     }
 
     if (vs_hash_common_should_grow(map->size, map->capacity)) {
-        size_t new_capacity = map->capacity * 2;
-        map->buckets = vs_hash_common_buckets_rehash(
-            map->buckets,
-            map->capacity,
-            new_capacity,
-            map->key_size,
-            allocator,
-            vs_hashmap_entry_key
-        );
-        map->capacity = new_capacity;
-        bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
+        vs_hashmap_reserve(map, map->size + 1);
+        bucket = vs_hash_common_bucket_index(hash, map->capacity);
     }
 
     size_t value_offset = vs_align_up(map->key_size, VS_MEMORY_ALIGN);
     size_t alloc_size = sizeof(vs_hashmap_entry) + value_offset + map->value_size;
     vs_hashmap_entry *entry = vs_malloc(allocator, alloc_size);
+    entry->hash = hash;
 
     memcpy(entry->data, key, map->key_size);
     memcpy(vs_hashmap_entry_value(map, entry), value, map->value_size);
 
-    vs_linked_list_pushfront(map->buckets[bucket], &entry->node);
+    vs_hash_common_bucket_pushfront(&map->buckets[bucket], &entry->node);
     map->size += 1;
 }
 
@@ -182,13 +205,16 @@ void vs_hashmap_remove(vs_hashmap *map, const void *key) {
     VSTD_ASSERT(key != NULL, "fatal: vs_hashmap_remove invalid arguments");
 
     vs_allocator *allocator = map->allocator;
-    size_t bucket = vs_hash_common_bucket_index(key, map->key_size, map->capacity);
+    size_t hash = vs_fnv1a_hash(key, map->key_size);
+    size_t bucket = vs_hash_common_bucket_index(hash, map->capacity);
     vs_linked_list_node *node = vs_hash_common_bucket_remove(
-        map->buckets[bucket],
+        &map->buckets[bucket],
         key,
         map->key_size,
+        hash,
         map->key_eq,
-        vs_hashmap_entry_key
+        vs_hashmap_entry_key,
+        vs_hashmap_entry_hash
     );
     if (node != NULL) {
         vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
@@ -219,7 +245,7 @@ static vs_hashmap_entry *vs_hashmap_iterator_next_entry(vs_hashmap_iterator_stat
     const vs_hashmap *map = iterator->map;
 
     while (iterator->node == NULL && iterator->bucket < map->capacity) {
-        iterator->node = vs_linked_list_head(map->buckets[iterator->bucket]);
+        iterator->node = vs_hash_common_bucket_head(&map->buckets[iterator->bucket]);
         iterator->bucket += 1;
     }
 
@@ -300,6 +326,7 @@ vs_iterator vs_hashmap_get_iterator(const vs_hashmap *map, vs_hashmap_iterator_t
     state->node = NULL;
     state->entry.key = NULL;
     state->entry.value = NULL;
+    vs_iterator_set_size_hint(&iter, map->size);
     return iter;
 }
 
