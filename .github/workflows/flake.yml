@@ -21,4 +21,4 @@ concurrency:
 
 jobs:
   flake:
-    uses: voidptrr/vtools/.github/workflows/checks.yml@941930869873d6e09056eac013e3b9457b941b3f
+    uses: voidptrr/vtools/.github/workflows/checks.yml@67ebc2f56d6536f9d37c65b249c8c51b2dbcf511
