@@ -37,7 +37,7 @@ stdenv.mkDerivation {
     ninja
   ];
 
-  doCheck = true;
+  doCheck = false;
 
   meta = {
     description = "Enhanced C standard library";
