@@ -36,6 +36,28 @@ struct vs_linked_list {
     vs_allocator *allocator;
 };
 
+typedef struct vs_linked_list_iterator_state {
+    vs_linked_list_node *node;
+} vs_linked_list_iterator_state;
+
+_Static_assert(
+    sizeof(vs_linked_list_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_linked_list_iterator_state must fit in vs_iterator"
+);
+
+static const void *vs_linked_list_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_linked_list_iterator_next invalid arguments");
+
+    vs_linked_list_iterator_state *iterator = context;
+    vs_linked_list_node *node = iterator->node;
+    if (node == NULL) {
+        return NULL;
+    }
+
+    iterator->node = node->next;
+    return node;
+}
+
 vs_linked_list *vs_linked_list_create(vs_allocator *allocator) {
     vs_linked_list *list = vs_malloc(allocator, sizeof(vs_linked_list));
     list->size = 0;
@@ -126,28 +148,6 @@ vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list) {
     VSTD_ASSERT(list != NULL, "fatal: vs_linked_list_head invalid arguments");
 
     return list->head;
-}
-
-typedef struct vs_linked_list_iterator_state {
-    vs_linked_list_node *node;
-} vs_linked_list_iterator_state;
-
-_Static_assert(
-    sizeof(vs_linked_list_iterator_state) <= VS_ITERATOR_STATE_SIZE,
-    "vs_linked_list_iterator_state must fit in vs_iterator"
-);
-
-static const void *vs_linked_list_iterator_next(void *context) {
-    VSTD_ASSERT(context != NULL, "fatal: vs_linked_list_iterator_next invalid arguments");
-
-    vs_linked_list_iterator_state *iterator = context;
-    vs_linked_list_node *node = iterator->node;
-    if (node == NULL) {
-        return NULL;
-    }
-
-    iterator->node = node->next;
-    return node;
 }
 
 vs_iterator vs_linked_list_get_iterator(const vs_linked_list *list) {

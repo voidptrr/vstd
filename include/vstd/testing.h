@@ -29,13 +29,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef int (*vs_test_fn)(void);
-
-typedef struct vs_test_case {
-    const char *name;
-    vs_test_fn fn;
-} vs_test_case;
-
 #define VS_TEST(name) static int vs_test_case_##name(void)
 #define VS_TEST_CASE(name) {#name, vs_test_case_##name}
 #define VS_TEST_MAIN(...) \
@@ -49,6 +42,13 @@ typedef struct vs_test_case {
 
 #define vs_test_not_equal(actual, expected) \
     vs_test_not_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
+
+typedef int (*vs_test_fn)(void);
+
+typedef struct vs_test_case {
+    const char *name;
+    vs_test_fn fn;
+} vs_test_case;
 
 /* Return 0 when scalar values are equal, otherwise print both values and return 1. */
 int vs_test_equal_intmax(intmax_t actual, intmax_t expected);

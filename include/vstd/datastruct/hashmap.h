@@ -31,6 +31,18 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
+#define VS_HASHMAP_FOR_EACH_ENTRY(item, map) \
+    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_ENTRY); \
+         ((item) = VS_ITER_NEXT_AS(vs_hashmap_entry_view, &item##_vs_iter__)) != NULL;)
+
+#define VS_HASHMAP_FOR_EACH_KEY(type, item, map) \
+    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_KEY); \
+         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
+
+#define VS_HASHMAP_FOR_EACH_VALUE(type, item, map) \
+    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_VALUE); \
+         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
+
 /*
  * Opaque hash map with separate chaining.
  *
@@ -68,18 +80,6 @@ typedef enum vs_hashmap_iterator_type {
     VS_HASHMAP_ITERATOR_KEY,
     VS_HASHMAP_ITERATOR_VALUE,
 } vs_hashmap_iterator_type;
-
-#define VS_HASHMAP_FOR_EACH_ENTRY(item, map) \
-    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_ENTRY); \
-         ((item) = VS_ITER_NEXT_AS(vs_hashmap_entry_view, &item##_vs_iter__)) != NULL;)
-
-#define VS_HASHMAP_FOR_EACH_KEY(type, item, map) \
-    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_KEY); \
-         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
-
-#define VS_HASHMAP_FOR_EACH_VALUE(type, item, map) \
-    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_VALUE); \
-         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
 
 /*
  * Create a hash map with fixed key/value sizes.

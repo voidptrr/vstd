@@ -31,17 +31,15 @@
 
 int main(void) {
     vs_arena *arena = vs_arena_create(256);
-    uint64_t *value;
-    uint64_t *grown;
     size_t grown_size = VS_MEMORY_ALIGN * 2;
 
-    value = (uint64_t *)vs_arena_alloc(arena, sizeof(uint64_t));
+    uint64_t *value = (uint64_t *)vs_arena_alloc(arena, sizeof(uint64_t));
     if (vs_test_not_null(value) != 0) {
         return 1;
     }
     *value = 42;
 
-    grown = (uint64_t *)vs_arena_realloc(arena, value, grown_size);
+    uint64_t *grown = (uint64_t *)vs_arena_realloc(arena, value, grown_size);
     if (vs_test_not_null(grown) != 0) {
         return 1;
     }

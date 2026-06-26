@@ -40,6 +40,31 @@ struct vs_vector {
     vs_allocator *allocator;
 };
 
+typedef struct vs_vector_iterator_state {
+    const uint8_t *cursor;
+    size_t elem_size;
+    size_t remaining;
+} vs_vector_iterator_state;
+
+_Static_assert(
+    sizeof(vs_vector_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_vector_iterator_state must fit in vs_iterator"
+);
+
+static const void *vs_vector_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_vector_iterator_next invalid arguments");
+
+    vs_vector_iterator_state *iterator = context;
+    if (iterator->remaining == 0) {
+        return NULL;
+    }
+
+    const void *item = iterator->cursor;
+    iterator->cursor += iterator->elem_size;
+    iterator->remaining -= 1;
+    return item;
+}
+
 vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator) {
     return vs_vector_create_with_capacity(elem_size, VS_VECTOR_DEFAULT_CAPACITY, allocator);
 }
@@ -171,31 +196,6 @@ size_t vs_vector_size(const vs_vector *vector) {
     VSTD_ASSERT(vector != NULL, "fatal: vs_vector_size invalid arguments");
 
     return vector->size;
-}
-
-typedef struct vs_vector_iterator_state {
-    const uint8_t *cursor;
-    size_t elem_size;
-    size_t remaining;
-} vs_vector_iterator_state;
-
-_Static_assert(
-    sizeof(vs_vector_iterator_state) <= VS_ITERATOR_STATE_SIZE,
-    "vs_vector_iterator_state must fit in vs_iterator"
-);
-
-static const void *vs_vector_iterator_next(void *context) {
-    VSTD_ASSERT(context != NULL, "fatal: vs_vector_iterator_next invalid arguments");
-
-    vs_vector_iterator_state *iterator = context;
-    if (iterator->remaining == 0) {
-        return NULL;
-    }
-
-    const void *item = iterator->cursor;
-    iterator->cursor += iterator->elem_size;
-    iterator->remaining -= 1;
-    return item;
 }
 
 vs_iterator vs_vector_get_iterator(const vs_vector *vector) {

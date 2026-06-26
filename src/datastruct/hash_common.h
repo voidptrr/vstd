@@ -44,6 +44,27 @@ typedef struct vs_hash_common_bucket {
     vs_linked_list_node *head;
 } vs_hash_common_bucket;
 
+/* Hash value and map it into the bucket range [0, capacity). */
+static inline size_t vs_hash_common_bucket_index(size_t hash, size_t capacity) {
+    return hash % capacity;
+}
+
+/* Return true when inserting one more item would exceed the load limit. */
+static inline bool vs_hash_common_should_grow(size_t size, size_t capacity) {
+    return ((size + 1) * VS_HASH_COMMON_MAX_LOAD_DENOMINATOR)
+           > (capacity * VS_HASH_COMMON_MAX_LOAD_NUMERATOR);
+}
+
+/* Return a power-of-two capacity that can hold size items at the max load. */
+static inline size_t vs_hash_common_capacity_for_size(size_t size) {
+    size_t capacity = VS_HASH_COMMON_DEFAULT_CAPACITY;
+    while ((size * VS_HASH_COMMON_MAX_LOAD_DENOMINATOR)
+           > (capacity * VS_HASH_COMMON_MAX_LOAD_NUMERATOR)) {
+        capacity *= 2;
+    }
+    return capacity;
+}
+
 /* Allocate and initialize an array of empty bucket lists. */
 vs_hash_common_bucket *vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator);
 
@@ -98,26 +119,5 @@ void vs_hash_common_bucket_pushfront(vs_hash_common_bucket *bucket, vs_linked_li
 
 /* Return the first node in bucket, or NULL when empty. */
 vs_linked_list_node *vs_hash_common_bucket_head(const vs_hash_common_bucket *bucket);
-
-/* Hash value and map it into the bucket range [0, capacity). */
-static inline size_t vs_hash_common_bucket_index(size_t hash, size_t capacity) {
-    return hash % capacity;
-}
-
-/* Return true when inserting one more item would exceed the load limit. */
-static inline bool vs_hash_common_should_grow(size_t size, size_t capacity) {
-    return ((size + 1) * VS_HASH_COMMON_MAX_LOAD_DENOMINATOR)
-           > (capacity * VS_HASH_COMMON_MAX_LOAD_NUMERATOR);
-}
-
-/* Return a power-of-two capacity that can hold size items at the max load. */
-static inline size_t vs_hash_common_capacity_for_size(size_t size) {
-    size_t capacity = VS_HASH_COMMON_DEFAULT_CAPACITY;
-    while ((size * VS_HASH_COMMON_MAX_LOAD_DENOMINATOR)
-           > (capacity * VS_HASH_COMMON_MAX_LOAD_NUMERATOR)) {
-        capacity *= 2;
-    }
-    return capacity;
-}
 
 #endif

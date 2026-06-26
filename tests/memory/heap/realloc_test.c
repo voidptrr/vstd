@@ -29,9 +29,7 @@
 
 int main(void) {
     vs_heap *heap = vs_heap_create(4096);
-    char *ptr;
-
-    ptr = (char *)vs_heap_realloc(heap, NULL, 32);
+    char *ptr = (char *)vs_heap_realloc(heap, NULL, 32);
     if (vs_test_not_null(ptr) != 0) {
         return 1;
     }

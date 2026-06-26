@@ -42,6 +42,19 @@ struct vs_deque {
     vs_allocator *allocator;
 };
 
+typedef struct vs_deque_iterator_state {
+    const uint8_t *base;
+    size_t elem_size;
+    size_t index;
+    size_t mask;
+    size_t remaining;
+} vs_deque_iterator_state;
+
+_Static_assert(
+    sizeof(vs_deque_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_deque_iterator_state must fit in vs_iterator"
+);
+
 static void vs_deque_grow(vs_deque *deque) {
     vs_allocator *allocator = deque->allocator;
     size_t old_capacity = deque->capacity;
@@ -82,6 +95,20 @@ static void vs_deque_grow(vs_deque *deque) {
     deque->capacity = new_capacity;
     deque->head = 0;
     deque->tail = deque->size;
+}
+
+static const void *vs_deque_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_deque_iterator_next invalid arguments");
+
+    vs_deque_iterator_state *iterator = context;
+    if (iterator->remaining == 0) {
+        return NULL;
+    }
+
+    size_t storage_index = iterator->index & iterator->mask;
+    iterator->index += 1;
+    iterator->remaining -= 1;
+    return iterator->base + (storage_index * iterator->elem_size);
 }
 
 vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator) {
@@ -197,33 +224,6 @@ size_t vs_deque_size(const vs_deque *deque) {
     VSTD_ASSERT(deque != NULL, "fatal: vs_deque_size invalid arguments");
 
     return deque->size;
-}
-
-typedef struct vs_deque_iterator_state {
-    const uint8_t *base;
-    size_t elem_size;
-    size_t index;
-    size_t mask;
-    size_t remaining;
-} vs_deque_iterator_state;
-
-_Static_assert(
-    sizeof(vs_deque_iterator_state) <= VS_ITERATOR_STATE_SIZE,
-    "vs_deque_iterator_state must fit in vs_iterator"
-);
-
-static const void *vs_deque_iterator_next(void *context) {
-    VSTD_ASSERT(context != NULL, "fatal: vs_deque_iterator_next invalid arguments");
-
-    vs_deque_iterator_state *iterator = context;
-    if (iterator->remaining == 0) {
-        return NULL;
-    }
-
-    size_t storage_index = iterator->index & iterator->mask;
-    iterator->index += 1;
-    iterator->remaining -= 1;
-    return iterator->base + (storage_index * iterator->elem_size);
 }
 
 vs_iterator vs_deque_get_iterator(const vs_deque *deque) {

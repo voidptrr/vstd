@@ -31,6 +31,18 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
+#define VS_VECTOR_PUSH_AS(vector, type, value) \
+    do { \
+        type vs_vector_push_value__ = (value); \
+        vs_vector_push((vector), &vs_vector_push_value__); \
+    } while (0)
+
+#define VS_VECTOR_FOR_EACH(type, item, vector) \
+    for (vs_iterator item##_vs_iter__ = vs_vector_get_iterator((vector)); \
+         item##_vs_iter__.next != NULL; \
+         item##_vs_iter__.next = NULL) \
+    VS_ITERATOR_FOR_EACH(type, item, &item##_vs_iter__)
+
 /*
  * Opaque generic contiguous dynamic array.
  *
@@ -49,18 +61,6 @@ typedef struct vs_vector vs_vector;
 
 /* Comparator callback: negative if lhs < rhs, zero if equal, positive if lhs > rhs. */
 typedef int (*vs_vector_cmp_fn)(const void *lhs, const void *rhs);
-
-#define VS_VECTOR_PUSH_AS(vector, type, value) \
-    do { \
-        type vs_vector_push_value__ = (value); \
-        vs_vector_push((vector), &vs_vector_push_value__); \
-    } while (0)
-
-#define VS_VECTOR_FOR_EACH(type, item, vector) \
-    for (vs_iterator item##_vs_iter__ = vs_vector_get_iterator((vector)); \
-         item##_vs_iter__.next != NULL; \
-         item##_vs_iter__.next = NULL) \
-    VS_ITERATOR_FOR_EACH(type, item, &item##_vs_iter__)
 
 /* Create a vector with element size elem_size. */
 vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator);

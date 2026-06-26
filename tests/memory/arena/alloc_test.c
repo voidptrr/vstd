@@ -30,11 +30,8 @@
 
 int main(void) {
     vs_arena *arena = vs_arena_create(128);
-    void *first;
-    void *second;
-
-    first = vs_arena_alloc(arena, 8);
-    second = vs_arena_alloc(arena, 8);
+    void *first = vs_arena_alloc(arena, 8);
+    void *second = vs_arena_alloc(arena, 8);
     if (vs_test_not_null(first) != 0) {
         return 1;
     }

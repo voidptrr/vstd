@@ -36,20 +36,18 @@ typedef struct test_item {
 VS_TEST(iterator_walks_nodes) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_doubly_linked_list *list;
+    vs_doubly_linked_list *list = vs_doubly_linked_list_create(allocator);
     test_item first = {.value = 1};
     test_item second = {.value = 2};
     test_item third = {.value = 3};
-    vs_iterator iter;
     const vs_doubly_linked_list_node *node;
     int expected = 1;
 
-    list = vs_doubly_linked_list_create(allocator);
     vs_doubly_linked_list_push(list, &first.node);
     vs_doubly_linked_list_push(list, &second.node);
     vs_doubly_linked_list_push(list, &third.node);
 
-    iter = vs_doubly_linked_list_get_iterator(list);
+    vs_iterator iter = vs_doubly_linked_list_get_iterator(list);
     while ((node = (const vs_doubly_linked_list_node *)vs_iterator_next(&iter)) != NULL) {
         const test_item *item = VS_CONTAINER_OF(node, test_item, node);
         if (vs_test_equal(item->value, expected) != 0) {

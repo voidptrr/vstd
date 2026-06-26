@@ -31,6 +31,12 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
+#define VS_STRING_FOR_EACH_CHAR(item, string) \
+    for (vs_iterator item##_vs_iter__ = vs_string_get_iterator((string)); \
+         item##_vs_iter__.next != NULL; \
+         item##_vs_iter__.next = NULL) \
+    VS_ITERATOR_FOR_EACH(char, item, &item##_vs_iter__)
+
 /*
  * Opaque growable string.
  *
@@ -51,12 +57,6 @@
  *                                            vs_string
  */
 typedef char *vs_string;
-
-#define VS_STRING_FOR_EACH_CHAR(item, string) \
-    for (vs_iterator item##_vs_iter__ = vs_string_get_iterator((string)); \
-         item##_vs_iter__.next != NULL; \
-         item##_vs_iter__.next = NULL) \
-    VS_ITERATOR_FOR_EACH(char, item, &item##_vs_iter__)
 
 /* Create a string from initial, or an empty string when initial is NULL. */
 vs_string vs_string_create(const char *initial, vs_allocator *allocator);

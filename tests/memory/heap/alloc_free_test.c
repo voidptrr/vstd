@@ -29,15 +29,10 @@
 
 int main(void) {
     vs_heap *heap = vs_heap_create(2048);
-    size_t before;
-    size_t after;
-    int *a;
-    int *b;
+    size_t before = vs_heap_available(heap);
 
-    before = vs_heap_available(heap);
-
-    a = (int *)vs_heap_alloc(heap, sizeof(int));
-    b = (int *)vs_heap_alloc(heap, sizeof(int));
+    int *a = (int *)vs_heap_alloc(heap, sizeof(int));
+    int *b = (int *)vs_heap_alloc(heap, sizeof(int));
     if (vs_test_not_null(a) != 0) {
         return 1;
     }
@@ -45,7 +40,7 @@ int main(void) {
         return 1;
     }
 
-    after = vs_heap_available(heap);
+    size_t after = vs_heap_available(heap);
     if (vs_test_equal(after < before, true) != 0) {
         return 1;
     }

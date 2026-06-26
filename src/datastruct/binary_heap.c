@@ -38,6 +38,17 @@ struct vs_binary_heap {
     vs_allocator *allocator;
 };
 
+typedef struct vs_binary_heap_iterator_state {
+    const uint8_t *cursor;
+    size_t elem_size;
+    size_t remaining;
+} vs_binary_heap_iterator_state;
+
+_Static_assert(
+    sizeof(vs_binary_heap_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_binary_heap_iterator_state must fit in vs_iterator"
+);
+
 static void vs_binary_heap_swap_at(vs_binary_heap *heap, size_t i, size_t j) {
     size_t elem_size = vs_vector_elem_size(heap->root);
     void *a = vs_vector_get(heap->root, i);
@@ -87,6 +98,20 @@ static void vs_binary_heap_sift_down(vs_binary_heap *heap, size_t idx) {
         vs_binary_heap_swap_at(heap, idx, best);
         idx = best;
     }
+}
+
+static const void *vs_binary_heap_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_binary_heap_iterator_next invalid arguments");
+
+    vs_binary_heap_iterator_state *iterator = context;
+    if (iterator->remaining == 0) {
+        return NULL;
+    }
+
+    const void *item = iterator->cursor;
+    iterator->cursor += iterator->elem_size;
+    iterator->remaining -= 1;
+    return item;
 }
 
 vs_binary_heap *vs_binary_heap_create(
@@ -144,31 +169,6 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap) {
     VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_size invalid arguments");
 
     return vs_vector_size(heap->root);
-}
-
-typedef struct vs_binary_heap_iterator_state {
-    const uint8_t *cursor;
-    size_t elem_size;
-    size_t remaining;
-} vs_binary_heap_iterator_state;
-
-_Static_assert(
-    sizeof(vs_binary_heap_iterator_state) <= VS_ITERATOR_STATE_SIZE,
-    "vs_binary_heap_iterator_state must fit in vs_iterator"
-);
-
-static const void *vs_binary_heap_iterator_next(void *context) {
-    VSTD_ASSERT(context != NULL, "fatal: vs_binary_heap_iterator_next invalid arguments");
-
-    vs_binary_heap_iterator_state *iterator = context;
-    if (iterator->remaining == 0) {
-        return NULL;
-    }
-
-    const void *item = iterator->cursor;
-    iterator->cursor += iterator->elem_size;
-    iterator->remaining -= 1;
-    return item;
 }
 
 vs_iterator vs_binary_heap_get_iterator(const vs_binary_heap *heap) {

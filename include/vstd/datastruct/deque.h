@@ -31,6 +31,12 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
+#define VS_DEQUE_FOR_EACH(type, item, deque) \
+    for (vs_iterator item##_vs_iter__ = vs_deque_get_iterator((deque)); \
+         item##_vs_iter__.next != NULL; \
+         item##_vs_iter__.next = NULL) \
+    VS_ITERATOR_FOR_EACH(type, item, &item##_vs_iter__)
+
 /*
  * Opaque generic double-ended queue backed by circular storage.
  *
@@ -50,12 +56,6 @@
  * sequence.
  */
 typedef struct vs_deque vs_deque;
-
-#define VS_DEQUE_FOR_EACH(type, item, deque) \
-    for (vs_iterator item##_vs_iter__ = vs_deque_get_iterator((deque)); \
-         item##_vs_iter__.next != NULL; \
-         item##_vs_iter__.next = NULL) \
-    VS_ITERATOR_FOR_EACH(type, item, &item##_vs_iter__)
 
 /* Create a deque with element size elem_size. */
 vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator);

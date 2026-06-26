@@ -51,6 +51,17 @@ struct vs_hashset {
     vs_allocator *allocator;
 };
 
+typedef struct vs_hashset_iterator_state {
+    const vs_hashset *set;
+    size_t bucket;
+    vs_linked_list_node *node;
+} vs_hashset_iterator_state;
+
+_Static_assert(
+    sizeof(vs_hashset_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_hashset_iterator_state must fit in vs_iterator"
+);
+
 static void vs_hashset_entry_destroy(vs_linked_list_node *node, vs_allocator *allocator) {
     vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
     vs_dealloc(allocator, entry);
@@ -82,6 +93,27 @@ static vs_hashset_entry *vs_hashset_entry_get(const vs_hashset *set, const void 
         return VS_CONTAINER_OF(node, vs_hashset_entry, node);
     }
     return NULL;
+}
+
+static const void *vs_hashset_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_hashset_iterator_next invalid arguments");
+
+    vs_hashset_iterator_state *iterator = context;
+    const vs_hashset *set = iterator->set;
+
+    while (iterator->node == NULL && iterator->bucket < set->capacity) {
+        iterator->node = vs_hash_common_bucket_head(&set->buckets[iterator->bucket]);
+        iterator->bucket += 1;
+    }
+
+    if (iterator->node == NULL) {
+        return NULL;
+    }
+
+    vs_linked_list_node *node = iterator->node;
+    vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
+    iterator->node = node->next;
+    return entry->data;
 }
 
 vs_hashset *vs_hashset_create(
@@ -210,38 +242,6 @@ size_t vs_hashset_size(const vs_hashset *set) {
     VSTD_ASSERT(set != NULL, "fatal: vs_hashset_size invalid arguments");
 
     return set->size;
-}
-
-typedef struct vs_hashset_iterator_state {
-    const vs_hashset *set;
-    size_t bucket;
-    vs_linked_list_node *node;
-} vs_hashset_iterator_state;
-
-_Static_assert(
-    sizeof(vs_hashset_iterator_state) <= VS_ITERATOR_STATE_SIZE,
-    "vs_hashset_iterator_state must fit in vs_iterator"
-);
-
-static const void *vs_hashset_iterator_next(void *context) {
-    VSTD_ASSERT(context != NULL, "fatal: vs_hashset_iterator_next invalid arguments");
-
-    vs_hashset_iterator_state *iterator = context;
-    const vs_hashset *set = iterator->set;
-
-    while (iterator->node == NULL && iterator->bucket < set->capacity) {
-        iterator->node = vs_hash_common_bucket_head(&set->buckets[iterator->bucket]);
-        iterator->bucket += 1;
-    }
-
-    if (iterator->node == NULL) {
-        return NULL;
-    }
-
-    vs_linked_list_node *node = iterator->node;
-    vs_hashset_entry *entry = VS_CONTAINER_OF(node, vs_hashset_entry, node);
-    iterator->node = node->next;
-    return entry->data;
 }
 
 vs_iterator vs_hashset_get_iterator(const vs_hashset *set) {

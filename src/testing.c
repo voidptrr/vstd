@@ -28,14 +28,6 @@
 
 #include "vstd/testing.h"
 
-bool vs_test_str_eq(const char *actual, const char *expected) {
-    if (actual == NULL || expected == NULL) {
-        return actual == expected;
-    }
-
-    return strcmp(actual, expected) == 0;
-}
-
 int vs_test_equal_intmax(intmax_t actual, intmax_t expected) {
     if (actual == expected) {
         return 0;
@@ -91,7 +83,7 @@ int vs_test_not_null(const void *ptr) {
 }
 
 int vs_test_equal_str(const char *actual, const char *expected) {
-    if (vs_test_str_eq(actual, expected)) {
+    if ((actual == NULL || expected == NULL) ? actual == expected : strcmp(actual, expected) == 0) {
         return 0;
     }
 
@@ -102,6 +94,14 @@ int vs_test_equal_str(const char *actual, const char *expected) {
         expected == NULL ? "(null)" : expected
     );
     return 1;
+}
+
+bool vs_test_str_eq(const char *actual, const char *expected) {
+    if (actual == NULL || expected == NULL) {
+        return actual == expected;
+    }
+
+    return strcmp(actual, expected) == 0;
 }
 
 int vs_test_run(const vs_test_case *cases, size_t count) {

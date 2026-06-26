@@ -25,13 +25,13 @@
 #ifndef VSTD_ASSERT_H
 #define VSTD_ASSERT_H
 
-_Noreturn void vs_panic(const char *message);
-
 #define VSTD_ASSERT(cond, message) \
     do { \
         if (!(cond)) { \
             vs_panic(message); \
         } \
     } while (0)
+
+_Noreturn void vs_panic(const char *message);
 
 #endif

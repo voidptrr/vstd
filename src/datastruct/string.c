@@ -40,6 +40,16 @@ typedef struct vs_string_header {
     char buf[];
 } vs_string_header;
 
+typedef struct vs_string_iterator_state {
+    const char *cursor;
+    const char *end;
+} vs_string_iterator_state;
+
+_Static_assert(
+    sizeof(vs_string_iterator_state) <= VS_ITERATOR_STATE_SIZE,
+    "vs_string_iterator_state must fit in vs_iterator"
+);
+
 static vs_string_header *vs_string_header_from_buf(vs_string string) {
     if (string == NULL) {
         return NULL;
@@ -72,6 +82,18 @@ static vs_string_header *vs_string_ensure_capacity(vs_string *string, size_t len
     tmp->capacity = new_capacity;
     *string = tmp->buf;
     return tmp;
+}
+
+static const void *vs_string_iterator_next(void *context) {
+    VSTD_ASSERT(context != NULL, "fatal: vs_string_iterator_next invalid arguments");
+
+    vs_string_iterator_state *iterator = context;
+
+    if (iterator->cursor == iterator->end) {
+        return NULL;
+    }
+
+    return iterator->cursor++;
 }
 
 vs_string vs_string_create(const char *initial, vs_allocator *allocator) {
@@ -175,28 +197,6 @@ size_t vs_string_len(const vs_string string) {
 
     vs_string_header *header = vs_string_header_from_buf(string);
     return header->len;
-}
-
-typedef struct vs_string_iterator_state {
-    const char *cursor;
-    const char *end;
-} vs_string_iterator_state;
-
-_Static_assert(
-    sizeof(vs_string_iterator_state) <= VS_ITERATOR_STATE_SIZE,
-    "vs_string_iterator_state must fit in vs_iterator"
-);
-
-static const void *vs_string_iterator_next(void *context) {
-    VSTD_ASSERT(context != NULL, "fatal: vs_string_iterator_next invalid arguments");
-
-    vs_string_iterator_state *iterator = context;
-
-    if (iterator->cursor == iterator->end) {
-        return NULL;
-    }
-
-    return iterator->cursor++;
 }
 
 vs_iterator vs_string_get_iterator(const vs_string string) {

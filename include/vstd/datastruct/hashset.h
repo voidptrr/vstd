@@ -31,6 +31,10 @@
 #include "vstd/datastruct/iterator.h"
 #include "vstd/memory/allocator.h"
 
+#define VS_HASHSET_FOR_EACH(type, item, set) \
+    for (vs_iterator item##_vs_iter__ = vs_hashset_get_iterator((set)); \
+         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
+
 /*
  * Opaque hash set with unique elements.
  *
@@ -57,10 +61,6 @@ typedef bool (*vs_hashset_elem_eq_fn)(const void *lhs, const void *rhs);
 
 typedef struct vs_hashset vs_hashset;
 typedef struct vs_linked_list_node vs_linked_list_node;
-
-#define VS_HASHSET_FOR_EACH(type, item, set) \
-    for (vs_iterator item##_vs_iter__ = vs_hashset_get_iterator((set)); \
-         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
 
 /*
  * Create a hash set with fixed element size.

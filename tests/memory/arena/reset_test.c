@@ -29,10 +29,7 @@
 
 int main(void) {
     vs_arena *arena = vs_arena_create(128);
-    void *before;
-    void *after;
-
-    before = vs_arena_alloc(arena, 8);
+    void *before = vs_arena_alloc(arena, 8);
     if (vs_test_not_null(before) != 0) {
         return 1;
     }
@@ -45,7 +42,7 @@ int main(void) {
         return 1;
     }
 
-    after = vs_arena_alloc(arena, 8);
+    void *after = vs_arena_alloc(arena, 8);
     if (vs_test_equal_ptr(after, before) != 0) {
         return 1;
     }

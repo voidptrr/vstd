@@ -27,6 +27,14 @@
 
 #include <stddef.h>
 
+#define VS_ITERATOR_STATE_SIZE 64
+
+#define VS_ITER_NEXT_AS(type, iter) ((const type *)vs_iterator_next((iter)))
+
+#define VS_ITERATOR_FOR_EACH(type, item, iter) \
+    for (const type *(item) = VS_ITER_NEXT_AS(type, (iter)); (item) != NULL; \
+         (item) = VS_ITER_NEXT_AS(type, (iter)))
+
 /*
  * Generic iterator over caller-owned data.
  *
@@ -39,8 +47,6 @@ typedef void (*vs_iterator_map_into_fn)(void *context, const void *src, void *ds
 typedef struct vs_allocator vs_allocator;
 typedef struct vs_vector vs_vector;
 
-#define VS_ITERATOR_STATE_SIZE 64
-
 typedef union vs_iterator_storage {
     max_align_t align;
     unsigned char bytes[VS_ITERATOR_STATE_SIZE];
@@ -52,12 +58,6 @@ typedef struct vs_iterator {
     size_t size_hint;
     vs_iterator_storage state;
 } vs_iterator;
-
-#define VS_ITER_NEXT_AS(type, iter) ((const type *)vs_iterator_next((iter)))
-
-#define VS_ITERATOR_FOR_EACH(type, item, iter) \
-    for (const type *(item) = VS_ITER_NEXT_AS(type, (iter)); (item) != NULL; \
-         (item) = VS_ITER_NEXT_AS(type, (iter)))
 
 /* Return an iterator backed by caller-owned context and a next callback. */
 vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next);
