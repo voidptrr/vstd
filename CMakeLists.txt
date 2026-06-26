@@ -1,20 +1,14 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(vstd_ctests C)
+project(vstd VERSION 0.2.0 LANGUAGES C)
 
 include(CTest)
+include(GNUInstallDirs)
+enable_testing()
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
-
-find_program(ZIG_EXECUTABLE zig REQUIRED)
-
-set(VSTD_ZIG_PREFIX "${CMAKE_BINARY_DIR}/zig-prefix")
-set(VSTD_ZIG_CACHE "${CMAKE_BINARY_DIR}/zig-cache")
-set(VSTD_ZIG_GLOBAL_CACHE "${CMAKE_BINARY_DIR}/zig-global-cache")
-set(VSTD_ZIG_LIBRARY "${VSTD_ZIG_PREFIX}/lib/libvstd.a")
-set(VSTD_CTEST_ZIG_OPTIMIZE "ReleaseFast" CACHE STRING "Zig optimization mode for CTest library")
 
 file(GLOB_RECURSE VSTD_LIBRARY_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
@@ -22,29 +16,33 @@ file(GLOB_RECURSE VSTD_LIBRARY_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
 )
 
-add_custom_command(
-    OUTPUT "${VSTD_ZIG_LIBRARY}"
-    COMMAND "${CMAKE_COMMAND}" -E make_directory
-            "${VSTD_ZIG_CACHE}" "${VSTD_ZIG_GLOBAL_CACHE}"
-    COMMAND "${CMAKE_COMMAND}" -E env
-            "ZIG_GLOBAL_CACHE_DIR=${VSTD_ZIG_GLOBAL_CACHE}"
-            "${ZIG_EXECUTABLE}" build install
-            --cache-dir "${VSTD_ZIG_CACHE}"
-            "-Doptimize=${VSTD_CTEST_ZIG_OPTIMIZE}"
-            --prefix "${VSTD_ZIG_PREFIX}"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt"
-        "${CMAKE_CURRENT_SOURCE_DIR}/build.zig"
-        ${VSTD_LIBRARY_SOURCES}
-    VERBATIM
+add_library(vstd STATIC ${VSTD_LIBRARY_SOURCES})
+add_library(vstd::vstd ALIAS vstd)
+
+target_compile_features(vstd PUBLIC c_std_17)
+target_include_directories(
+    vstd
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
+target_compile_options(vstd PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
 )
 
-add_custom_target(vstd_zig_library DEPENDS "${VSTD_ZIG_LIBRARY}")
+set_target_properties(
+    vstd
+    PROPERTIES
+        VERSION "${PROJECT_VERSION}"
+        SOVERSION "${PROJECT_VERSION_MAJOR}"
+        EXPORT_NAME vstd
+)
 
-add_library(vstd STATIC IMPORTED GLOBAL)
-set_target_properties(vstd PROPERTIES IMPORTED_LOCATION "${VSTD_ZIG_LIBRARY}")
-add_dependencies(vstd vstd_zig_library)
+include(cmake/install.cmake)
 
 file(GLOB_RECURSE VSTD_TEST_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/*_test.c"
@@ -69,7 +67,7 @@ foreach(test_source IN LISTS VSTD_TEST_SOURCES)
         -Wextra
         -Wpedantic
     )
-    target_link_libraries("${test_name}" PRIVATE vstd)
+    target_link_libraries("${test_name}" PRIVATE vstd::vstd)
     add_dependencies(vstd_ctests "${test_name}")
     add_test(NAME "${test_name}" COMMAND "${test_name}")
 endforeach()

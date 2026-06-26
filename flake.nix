@@ -25,7 +25,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    vtools.url = "github:voidptrr/vtools/67ebc2f56d6536f9d37c65b249c8c51b2dbcf511";
+    vtools.url = "github:voidptrr/vtools/3f68414dcb8ecb40655b111b943f244376b69afb";
   };
 
   outputs = {
@@ -53,13 +53,8 @@
     devShells = forEachSystem ({pkgs}: {
       default = vtools.lib.mkShell {
         inherit pkgs;
-        src = ./.;
-        extraPackages = [
-          pkgs.cmake
-          pkgs.gcc
-          pkgs.zig
-          pkgs.zensical
-        ];
+        enableC = true;
+        extraPackages = [pkgs.zensical];
       };
     });
 
@@ -67,12 +62,10 @@
       checks = vtools.lib.mkChecks {
         inherit pkgs;
         src = ./.;
-        extraPackages = [
-          pkgs.cmake
-          pkgs.gcc
-          pkgs.zig
-          pkgs.zensical
-        ];
+        enableNixFormat = true;
+        enableCFormat = true;
+        enableCLint = true;
+        enableCTest = true;
       };
     in {
       inherit

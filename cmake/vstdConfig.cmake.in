@@ -19,29 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-#
-{
-  lib,
-  stdenv,
-  cmake,
-  ninja,
-}:
-stdenv.mkDerivation {
-  pname = "vstd";
-  version = "0.2.0";
 
-  src = ../.;
+@PACKAGE_INIT@
 
-  nativeBuildInputs = [
-    cmake
-    ninja
-  ];
-
-  doCheck = true;
-
-  meta = {
-    description = "Enhanced C standard library";
-    license = lib.licenses.mit;
-    platforms = lib.platforms.linux;
-  };
-}
+include("${CMAKE_CURRENT_LIST_DIR}/vstdTargets.cmake")
