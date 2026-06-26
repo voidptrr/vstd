@@ -35,11 +35,11 @@ typedef struct test_item {
 
 VS_TEST(head) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_linked_list *list;
     test_item first = {.value = 1};
 
-    list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    list = vs_linked_list_create(allocator);
     if (vs_test_null(vs_linked_list_head(list)) != 0) {
         return 1;
     }
@@ -58,9 +58,9 @@ VS_TEST(head) {
 
 VS_TEST(init) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_linked_list *list;
-    list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    list = vs_linked_list_create(allocator);
 
     if (vs_linked_list_size(list) != 0) {
         return 1;
@@ -75,12 +75,12 @@ VS_TEST(init) {
 
 VS_TEST(popleft) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_linked_list *list;
     test_item first = {.value = 5};
     test_item second = {.value = 9};
 
-    list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    list = vs_linked_list_create(allocator);
     if (vs_test_null(vs_linked_list_popleft(list)) != 0) {
         return 1;
     }
@@ -117,12 +117,12 @@ VS_TEST(popleft) {
 
 VS_TEST(push) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_linked_list *list;
     test_item first = {.value = 7};
     test_item second = {.value = 11};
 
-    list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    list = vs_linked_list_create(allocator);
     vs_linked_list_push(list, &first.node);
     vs_linked_list_push(list, &second.node);
 
@@ -156,12 +156,12 @@ VS_TEST(push) {
 
 VS_TEST(pushfront) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_linked_list *list;
     test_item first = {.value = 1};
     test_item second = {.value = 2};
 
-    list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    list = vs_linked_list_create(allocator);
     vs_linked_list_pushfront(list, &first.node);
     vs_linked_list_pushfront(list, &second.node);
 
@@ -195,13 +195,13 @@ VS_TEST(pushfront) {
 
 VS_TEST(remove_after) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_linked_list *list;
     test_item first = {.value = 1};
     test_item second = {.value = 2};
     test_item third = {.value = 3};
 
-    list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    list = vs_linked_list_create(allocator);
     vs_linked_list_push(list, &first.node);
     vs_linked_list_push(list, &second.node);
     vs_linked_list_push(list, &third.node);
@@ -241,7 +241,7 @@ VS_TEST(remove_after) {
 
 VS_TEST(iterator_walks_nodes) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_linked_list *list;
     test_item first = {.value = 1};
     test_item second = {.value = 2};
@@ -250,7 +250,7 @@ VS_TEST(iterator_walks_nodes) {
     const vs_linked_list_node *node;
     int expected = 1;
 
-    list = vs_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    list = vs_linked_list_create(allocator);
     vs_linked_list_push(list, &first.node);
     vs_linked_list_push(list, &second.node);
     vs_linked_list_push(list, &third.node);

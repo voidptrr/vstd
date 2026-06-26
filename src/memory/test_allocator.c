@@ -99,7 +99,7 @@ static void *vs_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
     return new_ptr;
 }
 
-void vs_test_allocator_init(vs_test_allocator *test_allocator) {
+vs_allocator *vs_test_allocator_init(vs_test_allocator *test_allocator) {
     test_allocator->alloc_count = 0;
     test_allocator->realloc_count = 0;
     test_allocator->dealloc_count = 0;
@@ -113,9 +113,6 @@ void vs_test_allocator_init(vs_test_allocator *test_allocator) {
         .realloc = vs_test_allocator_realloc,
         .dealloc = vs_test_allocator_dealloc,
     };
-}
-
-vs_allocator *vs_test_allocator_adapter(vs_test_allocator *test_allocator) {
     return &test_allocator->allocator;
 }
 

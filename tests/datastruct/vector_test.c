@@ -79,11 +79,11 @@ static vs_iterator paged_array_iter(paged_array_iterator *state, const int *item
 
 VS_TEST(init) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     int value = 1;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     if (vs_vector_size(v) != 0) {
         return 1;
     }
@@ -102,13 +102,13 @@ VS_TEST(init) {
 
 VS_TEST(pop) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     int first = 7;
     int second = 11;
     int *popped;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     if (vs_test_null(vs_vector_pop(v)) != 0) {
         return 1;
     }
@@ -141,11 +141,11 @@ VS_TEST(pop) {
 
 VS_TEST(push_single_element) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     int value = 42;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     vs_vector_push(v, &value);
 
     if (vs_vector_size(v) != 1) {
@@ -164,10 +164,10 @@ VS_TEST(push_single_element) {
 
 VS_TEST(push_grows_storage) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     for (size_t i = 0; i < 17; i++) {
         int value = (int)i;
         vs_vector_push(v, &value);
@@ -186,10 +186,10 @@ VS_TEST(push_grows_storage) {
 
 VS_TEST(push_preserves_existing_items_after_growth) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     for (size_t i = 0; i < 17; i++) {
         int value = (int)i;
         vs_vector_push(v, &value);
@@ -210,10 +210,10 @@ VS_TEST(push_preserves_existing_items_after_growth) {
 
 VS_TEST(reserve_and_data_access) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
 
-    v = vs_vector_create_with_capacity(sizeof(int), 2, vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create_with_capacity(sizeof(int), 2, allocator);
     if (vs_vector_capacity(v) != 2) {
         return 1;
     }
@@ -246,13 +246,13 @@ VS_TEST(reserve_and_data_access) {
 
 VS_TEST(iterator_walks_vector) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     vs_iterator iter;
     const int *item;
     int expected = 0;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     for (int i = 0; i < 4; i++) {
         vs_vector_push(v, &i);
     }
@@ -278,12 +278,12 @@ VS_TEST(iterator_walks_vector) {
 
 VS_TEST(vector_for_each_macro_walks_items) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     int sum = 0;
     size_t count = 0;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     for (int i = 1; i <= 4; i++) {
         VS_VECTOR_PUSH_AS(v, int, i);
     }
@@ -344,19 +344,19 @@ VS_TEST(custom_callback_iterator_takes_ten_at_a_time) {
 
 VS_TEST(iterator_collect_copies_items) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     vs_vector *out;
     vs_iterator iter;
     int expected[] = {1, 2, 3};
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
         vs_vector_push(v, &expected[i]);
     }
 
     iter = vs_vector_get_iterator(v);
-    out = vs_iterator_collect(&iter, sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    out = vs_iterator_collect(&iter, sizeof(int), allocator);
     vs_vector_destroy(v);
 
     if (vs_vector_size(out) != sizeof(expected) / sizeof(expected[0])) {
@@ -377,18 +377,18 @@ VS_TEST(iterator_collect_copies_items) {
 
 VS_TEST(iterator_collect_reserves_from_size_hint) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     vs_vector *out;
     vs_iterator iter;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     for (int i = 0; i < 25; i++) {
         vs_vector_push(v, &i);
     }
 
     iter = vs_vector_get_iterator(v);
-    out = vs_iterator_collect(&iter, sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    out = vs_iterator_collect(&iter, sizeof(int), allocator);
 
     if (vs_vector_size(out) != 25) {
         return 1;
@@ -407,25 +407,19 @@ VS_TEST(iterator_collect_reserves_from_size_hint) {
 
 VS_TEST(iterator_collect_map_changes_type) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     vs_vector *out;
     vs_iterator iter;
     int values[] = {1, 2, 3};
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
         vs_vector_push(v, &values[i]);
     }
 
     iter = vs_vector_get_iterator(v);
-    out = vs_iterator_collect_map(
-        &iter,
-        sizeof(double),
-        int_to_double,
-        NULL,
-        vs_test_allocator_adapter(&test_allocator)
-    );
+    out = vs_iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, allocator);
     vs_vector_destroy(v);
 
     if (vs_vector_size(out) != sizeof(values) / sizeof(values[0])) {
@@ -447,12 +441,12 @@ VS_TEST(iterator_collect_map_changes_type) {
 
 VS_TEST(binary_search_bounds) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_vector *v;
     int values[] = {1, 2, 2, 2, 4, 8};
     int key;
 
-    v = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    v = vs_vector_create(sizeof(int), allocator);
     for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); i++) {
         vs_vector_push(v, &values[i]);
     }

@@ -46,18 +46,11 @@ makes the next allocation or reallocation attempt fail. Setting it to `N` allows
 ### vs_test_allocator_init
 
 ```c
-void vs_test_allocator_init(vs_test_allocator *test_allocator);
+vs_allocator *vs_test_allocator_init(vs_test_allocator *test_allocator);
 ```
 
-Initializes a malloc-backed tracking allocator.
-
-### vs_test_allocator_adapter
-
-```c
-vs_allocator *vs_test_allocator_adapter(vs_test_allocator *test_allocator);
-```
-
-Returns the allocator adapter to pass into vstd APIs.
+Initializes a malloc-backed tracking allocator and returns the allocator adapter
+to pass into vstd APIs.
 
 ### vs_test_allocator_reset_counts
 
@@ -84,9 +77,9 @@ Returns whether every tracked allocation has been released.
 
 int main(void) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
 
-    vs_vector *vector = vs_vector_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    vs_vector *vector = vs_vector_create(sizeof(int), allocator);
     int value = 7;
 
     vs_vector_push(vector, &value);

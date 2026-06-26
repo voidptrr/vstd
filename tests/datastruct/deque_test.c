@@ -32,10 +32,10 @@
 
 VS_TEST(init) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     if (vs_deque_size(q) != 0) {
         return 1;
     }
@@ -49,13 +49,13 @@ VS_TEST(init) {
 
 VS_TEST(peekback) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     int first = 1;
     int second = 2;
     const int *out;
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     vs_deque_push(q, &first);
     vs_deque_push(q, &second);
 
@@ -76,13 +76,13 @@ VS_TEST(peekback) {
 
 VS_TEST(peekleft) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     int first = 1;
     int second = 2;
     const int *out;
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     vs_deque_push(q, &first);
     vs_deque_push(q, &second);
 
@@ -103,13 +103,13 @@ VS_TEST(peekleft) {
 
 VS_TEST(popback) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     int first = 1;
     int second = 2;
     int *out;
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     vs_deque_push(q, &first);
     vs_deque_push(q, &second);
 
@@ -130,12 +130,12 @@ VS_TEST(popback) {
 
 VS_TEST(popleft) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     int values[] = {10, 20};
     int *out;
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     if (vs_test_null(vs_deque_popleft(q)) != 0) {
         return 1;
     }
@@ -159,11 +159,11 @@ VS_TEST(popleft) {
 
 VS_TEST(push) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     int value = 42;
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     vs_deque_push(q, &value);
 
     const int *out = vs_deque_peekback(q);
@@ -186,13 +186,13 @@ VS_TEST(push) {
 
 VS_TEST(pushfront) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     int first = 1;
     int second = 2;
     int *out;
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     vs_deque_push(q, &first);
     vs_deque_pushfront(q, &second);
 
@@ -213,14 +213,14 @@ VS_TEST(pushfront) {
 
 VS_TEST(iterator_walks_front_to_back) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     vs_iterator iter;
     const int *out;
     int expected[] = {1, 2, 3, 4};
     size_t index = 0;
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
         vs_deque_push(q, &expected[i]);
     }
@@ -248,19 +248,19 @@ VS_TEST(iterator_walks_front_to_back) {
 
 VS_TEST(iterator_collect_copies_items) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_deque *q;
     vs_vector *out;
     vs_iterator iter;
     int expected[] = {1, 2, 3, 4};
 
-    q = vs_deque_create(sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    q = vs_deque_create(sizeof(int), allocator);
     for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
         vs_deque_push(q, &expected[i]);
     }
 
     iter = vs_deque_get_iterator(q);
-    out = vs_iterator_collect(&iter, sizeof(int), vs_test_allocator_adapter(&test_allocator));
+    out = vs_iterator_collect(&iter, sizeof(int), allocator);
     vs_deque_destroy(q);
 
     if (vs_vector_size(out) != sizeof(expected) / sizeof(expected[0])) {

@@ -35,7 +35,7 @@ typedef struct test_item {
 
 VS_TEST(iterator_walks_nodes) {
     vs_test_allocator test_allocator;
-    vs_test_allocator_init(&test_allocator);
+    vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
     vs_doubly_linked_list *list;
     test_item first = {.value = 1};
     test_item second = {.value = 2};
@@ -44,7 +44,7 @@ VS_TEST(iterator_walks_nodes) {
     const vs_doubly_linked_list_node *node;
     int expected = 1;
 
-    list = vs_doubly_linked_list_create(vs_test_allocator_adapter(&test_allocator));
+    list = vs_doubly_linked_list_create(allocator);
     vs_doubly_linked_list_push(list, &first.node);
     vs_doubly_linked_list_push(list, &second.node);
     vs_doubly_linked_list_push(list, &third.node);

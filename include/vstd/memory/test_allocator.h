@@ -42,11 +42,8 @@ typedef struct vs_test_allocator {
     vs_allocator allocator;
 } vs_test_allocator;
 
-/* Initialize a malloc-backed tracking allocator. */
-void vs_test_allocator_init(vs_test_allocator *test_allocator);
-
-/* Return the allocator adapter for APIs that accept vs_allocator. */
-vs_allocator *vs_test_allocator_adapter(vs_test_allocator *test_allocator);
+/* Initialize a malloc-backed tracking allocator and return its generic adapter. */
+vs_allocator *vs_test_allocator_init(vs_test_allocator *test_allocator);
 
 /* Reset event counters while keeping outstanding allocation state and fail_after. */
 void vs_test_allocator_reset_counts(vs_test_allocator *test_allocator);
