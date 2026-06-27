@@ -1,33 +1,33 @@
-# datastruct.doubly_linked_list
+# ds.doubly_linked_list
 
 ## DESCRIPTION
 
 The doubly_linked_list module provides an intrusive doubly linked list. User
-objects embed `vs_doubly_linked_list_node`, and the list links those embedded
+objects embed `doubly_linked_list_node`, and the list links those embedded
 nodes directly.
 
 The list owns only the list handle. Nodes and owning objects remain caller-owned.
-Use `VS_CONTAINER_OF` to recover the owning object from a returned node.
+Use `CONTAINER_OF` to recover the owning object from a returned node.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
 ## TYPES
 
-### vs_doubly_linked_list_node
+### doubly_linked_list_node
 
 ```c
-typedef struct vs_doubly_linked_list_node {
-    struct vs_doubly_linked_list_node *prev;
-    struct vs_doubly_linked_list_node *next;
-} vs_doubly_linked_list_node;
+typedef struct doubly_linked_list_node {
+    struct doubly_linked_list_node *prev;
+    struct doubly_linked_list_node *next;
+} doubly_linked_list_node;
 ```
 
 Embed this node in the object you want to link.
 
-### VS_CONTAINER_OF
+### CONTAINER_OF
 
 ```c
-#define VS_CONTAINER_OF(ptr, type, member)
+#define CONTAINER_OF(ptr, type, member)
 ```
 
 - Parameters: `ptr`, `type`, `member`
@@ -35,37 +35,37 @@ Embed this node in the object you want to link.
 - Example:
 
 ```c
-job *item = VS_CONTAINER_OF(node, job, node);
+job *item = CONTAINER_OF(node, job, node);
 ```
 
 ## FUNCTIONS
 
-### vs_doubly_linked_list_create
+### doubly_linked_list_create
 
 ```c
-vs_status vs_doubly_linked_list_create(vs_allocator *allocator, vs_doubly_linked_list **out);
+status doubly_linked_list_create(allocator *allocator, doubly_linked_list **out);
 ```
 
 - Parameters: `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: opaque doubly linked-list handle to `*out` on success.
 - Notes: the list stores `allocator` and reuses it to destroy the list handle.
   Nodes remain caller-owned. When `allocator` is `NULL`, the handle uses the C
-  library heap through `vs_alloc`.
+  library heap through `alloc`.
 - Example:
 
 ```c
-vs_doubly_linked_list *list = NULL;
-if (vs_doubly_linked_list_create(NULL, &list) != VS_STATUS_OK) {
+doubly_linked_list *list = NULL;
+if (doubly_linked_list_create(NULL, &list) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_doubly_linked_list_push
+### doubly_linked_list_push
 
 ```c
-void vs_doubly_linked_list_push(vs_doubly_linked_list *list,
-                                  vs_doubly_linked_list_node *node);
+void doubly_linked_list_push(doubly_linked_list *list,
+                                  doubly_linked_list_node *node);
 ```
 
 - Parameters: `list`, `node`
@@ -75,14 +75,14 @@ void vs_doubly_linked_list_push(vs_doubly_linked_list *list,
 
 ```c
 job item = {.id = 1};
-vs_doubly_linked_list_push(list, &item.node);
+doubly_linked_list_push(list, &item.node);
 ```
 
-### vs_doubly_linked_list_pushfront
+### doubly_linked_list_pushfront
 
 ```c
-void vs_doubly_linked_list_pushfront(vs_doubly_linked_list *list,
-                                       vs_doubly_linked_list_node *node);
+void doubly_linked_list_pushfront(doubly_linked_list *list,
+                                       doubly_linked_list_node *node);
 ```
 
 - Parameters: `list`, `node`
@@ -92,15 +92,15 @@ void vs_doubly_linked_list_pushfront(vs_doubly_linked_list *list,
 
 ```c
 job item = {.id = 1};
-vs_doubly_linked_list_pushfront(list, &item.node);
+doubly_linked_list_pushfront(list, &item.node);
 ```
 
-### vs_doubly_linked_list_insert_after
+### doubly_linked_list_insert_after
 
 ```c
-void vs_doubly_linked_list_insert_after(vs_doubly_linked_list *list,
-                                          vs_doubly_linked_list_node *after,
-                                          vs_doubly_linked_list_node *node);
+void doubly_linked_list_insert_after(doubly_linked_list *list,
+                                          doubly_linked_list_node *after,
+                                          doubly_linked_list_node *node);
 ```
 
 - Parameters: `list`, `after`, `node`
@@ -109,13 +109,13 @@ void vs_doubly_linked_list_insert_after(vs_doubly_linked_list *list,
 - Example:
 
 ```c
-vs_doubly_linked_list_insert_after(list, &first.node, &second.node);
+doubly_linked_list_insert_after(list, &first.node, &second.node);
 ```
 
-### vs_doubly_linked_list_popleft
+### doubly_linked_list_popleft
 
 ```c
-vs_doubly_linked_list_node *vs_doubly_linked_list_popleft(vs_doubly_linked_list *list);
+doubly_linked_list_node *doubly_linked_list_popleft(doubly_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -123,13 +123,13 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_popleft(vs_doubly_linked_list 
 - Example:
 
 ```c
-vs_doubly_linked_list_node *node = vs_doubly_linked_list_popleft(list);
+doubly_linked_list_node *node = doubly_linked_list_popleft(list);
 ```
 
-### vs_doubly_linked_list_popback
+### doubly_linked_list_popback
 
 ```c
-vs_doubly_linked_list_node *vs_doubly_linked_list_popback(vs_doubly_linked_list *list);
+doubly_linked_list_node *doubly_linked_list_popback(doubly_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -137,14 +137,14 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_popback(vs_doubly_linked_list 
 - Example:
 
 ```c
-vs_doubly_linked_list_node *node = vs_doubly_linked_list_popback(list);
+doubly_linked_list_node *node = doubly_linked_list_popback(list);
 ```
 
-### vs_doubly_linked_list_remove
+### doubly_linked_list_remove
 
 ```c
-void vs_doubly_linked_list_remove(vs_doubly_linked_list *list,
-                                    vs_doubly_linked_list_node *node);
+void doubly_linked_list_remove(doubly_linked_list *list,
+                                    doubly_linked_list_node *node);
 ```
 
 - Parameters: `list`, `node`
@@ -153,13 +153,13 @@ void vs_doubly_linked_list_remove(vs_doubly_linked_list *list,
 - Example:
 
 ```c
-vs_doubly_linked_list_remove(list, &item.node);
+doubly_linked_list_remove(list, &item.node);
 ```
 
-### vs_doubly_linked_list_size
+### doubly_linked_list_size
 
 ```c
-size_t vs_doubly_linked_list_size(const vs_doubly_linked_list *list);
+size_t doubly_linked_list_size(const doubly_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -167,13 +167,13 @@ size_t vs_doubly_linked_list_size(const vs_doubly_linked_list *list);
 - Example:
 
 ```c
-size_t count = vs_doubly_linked_list_size(list);
+size_t count = doubly_linked_list_size(list);
 ```
 
-### vs_doubly_linked_list_head
+### doubly_linked_list_head
 
 ```c
-vs_doubly_linked_list_node *vs_doubly_linked_list_head(const vs_doubly_linked_list *list);
+doubly_linked_list_node *doubly_linked_list_head(const doubly_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -181,13 +181,13 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_head(const vs_doubly_linked_li
 - Example:
 
 ```c
-vs_doubly_linked_list_node *head = vs_doubly_linked_list_head(list);
+doubly_linked_list_node *head = doubly_linked_list_head(list);
 ```
 
-### vs_doubly_linked_list_tail
+### doubly_linked_list_tail
 
 ```c
-vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_list *list);
+doubly_linked_list_node *doubly_linked_list_tail(const doubly_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -195,34 +195,34 @@ vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_li
 - Example:
 
 ```c
-vs_doubly_linked_list_node *tail = vs_doubly_linked_list_tail(list);
+doubly_linked_list_node *tail = doubly_linked_list_tail(list);
 ```
 
-### vs_doubly_linked_list_get_iterator
+### doubly_linked_list_get_iterator
 
 ```c
-vs_iterator vs_doubly_linked_list_get_iterator(const vs_doubly_linked_list *list);
+iterator doubly_linked_list_get_iterator(const doubly_linked_list *list);
 ```
 
 - Parameters: `list`
 - Returns: iterator over list nodes from head to tail.
-- Notes: yielded pointers are `const vs_doubly_linked_list_node *`. Use
-  `VS_CONTAINER_OF` to recover the owning object.
+- Notes: yielded pointers are `const doubly_linked_list_node *`. Use
+  `CONTAINER_OF` to recover the owning object.
 - Example:
 
 ```c
-vs_iterator iter = vs_doubly_linked_list_get_iterator(list);
+iterator iter = doubly_linked_list_get_iterator(list);
 
-const vs_doubly_linked_list_node *node;
-while ((node = (const vs_doubly_linked_list_node *)vs_iterator_next(&iter)) != NULL) {
-    const job *item = VS_CONTAINER_OF(node, job, node);
+const doubly_linked_list_node *node;
+while ((node = (const doubly_linked_list_node *)iterator_next(&iter)) != NULL) {
+    const job *item = CONTAINER_OF(node, job, node);
 }
 ```
 
-### vs_doubly_linked_list_destroy
+### doubly_linked_list_destroy
 
 ```c
-void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list);
+void doubly_linked_list_destroy(doubly_linked_list *list);
 ```
 
 - Parameters: `list`
@@ -231,5 +231,5 @@ void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list);
 - Example:
 
 ```c
-vs_doubly_linked_list_destroy(list);
+doubly_linked_list_destroy(list);
 ```

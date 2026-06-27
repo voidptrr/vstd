@@ -22,43 +22,43 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_LOGGING_H
-#define VSTD_LOGGING_H
+#ifndef LOGGING_H
+#define LOGGING_H
 
 #include <stdbool.h>
 
 /* Severity levels used by the global logger. */
-typedef enum vs_log_level {
-    VS_LOG_LEVEL_DEBUG = 0,
-    VS_LOG_LEVEL_INFO = 1,
-    VS_LOG_LEVEL_WARN = 2,
-    VS_LOG_LEVEL_ERROR = 3,
-} vs_log_level;
+typedef enum log_level {
+    LOG_LEVEL_DEBUG = 0,
+    LOG_LEVEL_INFO = 1,
+    LOG_LEVEL_WARN = 2,
+    LOG_LEVEL_ERROR = 3,
+} log_level;
 
 /* Timestamp formats available for log messages. */
-typedef enum vs_log_timestamp {
-    VS_LOG_TIMESTAMP_NONE = 0,
-    VS_LOG_TIMESTAMP_TIME = 1,
-    VS_LOG_TIMESTAMP_DATETIME = 2,
-    VS_LOG_TIMESTAMP_UNIX = 3,
-} vs_log_timestamp;
+typedef enum log_timestamp {
+    LOG_TIMESTAMP_NONE = 0,
+    LOG_TIMESTAMP_TIME = 1,
+    LOG_TIMESTAMP_DATETIME = 2,
+    LOG_TIMESTAMP_UNIX = 3,
+} log_timestamp;
 
 /* Setter functions for the global logger configuration. */
-void vs_log_set_level(vs_log_level level);
-void vs_log_set_timestamp(vs_log_timestamp timestamp);
-void vs_log_set_prefixes(const char *message_prefix, const char *error_prefix);
-void vs_log_set_color(bool enabled);
+void log_set_level(log_level level);
+void log_set_timestamp(log_timestamp timestamp);
+void log_set_prefixes(const char *message_prefix, const char *error_prefix);
+void log_set_color(bool enabled);
 
 /* Log a DEBUG-level formatted message. */
-void vs_log_debug(const char *fmt, ...);
+void log_debug(const char *fmt, ...);
 
 /* Log an INFO-level formatted message. */
-void vs_log_info(const char *fmt, ...);
+void log_info(const char *fmt, ...);
 
 /* Log a WARN-level formatted message. */
-void vs_log_warn(const char *fmt, ...);
+void log_warn(const char *fmt, ...);
 
 /* Log an ERROR-level formatted message. */
-void vs_log_error(const char *fmt, ...);
+void log_error(const char *fmt, ...);
 
 #endif

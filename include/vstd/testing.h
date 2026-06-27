@@ -22,61 +22,60 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_TESTING_H
-#define VSTD_TESTING_H
+#ifndef TESTING_H
+#define TESTING_H
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
-#define VS_TEST(name) static int vs_test_case_##name(void)
-#define VS_TEST_CASE(name) {#name, vs_test_case_##name}
-#define VS_TEST_MAIN(...) \
+#define TEST(name) static int test_case_##name(void)
+#define TEST_CASE(name) {#name, test_case_##name}
+#define TEST_MAIN(...) \
     int main(void) { \
-        static const vs_test_case vs_test_cases[] = {__VA_ARGS__}; \
-        return vs_test_run(vs_test_cases, sizeof(vs_test_cases) / sizeof(vs_test_cases[0])); \
+        static const test_case test_cases[] = {__VA_ARGS__}; \
+        return test_run(test_cases, sizeof(test_cases) / sizeof(test_cases[0])); \
     }
 
-#define vs_test_equal(actual, expected) \
-    vs_test_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
+#define test_equal(actual, expected) test_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
 
-#define vs_test_not_equal(actual, expected) \
-    vs_test_not_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
+#define test_not_equal(actual, expected) \
+    test_not_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
 
-#define vs_test_status_ok(expr) vs_test_equal((expr), 0)
+#define test_status_ok(expr) test_equal((expr), 0)
 
-typedef int (*vs_test_fn)(void);
+typedef int (*test_fn)(void);
 
-typedef struct vs_test_case {
+typedef struct test_case {
     const char *name;
-    vs_test_fn fn;
-} vs_test_case;
+    test_fn fn;
+} test_case;
 
 /* Return 0 when scalar values are equal, otherwise print both values and return 1. */
-int vs_test_equal_intmax(intmax_t actual, intmax_t expected);
+int test_equal_intmax(intmax_t actual, intmax_t expected);
 
 /* Return 0 when scalar values differ, otherwise print both values and return 1. */
-int vs_test_not_equal_intmax(intmax_t actual, intmax_t expected);
+int test_not_equal_intmax(intmax_t actual, intmax_t expected);
 
 /* Return 0 when pointers are equal, otherwise print both addresses and return 1. */
-int vs_test_equal_ptr(const void *actual, const void *expected);
+int test_equal_ptr(const void *actual, const void *expected);
 
 /* Return 0 when pointers differ, otherwise print both addresses and return 1. */
-int vs_test_not_equal_ptr(const void *actual, const void *expected);
+int test_not_equal_ptr(const void *actual, const void *expected);
 
 /* Return 0 when ptr is NULL, otherwise print the address and return 1. */
-int vs_test_null(const void *ptr);
+int test_null(const void *ptr);
 
 /* Return 0 when ptr is not NULL, otherwise print a failure and return 1. */
-int vs_test_not_null(const void *ptr);
+int test_not_null(const void *ptr);
 
 /* Return 0 when C strings are equal, otherwise print both values and return 1. */
-int vs_test_equal_str(const char *actual, const char *expected);
+int test_equal_str(const char *actual, const char *expected);
 
 /* Return whether two C strings are equal, treating two NULL pointers as equal. */
-bool vs_test_str_eq(const char *actual, const char *expected);
+bool test_str_eq(const char *actual, const char *expected);
 
 /* Run named test cases and return 1 if any case fails. */
-int vs_test_run(const vs_test_case *cases, size_t count);
+int test_run(const test_case *cases, size_t count);
 
 #endif

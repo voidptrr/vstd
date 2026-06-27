@@ -30,33 +30,33 @@
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_arena *arena = NULL;
-    if (vs_test_equal(vs_arena_create(128, &arena), VS_STATUS_OK)) {
+    arena *arena = NULL;
+    if (test_equal(arena_create(128, &arena), STATUS_OK)) {
         return 1;
     }
-    void *first = vs_arena_alloc(arena, 8);
-    void *second = vs_arena_alloc(arena, 8);
-    if (vs_test_not_null(first) != 0) {
+    void *first = arena_alloc(arena, 8);
+    void *second = arena_alloc(arena, 8);
+    if (test_not_null(first) != 0) {
         return 1;
     }
-    if (vs_test_not_null(second) != 0) {
+    if (test_not_null(second) != 0) {
         return 1;
     }
-    if (vs_test_not_equal_ptr(first, second) != 0) {
-        return 1;
-    }
-
-    if (vs_test_equal((intmax_t)((uintptr_t)first % VS_MEMORY_ALIGN), 0) != 0) {
-        return 1;
-    }
-    if (vs_test_equal((intmax_t)((uintptr_t)second % VS_MEMORY_ALIGN), 0) != 0) {
+    if (test_not_equal_ptr(first, second) != 0) {
         return 1;
     }
 
-    if (vs_test_null(vs_arena_alloc(arena, vs_arena_capacity(arena))) != 0) {
+    if (test_equal((intmax_t)((uintptr_t)first % MEMORY_ALIGN), 0) != 0) {
+        return 1;
+    }
+    if (test_equal((intmax_t)((uintptr_t)second % MEMORY_ALIGN), 0) != 0) {
         return 1;
     }
 
-    vs_arena_destroy(arena);
+    if (test_null(arena_alloc(arena, arena_capacity(arena))) != 0) {
+        return 1;
+    }
+
+    arena_destroy(arena);
     return 0;
 }

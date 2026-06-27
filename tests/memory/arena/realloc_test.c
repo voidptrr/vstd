@@ -31,33 +31,33 @@
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_arena *arena = NULL;
-    if (vs_test_equal(vs_arena_create(256, &arena), VS_STATUS_OK)) {
+    arena *arena = NULL;
+    if (test_equal(arena_create(256, &arena), STATUS_OK)) {
         return 1;
     }
-    size_t grown_size = VS_MEMORY_ALIGN * 2;
+    size_t grown_size = MEMORY_ALIGN * 2;
 
-    uint64_t *value = (uint64_t *)vs_arena_alloc(arena, sizeof(uint64_t));
-    if (vs_test_not_null(value) != 0) {
+    uint64_t *value = (uint64_t *)arena_alloc(arena, sizeof(uint64_t));
+    if (test_not_null(value) != 0) {
         return 1;
     }
     *value = 42;
 
-    uint64_t *grown = (uint64_t *)vs_arena_realloc(arena, value, grown_size);
-    if (vs_test_not_null(grown) != 0) {
+    uint64_t *grown = (uint64_t *)arena_realloc(arena, value, grown_size);
+    if (test_not_null(grown) != 0) {
         return 1;
     }
-    if (vs_test_not_equal_ptr(grown, value) != 0) {
+    if (test_not_equal_ptr(grown, value) != 0) {
         return 1;
     }
-    if (vs_test_equal(grown[0], 42) != 0) {
-        return 1;
-    }
-
-    if (vs_test_equal_ptr(vs_arena_realloc(arena, grown, grown_size), grown) != 0) {
+    if (test_equal(grown[0], 42) != 0) {
         return 1;
     }
 
-    vs_arena_destroy(arena);
+    if (test_equal_ptr(arena_realloc(arena, grown, grown_size), grown) != 0) {
+        return 1;
+    }
+
+    arena_destroy(arena);
     return 0;
 }

@@ -30,39 +30,39 @@
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_arena *arena = NULL;
-    if (vs_test_equal(vs_arena_create(128, &arena), VS_STATUS_OK)) {
+    arena *arena = NULL;
+    if (test_equal(arena_create(128, &arena), STATUS_OK)) {
         return 1;
     }
-    vs_allocator *allocator = vs_arena_allocator(arena);
+    allocator *allocator = arena_allocator(arena);
 
-    if (vs_test_equal_ptr(allocator->ctx, arena) != 0) {
+    if (test_equal_ptr(allocator->ctx, arena) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator->alloc != NULL, true) != 0) {
+    if (test_equal(allocator->alloc != NULL, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator->realloc != NULL, true) != 0) {
+    if (test_equal(allocator->realloc != NULL, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator->dealloc == NULL, true) != 0) {
+    if (test_equal(allocator->dealloc == NULL, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(
-            allocator->features == (VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET),
+    if (test_equal(
+            allocator->features == (ALLOCATOR_FEATURE_REALLOC | ALLOCATOR_FEATURE_RESET),
             true
         )
         != 0) {
         return 1;
     }
 
-    if (vs_test_equal(vs_arena_capacity(arena) >= 128, true) != 0) {
+    if (test_equal(arena_capacity(arena) >= 128, true) != 0) {
         return 1;
     }
-    if (vs_test_equal((intmax_t)vs_arena_used(arena), 0) != 0) {
+    if (test_equal((intmax_t)arena_used(arena), 0) != 0) {
         return 1;
     }
 
-    vs_arena_destroy(arena);
+    arena_destroy(arena);
     return 0;
 }

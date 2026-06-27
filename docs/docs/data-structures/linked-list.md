@@ -1,39 +1,39 @@
-# datastruct.linked_list
+# ds.linked_list
 
 ## DESCRIPTION
 
 The linked_list module provides an intrusive singly linked list. User objects embed
-`vs_linked_list_node`, and the list links those embedded nodes directly.
+`linked_list_node`, and the list links those embedded nodes directly.
 
 The list owns only the list handle. Nodes and owning objects remain caller-owned.
-Use `VS_CONTAINER_OF` to recover the owning object from a returned node.
+Use `CONTAINER_OF` to recover the owning object from a returned node.
 
 This API is fail-fast: invalid required arguments are programmer errors and are asserted.
 
 ## TYPES
 
-### vs_linked_list_node
+### linked_list_node
 
 ```c
-typedef struct vs_linked_list_node {
-    struct vs_linked_list_node *next;
-} vs_linked_list_node;
+typedef struct linked_list_node {
+    struct linked_list_node *next;
+} linked_list_node;
 ```
 
 Embed this node in the object you want to link.
 
-### vs_linked_list_iterator
+### linked_list_iterator
 
 ```c
-typedef struct vs_linked_list_iterator vs_linked_list_iterator;
+typedef struct linked_list_iterator linked_list_iterator;
 ```
 
 Typed cursor for walking linked-list nodes.
 
-### VS_CONTAINER_OF
+### CONTAINER_OF
 
 ```c
-#define VS_CONTAINER_OF(ptr, type, member)
+#define CONTAINER_OF(ptr, type, member)
 ```
 
 - Parameters: `ptr`, `type`, `member`
@@ -41,36 +41,36 @@ Typed cursor for walking linked-list nodes.
 - Example:
 
 ```c
-job *item = VS_CONTAINER_OF(node, job, node);
+job *item = CONTAINER_OF(node, job, node);
 ```
 
 ## FUNCTIONS
 
-### vs_linked_list_create
+### linked_list_create
 
 ```c
-vs_status vs_linked_list_create(vs_allocator *allocator, vs_linked_list **out);
+status linked_list_create(allocator *allocator, linked_list **out);
 ```
 
 - Parameters: `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: opaque linked-list handle to `*out` on success.
 - Notes: the list stores `allocator` and reuses it to destroy the list handle.
   Nodes remain caller-owned. When `allocator` is `NULL`, the handle uses the C
-  library heap through `vs_alloc`.
+  library heap through `alloc`.
 - Example:
 
 ```c
-vs_linked_list *list = NULL;
-if (vs_linked_list_create(NULL, &list) != VS_STATUS_OK) {
+linked_list *list = NULL;
+if (linked_list_create(NULL, &list) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_linked_list_push
+### linked_list_push
 
 ```c
-void vs_linked_list_push(vs_linked_list *list, vs_linked_list_node *node);
+void linked_list_push(linked_list *list, linked_list_node *node);
 ```
 
 - Parameters: `list`, `node`
@@ -79,13 +79,13 @@ void vs_linked_list_push(vs_linked_list *list, vs_linked_list_node *node);
 
 ```c
 job item = {.id = 1};
-vs_linked_list_push(list, &item.node);
+linked_list_push(list, &item.node);
 ```
 
-### vs_linked_list_pushfront
+### linked_list_pushfront
 
 ```c
-void vs_linked_list_pushfront(vs_linked_list *list, vs_linked_list_node *node);
+void linked_list_pushfront(linked_list *list, linked_list_node *node);
 ```
 
 - Parameters: `list`, `node`
@@ -94,13 +94,13 @@ void vs_linked_list_pushfront(vs_linked_list *list, vs_linked_list_node *node);
 
 ```c
 job item = {.id = 1};
-vs_linked_list_pushfront(list, &item.node);
+linked_list_pushfront(list, &item.node);
 ```
 
-### vs_linked_list_popleft
+### linked_list_popleft
 
 ```c
-vs_linked_list_node *vs_linked_list_popleft(vs_linked_list *list);
+linked_list_node *linked_list_popleft(linked_list *list);
 ```
 
 - Parameters: `list`
@@ -108,17 +108,17 @@ vs_linked_list_node *vs_linked_list_popleft(vs_linked_list *list);
 - Example:
 
 ```c
-vs_linked_list_node *node = vs_linked_list_popleft(list);
+linked_list_node *node = linked_list_popleft(list);
 if (node != NULL) {
-    job *item = VS_CONTAINER_OF(node, job, node);
+    job *item = CONTAINER_OF(node, job, node);
 }
 ```
 
-### vs_linked_list_remove_after
+### linked_list_remove_after
 
 ```c
-vs_linked_list_node *vs_linked_list_remove_after(vs_linked_list *list,
-                                                     vs_linked_list_node *prev);
+linked_list_node *linked_list_remove_after(linked_list *list,
+                                                     linked_list_node *prev);
 ```
 
 - Parameters: `list`, `prev`
@@ -127,13 +127,13 @@ vs_linked_list_node *vs_linked_list_remove_after(vs_linked_list *list,
 - Example:
 
 ```c
-vs_linked_list_node *node = vs_linked_list_remove_after(list, prev);
+linked_list_node *node = linked_list_remove_after(list, prev);
 ```
 
-### vs_linked_list_size
+### linked_list_size
 
 ```c
-size_t vs_linked_list_size(const vs_linked_list *list);
+size_t linked_list_size(const linked_list *list);
 ```
 
 - Parameters: `list`
@@ -141,13 +141,13 @@ size_t vs_linked_list_size(const vs_linked_list *list);
 - Example:
 
 ```c
-size_t count = vs_linked_list_size(list);
+size_t count = linked_list_size(list);
 ```
 
-### vs_linked_list_head
+### linked_list_head
 
 ```c
-vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list);
+linked_list_node *linked_list_head(const linked_list *list);
 ```
 
 - Parameters: `list`
@@ -155,34 +155,34 @@ vs_linked_list_node *vs_linked_list_head(const vs_linked_list *list);
 - Example:
 
 ```c
-vs_linked_list_node *head = vs_linked_list_head(list);
+linked_list_node *head = linked_list_head(list);
 ```
 
-### vs_linked_list_get_iterator
+### linked_list_get_iterator
 
 ```c
-vs_iterator vs_linked_list_get_iterator(const vs_linked_list *list);
+iterator linked_list_get_iterator(const linked_list *list);
 ```
 
 - Parameters: `list`
 - Returns: iterator over list nodes from head to tail.
-- Notes: yielded pointers are `const vs_linked_list_node *`. Use
-  `VS_CONTAINER_OF` to recover the owning object.
+- Notes: yielded pointers are `const linked_list_node *`. Use
+  `CONTAINER_OF` to recover the owning object.
 - Example:
 
 ```c
-vs_iterator iter = vs_linked_list_get_iterator(list);
+iterator iter = linked_list_get_iterator(list);
 
-const vs_linked_list_node *node;
-while ((node = (const vs_linked_list_node *)vs_iterator_next(&iter)) != NULL) {
-    const job *item = VS_CONTAINER_OF(node, job, node);
+const linked_list_node *node;
+while ((node = (const linked_list_node *)iterator_next(&iter)) != NULL) {
+    const job *item = CONTAINER_OF(node, job, node);
 }
 ```
 
-### vs_linked_list_destroy
+### linked_list_destroy
 
 ```c
-void vs_linked_list_destroy(vs_linked_list *list);
+void linked_list_destroy(linked_list *list);
 ```
 
 - Parameters: `list`
@@ -191,5 +191,5 @@ void vs_linked_list_destroy(vs_linked_list *list);
 - Example:
 
 ```c
-vs_linked_list_destroy(list);
+linked_list_destroy(list);
 ```

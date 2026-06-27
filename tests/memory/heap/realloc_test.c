@@ -29,28 +29,28 @@
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_heap *heap = NULL;
-    if (vs_test_equal(vs_heap_create(4096, &heap), VS_STATUS_OK)) {
+    heap *heap = NULL;
+    if (test_equal(heap_create(4096, &heap), STATUS_OK)) {
         return 1;
     }
-    char *ptr = (char *)vs_heap_realloc(heap, NULL, 32);
-    if (vs_test_not_null(ptr) != 0) {
+    char *ptr = (char *)heap_realloc(heap, NULL, 32);
+    if (test_not_null(ptr) != 0) {
         return 1;
     }
 
     memcpy(ptr, "hello", 6);
-    ptr = (char *)vs_heap_realloc(heap, ptr, 128);
-    if (vs_test_not_null(ptr) != 0) {
+    ptr = (char *)heap_realloc(heap, ptr, 128);
+    if (test_not_null(ptr) != 0) {
         return 1;
     }
-    if (vs_test_equal(memcmp(ptr, "hello", 6), 0) != 0) {
-        return 1;
-    }
-
-    if (vs_test_null(vs_heap_realloc(heap, ptr, 0)) != 0) {
+    if (test_equal(memcmp(ptr, "hello", 6), 0) != 0) {
         return 1;
     }
 
-    vs_heap_destroy(heap);
+    if (test_null(heap_realloc(heap, ptr, 0)) != 0) {
+        return 1;
+    }
+
+    heap_destroy(heap);
     return 0;
 }

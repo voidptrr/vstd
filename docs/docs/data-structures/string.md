@@ -1,4 +1,4 @@
-# datastruct.string
+# ds.string
 
 ## DESCRIPTION
 
@@ -10,74 +10,74 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_string
+### string
 
 ```c
-typedef char *vs_string;
+typedef char *string;
 ```
 
 ## FUNCTIONS
 
-### vs_string_create
+### string_create
 
 ```c
-vs_status vs_string_create(const char *initial, vs_allocator *allocator, vs_string *out);
+status string_create(const char *initial, allocator *allocator, string *out);
 ```
 
 - Parameters: `initial`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: created string to `*out` on success.
 - Notes: when `initial` is `NULL`, creates an empty string. The string stores
   `allocator` in its header and reuses it for growth and destroy. When
   `allocator` is `NULL`, uses the C library heap through
-  `vs_alloc`/`vs_resize`.
+  `alloc`/`resize`.
 - Example:
 
 ```c
-vs_string string = NULL;
-if (vs_string_create("hello", NULL, &string) != VS_STATUS_OK) {
+string string = NULL;
+if (string_create("hello", NULL, &string) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_string_append
+### string_append
 
 ```c
-vs_status vs_string_append(vs_string *string, const char *suffix);
+status string_append(string *string, const char *suffix);
 ```
 
 - Parameters: `string`, `suffix`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Notes: may reallocate and update `*string`.
 - Example:
 
 ```c
-if (vs_string_append(&string, " world") != VS_STATUS_OK) {
+if (string_append(&string, " world") != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_string_prepend
+### string_prepend
 
 ```c
-vs_status vs_string_prepend(vs_string *string, const char *prefix);
+status string_prepend(string *string, const char *prefix);
 ```
 
 - Parameters: `string`, `prefix`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Notes: may reallocate and update `*string`.
 - Example:
 
 ```c
-if (vs_string_prepend(&string, "say ") != VS_STATUS_OK) {
+if (string_prepend(&string, "say ") != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_string_contains
+### string_contains
 
 ```c
-bool vs_string_contains(const vs_string string, const char *needle);
+bool string_contains(const string string, const char *needle);
 ```
 
 - Parameters: `string`, `needle`
@@ -86,13 +86,13 @@ bool vs_string_contains(const vs_string string, const char *needle);
 - Example:
 
 ```c
-bool found = vs_string_contains(string, "hello");
+bool found = string_contains(string, "hello");
 ```
 
-### vs_string_starts_with
+### string_starts_with
 
 ```c
-bool vs_string_starts_with(const vs_string string, const char *prefix);
+bool string_starts_with(const string string, const char *prefix);
 ```
 
 - Parameters: `string`, `prefix`
@@ -101,13 +101,13 @@ bool vs_string_starts_with(const vs_string string, const char *prefix);
 - Example:
 
 ```c
-bool ok = vs_string_starts_with(string, "say");
+bool ok = string_starts_with(string, "say");
 ```
 
-### vs_string_ends_with
+### string_ends_with
 
 ```c
-bool vs_string_ends_with(const vs_string string, const char *suffix);
+bool string_ends_with(const string string, const char *suffix);
 ```
 
 - Parameters: `string`, `suffix`
@@ -116,13 +116,13 @@ bool vs_string_ends_with(const vs_string string, const char *suffix);
 - Example:
 
 ```c
-bool ok = vs_string_ends_with(string, "world");
+bool ok = string_ends_with(string, "world");
 ```
 
-### vs_string_clear
+### string_clear
 
 ```c
-void vs_string_clear(vs_string string);
+void string_clear(string string);
 ```
 
 - Parameters: `string`
@@ -131,13 +131,13 @@ void vs_string_clear(vs_string string);
 - Example:
 
 ```c
-vs_string_clear(string);
+string_clear(string);
 ```
 
-### vs_string_len
+### string_len
 
 ```c
-size_t vs_string_len(const vs_string string);
+size_t string_len(const string string);
 ```
 
 - Parameters: `string`
@@ -145,13 +145,13 @@ size_t vs_string_len(const vs_string string);
 - Example:
 
 ```c
-size_t len = vs_string_len(string);
+size_t len = string_len(string);
 ```
 
-### vs_string_get_iterator
+### string_get_iterator
 
 ```c
-vs_iterator vs_string_get_iterator(const vs_string string);
+iterator string_get_iterator(const string string);
 ```
 
 - Parameters: `string`
@@ -161,18 +161,18 @@ vs_iterator vs_string_get_iterator(const vs_string string);
 - Example:
 
 ```c
-vs_iterator iter = vs_string_get_iterator(string);
+iterator iter = string_get_iterator(string);
 
 const char *ch;
-while ((ch = (const char *)vs_iterator_next(&iter)) != NULL) {
+while ((ch = (const char *)iterator_next(&iter)) != NULL) {
     /* use *ch */
 }
 ```
 
-### vs_string_destroy
+### string_destroy
 
 ```c
-void vs_string_destroy(vs_string string);
+void string_destroy(string string);
 ```
 
 - Parameters: `string`
@@ -181,5 +181,5 @@ void vs_string_destroy(vs_string string);
 - Example:
 
 ```c
-vs_string_destroy(string);
+string_destroy(string);
 ```

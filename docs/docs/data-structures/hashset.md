@@ -1,4 +1,4 @@
-# datastruct.hashset
+# ds.hashset
 
 ## DESCRIPTION
 
@@ -17,10 +17,10 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## FUNCTIONS
 
-### vs_hashset_for_each
+### hashset_for_each
 
 ```c
-#define vs_hashset_for_each(type, item, set)
+#define hashset_for_each(type, item, set)
 ```
 
 - Parameters: `type`, `item`, `set`
@@ -29,76 +29,76 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ```c
 const uint64_t *value;
-vs_hashset_for_each(uint64_t, value, set) {
+hashset_for_each(uint64_t, value, set) {
     /* use *value */
 }
 ```
 
-### vs_hashset_create
+### hashset_create
 
 ```c
-vs_status vs_hashset_create(size_t elem_size,
-                            vs_hashset_elem_eq_fn elem_eq,
-                            vs_allocator *allocator,
-                            vs_hashset **out);
+status hashset_create(size_t elem_size,
+                            hashset_elem_eq_fn elem_eq,
+                            allocator *allocator,
+                            hashset **out);
 ```
 
 - Parameters: `elem_size`, `elem_eq`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: opaque hashset handle to `*out` on success.
 - Notes: the hashset stores `allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `allocator` is `NULL`, hashset uses the C
-  library heap through `vs_alloc`. Custom `elem_eq` callbacks must be
+  library heap through `alloc`. Custom `elem_eq` callbacks must be
   consistent with the byte hash used for bucket selection.
 - Example:
 
 ```c
-vs_hashset *set = NULL;
-if (vs_hashset_create(sizeof(uint64_t), NULL, NULL, &set) != VS_STATUS_OK) {
+hashset *set = NULL;
+if (hashset_create(sizeof(uint64_t), NULL, NULL, &set) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_hashset_reserve
+### hashset_reserve
 
 ```c
-vs_status vs_hashset_reserve(vs_hashset *set, size_t size);
+status hashset_reserve(hashset *set, size_t size);
 ```
 
 - Parameters: `set`, `size`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Notes: grows bucket storage so at least `size` elements fit without another
   rehash at the default load factor.
 - Example:
 
 ```c
-if (vs_hashset_reserve(set, 1024) != VS_STATUS_OK) {
+if (hashset_reserve(set, 1024) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_hashset_insert
+### hashset_insert
 
 ```c
-vs_status vs_hashset_insert(vs_hashset *set, const void *elem);
+status hashset_insert(hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Notes: copies `elem` into set-managed storage when it is not already present.
 - Example:
 
 ```c
 uint64_t value = 42;
-if (vs_hashset_insert(set, &value) != VS_STATUS_OK) {
+if (hashset_insert(set, &value) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_hashset_contains
+### hashset_contains
 
 ```c
-bool vs_hashset_contains(const vs_hashset *set, const void *elem);
+bool hashset_contains(const hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
@@ -106,13 +106,13 @@ bool vs_hashset_contains(const vs_hashset *set, const void *elem);
 - Example:
 
 ```c
-bool ok = vs_hashset_contains(set, &value);
+bool ok = hashset_contains(set, &value);
 ```
 
-### vs_hashset_get
+### hashset_get
 
 ```c
-void *vs_hashset_get(vs_hashset *set, const void *elem);
+void *hashset_get(hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
@@ -120,16 +120,16 @@ void *vs_hashset_get(vs_hashset *set, const void *elem);
 - Example:
 
 ```c
-uint64_t *stored = (uint64_t *)vs_hashset_get(set, &value);
+uint64_t *stored = (uint64_t *)hashset_get(set, &value);
 if (stored != NULL) {
     *stored = 7;
 }
 ```
 
-### vs_hashset_get_const
+### hashset_get_const
 
 ```c
-const void *vs_hashset_get_const(const vs_hashset *set, const void *elem);
+const void *hashset_get_const(const hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
@@ -137,13 +137,13 @@ const void *vs_hashset_get_const(const vs_hashset *set, const void *elem);
 - Example:
 
 ```c
-const uint64_t *stored = (const uint64_t *)vs_hashset_get_const(set, &value);
+const uint64_t *stored = (const uint64_t *)hashset_get_const(set, &value);
 ```
 
-### vs_hashset_remove
+### hashset_remove
 
 ```c
-void vs_hashset_remove(vs_hashset *set, const void *elem);
+void hashset_remove(hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
@@ -152,13 +152,13 @@ void vs_hashset_remove(vs_hashset *set, const void *elem);
 - Example:
 
 ```c
-vs_hashset_remove(set, &value);
+hashset_remove(set, &value);
 ```
 
-### vs_hashset_size
+### hashset_size
 
 ```c
-size_t vs_hashset_size(const vs_hashset *set);
+size_t hashset_size(const hashset *set);
 ```
 
 - Parameters: `set`
@@ -166,13 +166,13 @@ size_t vs_hashset_size(const vs_hashset *set);
 - Example:
 
 ```c
-size_t count = vs_hashset_size(set);
+size_t count = hashset_size(set);
 ```
 
-### vs_hashset_get_iterator
+### hashset_get_iterator
 
 ```c
-vs_iterator vs_hashset_get_iterator(const vs_hashset *set);
+iterator hashset_get_iterator(const hashset *set);
 ```
 
 - Parameters: `set`
@@ -182,18 +182,18 @@ vs_iterator vs_hashset_get_iterator(const vs_hashset *set);
 - Example:
 
 ```c
-vs_iterator iter = vs_hashset_get_iterator(set);
+iterator iter = hashset_get_iterator(set);
 
 const uint64_t *value;
-while ((value = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
+while ((value = (const uint64_t *)iterator_next(&iter)) != NULL) {
     /* use *value */
 }
 ```
 
-### vs_hashset_destroy
+### hashset_destroy
 
 ```c
-void vs_hashset_destroy(vs_hashset *set);
+void hashset_destroy(hashset *set);
 ```
 
 - Parameters: `set`
@@ -202,5 +202,5 @@ void vs_hashset_destroy(vs_hashset *set);
 - Example:
 
 ```c
-vs_hashset_destroy(set);
+hashset_destroy(set);
 ```

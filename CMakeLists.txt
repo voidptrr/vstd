@@ -10,13 +10,13 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-file(GLOB_RECURSE VSTD_LIBRARY_SOURCES CONFIGURE_DEPENDS
+file(GLOB_RECURSE LIBRARY_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
 )
 
-add_library(vstd STATIC ${VSTD_LIBRARY_SOURCES})
+add_library(vstd STATIC ${LIBRARY_SOURCES})
 add_library(vstd::vstd ALIAS vstd)
 
 target_compile_features(vstd PUBLIC c_std_17)
@@ -44,14 +44,14 @@ set_target_properties(
 
 include(cmake/install.cmake)
 
-file(GLOB_RECURSE VSTD_TEST_SOURCES CONFIGURE_DEPENDS
+file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/*_test.c"
 )
-list(SORT VSTD_TEST_SOURCES)
+list(SORT TEST_SOURCES)
 
 add_custom_target(vstd_ctests)
 
-foreach(test_source IN LISTS VSTD_TEST_SOURCES)
+foreach(test_source IN LISTS TEST_SOURCES)
     file(RELATIVE_PATH test_relative "${CMAKE_CURRENT_SOURCE_DIR}/tests" "${test_source}")
     string(REGEX REPLACE "_test\\.c$" "" test_name "${test_relative}")
     string(REPLACE "/" "-" test_name "${test_name}")

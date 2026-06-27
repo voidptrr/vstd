@@ -22,21 +22,20 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_BINARY_HEAP_H
-#define VSTD_BINARY_HEAP_H
+#ifndef BINARY_HEAP_H
+#define BINARY_HEAP_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/datastruct/iterator.h"
+#include "vstd/ds/iterator.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
-#define vs_binary_heap_for_each(type, item, heap) \
-    for (vs_iterator item##_vs_iter__ = vs_binary_heap_get_iterator((heap)); \
-         item##_vs_iter__.next != NULL; \
-         item##_vs_iter__.next = NULL) \
-        vs_iterator_for_each(type, item, &item##_vs_iter__)
+#define binary_heap_for_each(type, item, heap) \
+    for (iterator item##_iter__ = binary_heap_get_iterator((heap)); item##_iter__.next != NULL; \
+         item##_iter__.next = NULL) \
+    iterator_for_each(type, item, &item##_iter__)
 
 /*
  * Opaque binary heap.
@@ -62,34 +61,34 @@
  */
 
 /* Comparator callback: negative if a < b, zero if equal, positive if a > b. */
-typedef int (*vs_binary_heap_cmp_fn)(const void *lhs, const void *rhs);
+typedef int (*binary_heap_cmp_fn)(const void *lhs, const void *rhs);
 
-typedef struct vs_binary_heap vs_binary_heap;
+typedef struct binary_heap binary_heap;
 
 /* Create a heap for elements of size elem_size. NULL cmp uses byte-wise ordering. */
-VS_NODISCARD vs_status vs_binary_heap_create(
+NODISCARD status binary_heap_create(
     size_t elem_size,
-    vs_binary_heap_cmp_fn cmp,
-    vs_allocator *allocator,
-    vs_binary_heap **out
+    binary_heap_cmp_fn cmp,
+    allocator *allocator,
+    binary_heap **out
 );
 
 /* Insert one element by copying elem_size bytes from element. */
-VS_NODISCARD vs_status vs_binary_heap_push(vs_binary_heap *heap, const void *element);
+NODISCARD status binary_heap_push(binary_heap *heap, const void *element);
 
 /* Remove and return the top element pointer, or NULL when empty. */
-void *vs_binary_heap_pop(vs_binary_heap *heap);
+void *binary_heap_pop(binary_heap *heap);
 
 /* Return the top element pointer without removing it, or NULL when empty. */
-const void *vs_binary_heap_peek(const vs_binary_heap *heap);
+const void *binary_heap_peek(const binary_heap *heap);
 
 /* Return the number of stored elements. */
-size_t vs_binary_heap_size(const vs_binary_heap *heap);
+size_t binary_heap_size(const binary_heap *heap);
 
 /* Return an iterator over heap backing storage order. */
-vs_iterator vs_binary_heap_get_iterator(const vs_binary_heap *heap);
+iterator binary_heap_get_iterator(const binary_heap *heap);
 
 /* Destroy and release owned storage. */
-void vs_binary_heap_destroy(vs_binary_heap *heap);
+void binary_heap_destroy(binary_heap *heap);
 
 #endif

@@ -4,62 +4,62 @@
 
 The error module defines the shared status type used by fallible `vstd` APIs.
 Invalid required arguments are still programmer errors and are asserted; expected
-runtime failures, such as allocation failure, are reported with `vs_status`.
-Fallible public APIs are marked with `VS_NODISCARD`, so callers should check or
+runtime failures, such as allocation failure, are reported with `status`.
+Fallible public APIs are marked with `NODISCARD`, so callers should check or
 explicitly discard returned statuses.
 
 ## MACROS
 
-### VS_NODISCARD
+### NODISCARD
 
 ```c
-#define VS_NODISCARD
+#define NODISCARD
 ```
 
 - Notes: expands to a compiler attribute when supported. Used on fallible
-  functions that return `vs_status`.
+  functions that return `status`.
 
-### VS_RETURN_IF_ERROR
+### RETURN_IF_ERROR
 
 ```c
-#define VS_RETURN_IF_ERROR(expr)
+#define RETURN_IF_ERROR(expr)
 ```
 
 - Parameters: `expr`
-- Notes: evaluates a `vs_status` expression and returns the status immediately
-  when it is not `VS_STATUS_OK`.
+- Notes: evaluates a `status` expression and returns the status immediately
+  when it is not `STATUS_OK`.
 
 ## TYPES
 
-### vs_status
+### status
 
 ```c
-typedef enum vs_status {
-    VS_STATUS_OK = 0,
-    VS_STATUS_INVALID_ARGUMENT,
-    VS_STATUS_NO_MEMORY,
-    VS_STATUS_OVERFLOW,
-    VS_STATUS_OUT_OF_RANGE,
-    VS_STATUS_NOT_FOUND,
-    VS_STATUS_EOF,
-    VS_STATUS_IO,
-    VS_STATUS_INVALID_DATA,
-    VS_STATUS_UNSUPPORTED,
-} vs_status;
+typedef enum status {
+    STATUS_OK = 0,
+    STATUS_INVALID_ARGUMENT,
+    STATUS_NO_MEMORY,
+    STATUS_OVERFLOW,
+    STATUS_OUT_OF_RANGE,
+    STATUS_NOT_FOUND,
+    STATUS_EOF,
+    STATUS_IO,
+    STATUS_INVALID_DATA,
+    STATUS_UNSUPPORTED,
+} status;
 ```
 
-- `VS_STATUS_OK`: operation succeeded.
-- `VS_STATUS_NO_MEMORY`: allocation failed.
-- `VS_STATUS_OVERFLOW`: size arithmetic overflowed before an operation could run.
-- `VS_STATUS_INVALID_DATA`: input data was malformed.
-- `VS_STATUS_IO`: an I/O operation failed.
+- `STATUS_OK`: operation succeeded.
+- `STATUS_NO_MEMORY`: allocation failed.
+- `STATUS_OVERFLOW`: size arithmetic overflowed before an operation could run.
+- `STATUS_INVALID_DATA`: input data was malformed.
+- `STATUS_IO`: an I/O operation failed.
 
 ## FUNCTIONS
 
-### vs_status_message
+### status_message
 
 ```c
-const char *vs_status_message(vs_status status);
+const char *status_message(status status);
 ```
 
 - Parameters: `status`

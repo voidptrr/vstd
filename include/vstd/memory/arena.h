@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_ARENA_H
-#define VSTD_ARENA_H
+#ifndef ARENA_H
+#define ARENA_H
 
 #include <stddef.h>
 
@@ -46,48 +46,48 @@
  * - small internal allocation headers are stored before payloads so realloc can
  *   preserve existing bytes
  */
-typedef struct vs_arena vs_arena;
+typedef struct arena arena;
 
 /*
  * Create an arena with `capacity` bytes of internal storage.
  */
-VS_NODISCARD vs_status vs_arena_create(size_t capacity, vs_arena **out);
+NODISCARD status arena_create(size_t capacity, arena **out);
 
 /*
  * Return the generic allocator view owned by this arena.
  */
-vs_allocator *vs_arena_allocator(vs_arena *arena);
+allocator *arena_allocator(arena *arena);
 
 /*
  * Allocate `size` bytes from arena.
  * Returns NULL when the arena does not have enough available space.
  */
-void *vs_arena_alloc(vs_arena *arena, size_t size);
+void *arena_alloc(arena *arena, size_t size);
 
 /*
  * Grow an arena allocation.
  * NULL ptr allocates. Size 0 with an existing ptr returns NULL.
  * Shrinking an existing allocation is invalid.
  */
-void *vs_arena_realloc(vs_arena *arena, void *ptr, size_t size);
+void *arena_realloc(arena *arena, void *ptr, size_t size);
 
 /*
  * Release all arena allocations while keeping the backing buffer.
  */
-void vs_arena_reset(vs_arena *arena);
+void arena_reset(arena *arena);
 
 /* Total managed bytes. */
-size_t vs_arena_capacity(const vs_arena *arena);
+size_t arena_capacity(const arena *arena);
 
 /* Number of bytes currently consumed. */
-size_t vs_arena_used(const vs_arena *arena);
+size_t arena_used(const arena *arena);
 
 /* Number of bytes still available. */
-size_t vs_arena_available(const vs_arena *arena);
+size_t arena_available(const arena *arena);
 
 /*
  * Destroy and release arena resources.
  */
-void vs_arena_destroy(vs_arena *arena);
+void arena_destroy(arena *arena);
 
 #endif

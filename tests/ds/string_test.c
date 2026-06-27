@@ -1,0 +1,308 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2026 Tommaso Bruno
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#include <stddef.h>
+
+#include "vstd/ds/iterator.h"
+#include "vstd/ds/string.h"
+#include "vstd/error.h"
+#include "vstd/memory/test_allocator.h"
+#include "vstd/testing.h"
+
+TEST(allocator) {
+    test_allocator test_allocator;
+
+    allocator *allocator = test_allocator_init(&test_allocator);
+    string value = NULL;
+    if (test_equal(string_create("abc", allocator, &value), STATUS_OK)) {
+        return 1;
+    }
+    if (test_allocator.alloc_count != 1) {
+        return 1;
+    }
+    if (test_allocator.realloc_count != 0) {
+        return 1;
+    }
+    if (test_allocator.dealloc_count != 0) {
+        return 1;
+    }
+
+    if (test_status_ok(string_append(&value, "012345678901234567890123456789"))) {
+
+        return 1;
+    }
+    if (test_allocator.realloc_count != 1) {
+        return 1;
+    }
+    if (string_len(value) != 33) {
+        return 1;
+    }
+    if (test_equal_str(value, "abc012345678901234567890123456789") != 0) {
+        return 1;
+    }
+
+    string_destroy(value);
+    if (test_allocator.dealloc_count != 1) {
+        return 1;
+    }
+    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+TEST(append) {
+    test_allocator test_allocator;
+    allocator *allocator = test_allocator_init(&test_allocator);
+    string value = NULL;
+    if (test_equal(string_create("hello", allocator, &value), STATUS_OK)) {
+        return 1;
+    }
+
+    if (test_status_ok(string_append(&value, ", "))) {
+
+        return 1;
+    }
+    if (test_status_ok(string_append(&value, "world"))) {
+        return 1;
+    }
+    if (test_status_ok(string_append(&value, ""))) {
+        return 1;
+    }
+    if (string_len(value) != 12) {
+        return 1;
+    }
+    if (test_equal_str(value, "hello, world") != 0) {
+        return 1;
+    }
+
+    if (test_status_ok(string_append(&value, "012345678901234567890123456789"))) {
+
+        return 1;
+    }
+    if (string_len(value) != 42) {
+        return 1;
+    }
+    if (test_equal_str(value, "hello, world012345678901234567890123456789") != 0) {
+        return 1;
+    }
+
+    string_destroy(value);
+    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+TEST(clear) {
+    test_allocator test_allocator;
+    allocator *allocator = test_allocator_init(&test_allocator);
+    string value = NULL;
+    if (test_equal(string_create("hello", allocator, &value), STATUS_OK)) {
+        return 1;
+    }
+
+    string_clear(value);
+    if (string_len(value) != 0) {
+        return 1;
+    }
+    if (test_equal_str(value, "") != 0) {
+        return 1;
+    }
+
+    if (test_status_ok(string_append(&value, "again"))) {
+
+        return 1;
+    }
+    if (test_equal_str(value, "again") != 0) {
+        return 1;
+    }
+
+    string_destroy(value);
+    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+TEST(init) {
+    test_allocator test_allocator;
+    allocator *allocator = test_allocator_init(&test_allocator);
+    string empty = NULL;
+    if (test_equal(string_create(NULL, allocator, &empty), STATUS_OK)) {
+        return 1;
+    }
+    if (test_not_null(empty) != 0) {
+        return 1;
+    }
+    if (string_len(empty) != 0) {
+        return 1;
+    }
+    if (test_equal_str(empty, "") != 0) {
+        return 1;
+    }
+    string_destroy(empty);
+    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+
+    string value = NULL;
+    if (test_equal(string_create("hello", allocator, &value), STATUS_OK)) {
+        return 1;
+    }
+    if (test_not_null(value) != 0) {
+        return 1;
+    }
+    if (string_len(value) != 5) {
+        return 1;
+    }
+    if (test_equal_str(value, "hello") != 0) {
+        return 1;
+    }
+    string_destroy(value);
+    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+TEST(prepend) {
+    test_allocator test_allocator;
+    allocator *allocator = test_allocator_init(&test_allocator);
+    string value = NULL;
+    if (test_equal(string_create("world", allocator, &value), STATUS_OK)) {
+        return 1;
+    }
+
+    if (test_status_ok(string_prepend(&value, "hello "))) {
+
+        return 1;
+    }
+    if (test_equal_str(value, "hello world") != 0) {
+        return 1;
+    }
+
+    if (test_status_ok(string_prepend(&value, ""))) {
+
+        return 1;
+    }
+    if (test_equal_str(value, "hello world") != 0) {
+        return 1;
+    }
+
+    string_destroy(value);
+    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+TEST(search) {
+    test_allocator test_allocator;
+    allocator *allocator = test_allocator_init(&test_allocator);
+    string value = NULL;
+    if (test_equal(string_create("hello world", allocator, &value), STATUS_OK)) {
+        return 1;
+    }
+
+    if (test_equal(string_contains(value, "lo wo"), true) != 0) {
+        return 1;
+    }
+
+    if (test_equal(!string_contains(value, "missing"), true) != 0) {
+        return 1;
+    }
+
+    if (test_equal(string_starts_with(value, "hello"), true) != 0) {
+        return 1;
+    }
+    if (test_equal(!string_starts_with(value, "world"), true) != 0) {
+        return 1;
+    }
+
+    if (test_equal(string_ends_with(value, "world"), true) != 0) {
+        return 1;
+    }
+    if (test_equal(!string_ends_with(value, "hello"), true) != 0) {
+        return 1;
+    }
+
+    if (test_equal(string_contains(value, ""), true) != 0) {
+        return 1;
+    }
+    if (test_equal(string_starts_with(value, ""), true) != 0) {
+        return 1;
+    }
+    if (test_equal(string_ends_with(value, ""), true) != 0) {
+        return 1;
+    }
+
+    string_destroy(value);
+    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+TEST(iterator_walks_bytes) {
+    test_allocator test_allocator;
+    allocator *allocator = test_allocator_init(&test_allocator);
+    string value = NULL;
+    if (test_equal(string_create("abc", allocator, &value), STATUS_OK)) {
+        return 1;
+    }
+    iterator iter = string_get_iterator(value);
+    const char *out;
+    const char *expected = "abc";
+    size_t index = 0;
+
+    while ((out = (const char *)iterator_next(&iter)) != NULL) {
+        if (index >= 3) {
+            return 1;
+        }
+        if (test_equal(*out, expected[index]) != 0) {
+            return 1;
+        }
+        index += 1;
+    }
+    if (index != 3) {
+        return 1;
+    }
+
+    string_destroy(value);
+    if (test_equal(test_allocator_is_clean(&test_allocator), true) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
+TEST_MAIN(
+    TEST_CASE(allocator),
+    TEST_CASE(append),
+    TEST_CASE(clear),
+    TEST_CASE(init),
+    TEST_CASE(prepend),
+    TEST_CASE(search),
+    TEST_CASE(iterator_walks_bytes)
+)

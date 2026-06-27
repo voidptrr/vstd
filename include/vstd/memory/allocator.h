@@ -22,48 +22,48 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_ALLOCATOR_H
-#define VSTD_ALLOCATOR_H
+#ifndef ALLOCATOR_H
+#define ALLOCATOR_H
 
 #include <stddef.h>
 
 #include "vstd/error.h"
 
-typedef void *(*vs_alloc_fn)(void *ctx, size_t size);
-typedef void *(*vs_realloc_fn)(void *ctx, void *ptr, size_t size);
-typedef void (*vs_dealloc_fn)(void *ctx, void *ptr);
+typedef void *(*alloc_fn)(void *ctx, size_t size);
+typedef void *(*realloc_fn)(void *ctx, void *ptr, size_t size);
+typedef void (*dealloc_fn)(void *ctx, void *ptr);
 
-typedef enum vs_allocator_features {
-    VS_ALLOCATOR_FEATURE_DEALLOC = 1 << 0,
-    VS_ALLOCATOR_FEATURE_REALLOC = 1 << 1,
-    VS_ALLOCATOR_FEATURE_RESET = 1 << 2,
-} vs_allocator_features;
+typedef enum allocator_features {
+    ALLOCATOR_FEATURE_DEALLOC = 1 << 0,
+    ALLOCATOR_FEATURE_REALLOC = 1 << 1,
+    ALLOCATOR_FEATURE_RESET = 1 << 2,
+} allocator_features;
 
 /*
  * Generic allocator callback set used by containers.
  * Owning create APIs capture the allocator pointer and reuse it for later
  * growth and destroy calls, so the allocator must outlive those objects.
  */
-typedef struct vs_allocator {
+typedef struct allocator {
     /* User-supplied allocator state passed to all callbacks. */
     void *ctx;
-    /* Bitmask of VS_ALLOCATOR_FEATURE_* values supported by this allocator. */
+    /* Bitmask of ALLOCATOR_FEATURE_* values supported by this allocator. */
     unsigned int features;
     /* Allocate size bytes and return pointer or NULL on failure. */
-    vs_alloc_fn alloc;
+    alloc_fn alloc;
     /* Resize ptr to size bytes and return new pointer or NULL on failure. */
-    vs_realloc_fn realloc;
+    realloc_fn realloc;
     /* Release a pointer previously returned by alloc/realloc. */
-    vs_dealloc_fn dealloc;
-} vs_allocator;
+    dealloc_fn dealloc;
+} allocator;
 
 /* Allocate size bytes through allocator->alloc when provided, otherwise malloc. */
-VS_NODISCARD vs_status vs_alloc(vs_allocator *allocator, size_t size, void **out);
+NODISCARD status alloc(allocator *allocator, size_t size, void **out);
 
 /* Resize ptr through allocator->realloc when provided, otherwise realloc. */
-VS_NODISCARD vs_status vs_resize(vs_allocator *allocator, void *ptr, size_t size, void **out);
+NODISCARD status resize(allocator *allocator, void *ptr, size_t size, void **out);
 
 /* Release ptr through allocator->dealloc when advertised, otherwise free for NULL allocator. */
-void vs_dealloc(vs_allocator *allocator, void *ptr);
+void dealloc(allocator *allocator, void *ptr);
 
 #endif

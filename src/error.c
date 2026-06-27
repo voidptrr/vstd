@@ -24,27 +24,27 @@
 
 #include "vstd/error.h"
 
-const char *vs_status_message(vs_status status) {
+const char *status_message(status status) {
     switch (status) {
-        case VS_STATUS_OK:
+        case STATUS_OK:
             return "ok";
-        case VS_STATUS_INVALID_ARGUMENT:
+        case STATUS_INVALID_ARGUMENT:
             return "invalid argument";
-        case VS_STATUS_NO_MEMORY:
+        case STATUS_NO_MEMORY:
             return "out of memory";
-        case VS_STATUS_OVERFLOW:
+        case STATUS_OVERFLOW:
             return "overflow";
-        case VS_STATUS_OUT_OF_RANGE:
+        case STATUS_OUT_OF_RANGE:
             return "out of range";
-        case VS_STATUS_NOT_FOUND:
+        case STATUS_NOT_FOUND:
             return "not found";
-        case VS_STATUS_EOF:
+        case STATUS_EOF:
             return "end of file";
-        case VS_STATUS_IO:
+        case STATUS_IO:
             return "I/O error";
-        case VS_STATUS_INVALID_DATA:
+        case STATUS_INVALID_DATA:
             return "invalid data";
-        case VS_STATUS_UNSUPPORTED:
+        case STATUS_UNSUPPORTED:
             return "unsupported operation";
     }
     return "unknown error";

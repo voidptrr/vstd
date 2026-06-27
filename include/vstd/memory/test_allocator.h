@@ -22,33 +22,33 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_TEST_ALLOCATOR_H
-#define VSTD_TEST_ALLOCATOR_H
+#ifndef TEST_ALLOCATOR_H
+#define TEST_ALLOCATOR_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
 #include "vstd/memory/allocator.h"
 
-#define VS_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
+#define TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
 
-typedef struct vs_test_allocator {
+typedef struct test_allocator {
     size_t alloc_count;
     size_t realloc_count;
     size_t dealloc_count;
     size_t outstanding_allocations;
     size_t failed_allocations;
     size_t fail_after;
-    vs_allocator allocator;
-} vs_test_allocator;
+    allocator allocator;
+} test_allocator;
 
 /* Initialize a malloc-backed tracking allocator and return its generic adapter. */
-vs_allocator *vs_test_allocator_init(vs_test_allocator *test_allocator);
+allocator *test_allocator_init(test_allocator *test_allocator);
 
 /* Reset event counters while keeping outstanding allocation state and fail_after. */
-void vs_test_allocator_reset_counts(vs_test_allocator *test_allocator);
+void test_allocator_reset_counts(test_allocator *test_allocator);
 
 /* Return whether every tracked allocation has been released. */
-bool vs_test_allocator_is_clean(const vs_test_allocator *test_allocator);
+bool test_allocator_is_clean(const test_allocator *test_allocator);
 
 #endif

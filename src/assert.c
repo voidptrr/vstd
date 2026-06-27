@@ -27,7 +27,7 @@
 
 #include "vstd/assert.h"
 
-_Noreturn void vs_panic(const char *message) {
+_Noreturn void panic(const char *message) {
     if (message != NULL) {
         fprintf(stderr, "%s\n", message);
     }

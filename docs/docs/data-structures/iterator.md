@@ -1,4 +1,4 @@
-# datastruct.iterator
+# ds.iterator
 
 ## DESCRIPTION
 
@@ -10,7 +10,7 @@ the basic callback iterator shape and eager collection helpers.
 Iterators do not allocate. They borrow the data structure or caller-owned
 callback context they point at.
 
-The `context` parameter is intentionally generic. For `vs_iterator_from_callback`
+The `context` parameter is intentionally generic. For `iterator_from_callback`
 it is usually cursor state, such as an index into a vector. Pass `NULL` when a
 callback does not need extra data.
 
@@ -18,52 +18,52 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_iterator
+### iterator
 
 ```c
-typedef struct vs_iterator vs_iterator;
+typedef struct iterator iterator;
 ```
 
-Iterator value. Store it by value and pass its address to `vs_iterator_next`.
+Iterator value. Store it by value and pass its address to `iterator_next`.
 
-### vs_iterator_next_fn
+### iterator_next_fn
 
 ```c
-typedef const void *(*vs_iterator_next_fn)(void *context);
+typedef const void *(*iterator_next_fn)(void *context);
 ```
 
 Callback used by custom iterators. Return the next item pointer, or `NULL` when
 the iterator is exhausted.
 
-### vs_iterator_map_into_fn
+### iterator_map_into_fn
 
 ```c
-typedef void (*vs_iterator_map_into_fn)(void *context, const void *src, void *dst);
+typedef void (*iterator_map_into_fn)(void *context, const void *src, void *dst);
 ```
 
 Map callback used by `collect_map`. Write the mapped value into `dst`. The
-destination storage has the element size passed to `vs_iterator_collect_map`.
+destination storage has the element size passed to `iterator_collect_map`.
 
 ## FUNCTIONS
 
-### VS_ITER_NEXT_AS
+### ITER_NEXT_AS
 
 ```c
-#define VS_ITER_NEXT_AS(type, iter)
+#define ITER_NEXT_AS(type, iter)
 ```
 
 - Parameters: `type`, `iter`
-- Returns: typed pointer from `vs_iterator_next`.
+- Returns: typed pointer from `iterator_next`.
 - Example:
 
 ```c
-const int *item = VS_ITER_NEXT_AS(int, &iter);
+const int *item = ITER_NEXT_AS(int, &iter);
 ```
 
-### vs_iterator_for_each
+### iterator_for_each
 
 ```c
-#define vs_iterator_for_each(type, item, iter)
+#define iterator_for_each(type, item, iter)
 ```
 
 - Parameters: `type`, `item`, `iter`
@@ -71,21 +71,21 @@ const int *item = VS_ITER_NEXT_AS(int, &iter);
 - Example:
 
 ```c
-vs_iterator_for_each(int, item, &iter) {
+iterator_for_each(int, item, &iter) {
     /* use *item */
 }
 ```
 
-### vs_iterator_from_callback
+### iterator_from_callback
 
 ```c
-vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next);
+iterator iterator_from_callback(void *context, iterator_next_fn next);
 ```
 
 - Parameters: `context`, `next`
 - Returns: iterator backed by caller-owned state.
 - Notes: use this to integrate custom data structures with vstd helpers such as
-  `vs_iterator_collect`.
+  `iterator_collect`.
 - Example:
 
 ```c
@@ -104,13 +104,13 @@ static const void *range_next(void *context) {
 }
 
 range_state state = {.current = 0, .end = 10};
-vs_iterator iter = vs_iterator_from_callback(&state, range_next);
+iterator iter = iterator_from_callback(&state, range_next);
 ```
 
-### vs_iterator_next
+### iterator_next
 
 ```c
-const void *vs_iterator_next(vs_iterator *iter);
+const void *iterator_next(iterator *iter);
 ```
 
 - Parameters: `iter`
@@ -119,15 +119,15 @@ const void *vs_iterator_next(vs_iterator *iter);
 
 ```c
 const int *item;
-while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {
+while ((item = (const int *)iterator_next(&iter)) != NULL) {
     /* use *item */
 }
 ```
 
-### vs_iterator_set_size_hint
+### iterator_set_size_hint
 
 ```c
-void vs_iterator_set_size_hint(vs_iterator *iter, size_t size_hint);
+void iterator_set_size_hint(iterator *iter, size_t size_hint);
 ```
 
 - Parameters: `iter`, `size_hint`
@@ -135,69 +135,69 @@ void vs_iterator_set_size_hint(vs_iterator *iter, size_t size_hint);
 - Notes: sets a conservative remaining-item count used by collect helpers to
   reserve output storage.
 
-### vs_iterator_size_hint
+### iterator_size_hint
 
 ```c
-size_t vs_iterator_size_hint(const vs_iterator *iter);
+size_t iterator_size_hint(const iterator *iter);
 ```
 
 - Parameters: `iter`
 - Returns: remaining-item hint, or zero when unknown.
 
-### vs_iterator_collect
+### iterator_collect
 
 ```c
-vs_status vs_iterator_collect(vs_iterator *source,
+status iterator_collect(iterator *source,
                               size_t elem_size,
-                              vs_allocator *allocator,
-                              vs_vector **out);
+                              allocator *allocator,
+                              vector **out);
 ```
 
 - Parameters: `source`, `elem_size`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: vector containing copies of the remaining source items to `*out`.
 - Notes: consumes `source`. The returned vector owns its storage and can outlive
   the original data structure.
 - Example:
 
 ```c
-vs_vector *values = NULL;
-if (vs_vector_create(sizeof(int), NULL, &values) != VS_STATUS_OK) {
+vector *values = NULL;
+if (vector_create(sizeof(int), NULL, &values) != STATUS_OK) {
     /* handle allocation failure */
 }
 int one = 1;
 int two = 2;
-if (vs_vector_push(values, &one) != VS_STATUS_OK) {
+if (vector_push(values, &one) != STATUS_OK) {
     /* handle allocation failure */
 }
-if (vs_vector_push(values, &two) != VS_STATUS_OK) {
-    /* handle allocation failure */
-}
-
-vs_iterator iter = vs_vector_get_iterator(values);
-vs_vector *copy = NULL;
-if (vs_iterator_collect(&iter, sizeof(int), NULL, &copy) != VS_STATUS_OK) {
+if (vector_push(values, &two) != STATUS_OK) {
     /* handle allocation failure */
 }
 
-vs_vector_destroy(values);
+iterator iter = vector_get_iterator(values);
+vector *copy = NULL;
+if (iterator_collect(&iter, sizeof(int), NULL, &copy) != STATUS_OK) {
+    /* handle allocation failure */
+}
+
+vector_destroy(values);
 /* copy still owns the collected ints. */
-vs_vector_destroy(copy);
+vector_destroy(copy);
 ```
 
-### vs_iterator_collect_map
+### iterator_collect_map
 
 ```c
-vs_status vs_iterator_collect_map(vs_iterator *source,
+status iterator_collect_map(iterator *source,
                                   size_t dst_elem_size,
-                                  vs_iterator_map_into_fn map,
+                                  iterator_map_into_fn map,
                                   void *context,
-                                  vs_allocator *allocator,
-                                  vs_vector **out);
+                                  allocator *allocator,
+                                  vector **out);
 ```
 
 - Parameters: `source`, `dst_elem_size`, `map`, `context`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: vector containing mapped copies of the remaining source items to `*out`.
 - Notes: consumes `source`. Use this when the output element type or size is
   different from the source element type.
@@ -209,24 +209,24 @@ static void int_to_double(void *context, const void *src, void *dst) {
     *(double *)dst = (double)*(const int *)src;
 }
 
-vs_vector *ints = NULL;
-if (vs_vector_create(sizeof(int), NULL, &ints) != VS_STATUS_OK) {
+vector *ints = NULL;
+if (vector_create(sizeof(int), NULL, &ints) != STATUS_OK) {
     /* handle allocation failure */
 }
 int value = 42;
-if (vs_vector_push(ints, &value) != VS_STATUS_OK) {
+if (vector_push(ints, &value) != STATUS_OK) {
     /* handle allocation failure */
 }
 
-vs_iterator iter = vs_vector_get_iterator(ints);
-vs_vector *doubles = NULL;
-if (vs_iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL, &doubles) != VS_STATUS_OK) {
+iterator iter = vector_get_iterator(ints);
+vector *doubles = NULL;
+if (iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL, &doubles) != STATUS_OK) {
     /* handle allocation failure */
 }
 
-const double *mapped = (const double *)vs_vector_get_const(doubles, 0);
+const double *mapped = (const double *)vector_get_const(doubles, 0);
 /* *mapped == 42.0 */
 
-vs_vector_destroy(ints);
-vs_vector_destroy(doubles);
+vector_destroy(ints);
+vector_destroy(doubles);
 ```

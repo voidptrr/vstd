@@ -27,7 +27,7 @@
 
 #include "vstd/memory/utils.h"
 
-void vs_memswap(void *a, void *b, size_t size) {
+void memswap(void *a, void *b, size_t size) {
     uint8_t *left = (uint8_t *)a;
     uint8_t *right = (uint8_t *)b;
 

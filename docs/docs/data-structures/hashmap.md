@@ -1,4 +1,4 @@
-# datastruct.hashmap
+# ds.hashmap
 
 ## DESCRIPTION
 
@@ -11,135 +11,135 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_hashmap_entry_view
+### hashmap_entry_view
 
 ```c
-typedef struct vs_hashmap_entry_view {
+typedef struct hashmap_entry_view {
     const void *key;
     const void *value;
-} vs_hashmap_entry_view;
+} hashmap_entry_view;
 ```
 
 Hashmap entry iterators yield pointers to this view. The view is stored inside
-the iterator and is overwritten by the next `vs_iterator_next` call on that
+the iterator and is overwritten by the next `iterator_next` call on that
 iterator.
 
-### vs_hashmap_iterator_type
+### hashmap_iterator_type
 
 ```c
-typedef enum vs_hashmap_iterator_type {
-    VS_HASHMAP_ITERATOR_ENTRY,
-    VS_HASHMAP_ITERATOR_KEY,
-    VS_HASHMAP_ITERATOR_VALUE,
-} vs_hashmap_iterator_type;
+typedef enum hashmap_iterator_type {
+    HASHMAP_ITERATOR_ENTRY,
+    HASHMAP_ITERATOR_KEY,
+    HASHMAP_ITERATOR_VALUE,
+} hashmap_iterator_type;
 ```
 
-Selects whether `vs_hashmap_get_iterator` yields entry views, keys, or values.
+Selects whether `hashmap_get_iterator` yields entry views, keys, or values.
 
 ## FUNCTIONS
 
-### vs_hashmap_for_each_entry
+### hashmap_for_each_entry
 
 ```c
-#define vs_hashmap_for_each_entry(item, map)
+#define hashmap_for_each_entry(item, map)
 ```
 
 - Parameters: `item`, `map`
-- Notes: assigns each `const vs_hashmap_entry_view *` to a caller-declared
+- Notes: assigns each `const hashmap_entry_view *` to a caller-declared
   `item` pointer.
 - Example:
 
 ```c
-const vs_hashmap_entry_view *entry;
-vs_hashmap_for_each_entry(entry, map) {
+const hashmap_entry_view *entry;
+hashmap_for_each_entry(entry, map) {
     /* use entry->key and entry->value */
 }
 ```
 
-### vs_hashmap_for_each_key
+### hashmap_for_each_key
 
 ```c
-#define vs_hashmap_for_each_key(type, item, map)
+#define hashmap_for_each_key(type, item, map)
 ```
 
 - Parameters: `type`, `item`, `map`
 - Notes: assigns each key pointer to a caller-declared `const type *item`.
 
-### vs_hashmap_for_each_value
+### hashmap_for_each_value
 
 ```c
-#define vs_hashmap_for_each_value(type, item, map)
+#define hashmap_for_each_value(type, item, map)
 ```
 
 - Parameters: `type`, `item`, `map`
 - Notes: assigns each value pointer to a caller-declared `const type *item`.
 
-### vs_hashmap_create
+### hashmap_create
 
 ```c
-vs_status vs_hashmap_create(size_t key_size,
+status hashmap_create(size_t key_size,
                             size_t value_size,
-                            vs_hashmap_key_eq_fn key_eq,
-                            vs_allocator *allocator,
-                            vs_hashmap **out);
+                            hashmap_key_eq_fn key_eq,
+                            allocator *allocator,
+                            hashmap **out);
 ```
 
 - Parameters: `key_size`, `value_size`, `key_eq`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: opaque hashmap handle to `*out` on success.
 - Notes: the hashmap stores `allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `allocator` is `NULL`, hashmap uses the C
-  library heap through `vs_alloc`. Custom `key_eq` callbacks must be
+  library heap through `alloc`. Custom `key_eq` callbacks must be
   consistent with the byte hash used for bucket selection.
 - Example:
 
 ```c
-vs_hashmap *map = NULL;
-if (vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, NULL, &map) != VS_STATUS_OK) {
+hashmap *map = NULL;
+if (hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, NULL, &map) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_hashmap_reserve
+### hashmap_reserve
 
 ```c
-vs_status vs_hashmap_reserve(vs_hashmap *map, size_t size);
+status hashmap_reserve(hashmap *map, size_t size);
 ```
 
 - Parameters: `map`, `size`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Notes: grows bucket storage so at least `size` entries fit without another
   rehash at the default load factor.
 - Example:
 
 ```c
-if (vs_hashmap_reserve(map, 1024) != VS_STATUS_OK) {
+if (hashmap_reserve(map, 1024) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_hashmap_put
+### hashmap_put
 
 ```c
-vs_status vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
+status hashmap_put(hashmap *map, const void *key, const void *value);
 ```
 
 - Parameters: `map`, `key`, `value`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Example:
 
 ```c
 uint64_t key = 42;
 uint64_t value = 9001;
-if (vs_hashmap_put(map, &key, &value) != VS_STATUS_OK) {
+if (hashmap_put(map, &key, &value) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_hashmap_get
+### hashmap_get
 
 ```c
-void *vs_hashmap_get(vs_hashmap *map, const void *key);
+void *hashmap_get(hashmap *map, const void *key);
 ```
 
 - Parameters: `map`, `key`
@@ -147,16 +147,16 @@ void *vs_hashmap_get(vs_hashmap *map, const void *key);
 - Example:
 
 ```c
-uint64_t *value = (uint64_t *)vs_hashmap_get(map, &key);
+uint64_t *value = (uint64_t *)hashmap_get(map, &key);
 if (value != NULL) {
     *value = 7;
 }
 ```
 
-### vs_hashmap_get_const
+### hashmap_get_const
 
 ```c
-const void *vs_hashmap_get_const(const vs_hashmap *map, const void *key);
+const void *hashmap_get_const(const hashmap *map, const void *key);
 ```
 
 - Parameters: `map`, `key`
@@ -164,13 +164,13 @@ const void *vs_hashmap_get_const(const vs_hashmap *map, const void *key);
 - Example:
 
 ```c
-const uint64_t *value = (const uint64_t *)vs_hashmap_get_const(map, &key);
+const uint64_t *value = (const uint64_t *)hashmap_get_const(map, &key);
 ```
 
-### vs_hashmap_remove
+### hashmap_remove
 
 ```c
-void vs_hashmap_remove(vs_hashmap *map, const void *key);
+void hashmap_remove(hashmap *map, const void *key);
 ```
 
 - Parameters: `map`, `key`
@@ -179,13 +179,13 @@ void vs_hashmap_remove(vs_hashmap *map, const void *key);
 - Example:
 
 ```c
-vs_hashmap_remove(map, &key);
+hashmap_remove(map, &key);
 ```
 
-### vs_hashmap_size
+### hashmap_size
 
 ```c
-size_t vs_hashmap_size(const vs_hashmap *map);
+size_t hashmap_size(const hashmap *map);
 ```
 
 - Parameters: `map`
@@ -193,27 +193,27 @@ size_t vs_hashmap_size(const vs_hashmap *map);
 - Example:
 
 ```c
-size_t count = vs_hashmap_size(map);
+size_t count = hashmap_size(map);
 ```
 
-### vs_hashmap_get_iterator
+### hashmap_get_iterator
 
 ```c
-vs_iterator vs_hashmap_get_iterator(const vs_hashmap *map,
-                                    vs_hashmap_iterator_type type);
+iterator hashmap_get_iterator(const hashmap *map,
+                                    hashmap_iterator_type type);
 ```
 
 - Parameters: `map`, `type`
 - Returns: iterator over entry views, keys, or values in bucket order.
 - Notes: do not mutate the hashmap while iterating. Entry views are stored
-  inside the iterator and are overwritten by the next `vs_iterator_next` call.
+  inside the iterator and are overwritten by the next `iterator_next` call.
 - Example:
 
 ```c
-vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_ENTRY);
+iterator iter = hashmap_get_iterator(map, HASHMAP_ITERATOR_ENTRY);
 
-const vs_hashmap_entry_view *entry;
-while ((entry = (const vs_hashmap_entry_view *)vs_iterator_next(&iter)) != NULL) {
+const hashmap_entry_view *entry;
+while ((entry = (const hashmap_entry_view *)iterator_next(&iter)) != NULL) {
     const uint64_t *key = (const uint64_t *)entry->key;
     const uint64_t *value = (const uint64_t *)entry->value;
 }
@@ -222,10 +222,10 @@ while ((entry = (const vs_hashmap_entry_view *)vs_iterator_next(&iter)) != NULL)
 Key iterator example:
 
 ```c
-vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_KEY);
+iterator iter = hashmap_get_iterator(map, HASHMAP_ITERATOR_KEY);
 
 const uint64_t *key;
-while ((key = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
+while ((key = (const uint64_t *)iterator_next(&iter)) != NULL) {
     /* use *key */
 }
 ```
@@ -233,18 +233,18 @@ while ((key = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
 Value iterator example:
 
 ```c
-vs_iterator iter = vs_hashmap_get_iterator(map, VS_HASHMAP_ITERATOR_VALUE);
+iterator iter = hashmap_get_iterator(map, HASHMAP_ITERATOR_VALUE);
 
 const uint64_t *value;
-while ((value = (const uint64_t *)vs_iterator_next(&iter)) != NULL) {
+while ((value = (const uint64_t *)iterator_next(&iter)) != NULL) {
     /* use *value */
 }
 ```
 
-### vs_hashmap_destroy
+### hashmap_destroy
 
 ```c
-void vs_hashmap_destroy(vs_hashmap *map);
+void hashmap_destroy(hashmap *map);
 ```
 
 - Parameters: `map`
@@ -253,5 +253,5 @@ void vs_hashmap_destroy(vs_hashmap *map);
 - Example:
 
 ```c
-vs_hashmap_destroy(map);
+hashmap_destroy(map);
 ```
