@@ -29,6 +29,7 @@
 #include "vstd/assert.h"
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/string.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 #define VS_STRING_DEFAULT_CAPACITY 16
@@ -68,20 +69,29 @@ static size_t vs_string_capacity_for(size_t len) {
     return capacity;
 }
 
-static vs_string_header *vs_string_ensure_capacity(vs_string *string, size_t len) {
+static vs_status vs_string_ensure_capacity(vs_string *string, size_t len, vs_string_header **out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_string_ensure_capacity invalid arguments");
+
     vs_string_header *header = vs_string_header_from_buf(*string);
     if (len < header->capacity) {
-        return header;
+        *out = header;
+        return VS_STATUS_OK;
     }
 
     size_t new_capacity = vs_string_capacity_for(len);
     size_t alloc_size = sizeof(vs_string_header) + new_capacity;
 
     vs_allocator *allocator = header->allocator;
-    vs_string_header *tmp = vs_realloc(allocator, header, alloc_size);
+    vs_string_header *tmp = NULL;
+    vs_status status = vs_realloc(allocator, header, alloc_size, (void **)&tmp);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     tmp->capacity = new_capacity;
     *string = tmp->buf;
-    return tmp;
+    *out = tmp;
+    return VS_STATUS_OK;
 }
 
 static const void *vs_string_iterator_next(void *context) {
@@ -96,12 +106,21 @@ static const void *vs_string_iterator_next(void *context) {
     return iterator->cursor++;
 }
 
-vs_string vs_string_create(const char *initial, vs_allocator *allocator) {
+vs_status vs_string_create(const char *initial, vs_allocator *allocator, vs_string *out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_string_create invalid arguments");
+
+    *out = NULL;
+
     size_t len = initial == NULL ? 0 : strlen(initial);
     size_t capacity = vs_string_capacity_for(len);
     size_t alloc_size = sizeof(vs_string_header) + capacity;
 
-    vs_string_header *header = vs_malloc(allocator, alloc_size);
+    vs_string_header *header = NULL;
+    vs_status status = vs_malloc(allocator, alloc_size, (void **)&header);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     header->len = len;
     header->capacity = capacity;
     header->allocator = allocator;
@@ -111,46 +130,59 @@ vs_string vs_string_create(const char *initial, vs_allocator *allocator) {
     }
     header->buf[len] = '\0';
 
-    return header->buf;
+    *out = header->buf;
+    return VS_STATUS_OK;
 }
 
-void vs_string_append(vs_string *string, const char *suffix) {
+vs_status vs_string_append(vs_string *string, const char *suffix) {
     VSTD_ASSERT(string != NULL, "fatal: vs_string_append invalid arguments");
     VSTD_ASSERT(*string != NULL, "fatal: vs_string_append invalid arguments");
     VSTD_ASSERT(suffix != NULL, "fatal: vs_string_append invalid arguments");
 
     size_t suffix_len = strlen(suffix);
     if (suffix_len == 0) {
-        return;
+        return VS_STATUS_OK;
     }
 
     vs_string_header *header = vs_string_header_from_buf(*string);
     size_t new_len = header->len + suffix_len;
-    header = vs_string_ensure_capacity(string, new_len);
+    vs_status status = vs_string_ensure_capacity(string, new_len, &header);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
 
     memcpy(header->buf + header->len, suffix, suffix_len);
     header->len = new_len;
     header->buf[header->len] = '\0';
+    return VS_STATUS_OK;
 }
 
-void vs_string_prepend(vs_string *string, const char *prefix) {
+vs_status vs_string_prepend(vs_string *string, const char *prefix) {
     VSTD_ASSERT(string != NULL, "fatal: vs_string_prepend invalid arguments");
     VSTD_ASSERT(*string != NULL, "fatal: vs_string_prepend invalid arguments");
     VSTD_ASSERT(prefix != NULL, "fatal: vs_string_prepend invalid arguments");
 
     size_t prefix_len = strlen(prefix);
     if (prefix_len == 0) {
-        return;
+        return VS_STATUS_OK;
     }
 
     vs_string_header *header = vs_string_header_from_buf(*string);
     size_t old_len = header->len;
     size_t new_len = old_len + prefix_len;
-    header = vs_string_ensure_capacity(string, new_len);
+    vs_status status = vs_string_ensure_capacity(string, new_len, &header);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
 
-    memmove(header->buf + prefix_len, header->buf, old_len + 1);
-    memcpy(header->buf, prefix, prefix_len);
+    char *buf = header->buf;
+    memmove(buf + prefix_len, buf, old_len + 1);
+    char old_first = buf[prefix_len];
+    memmove(buf, prefix, prefix_len + 1);
+    buf[prefix_len] = old_first;
+
     header->len = new_len;
+    return VS_STATUS_OK;
 }
 
 bool vs_string_contains(const vs_string string, const char *needle) {

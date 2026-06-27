@@ -27,6 +27,7 @@
 
 #include "vstd/datastruct/binary_heap.h"
 #include "vstd/datastruct/iterator.h"
+#include "vstd/error.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
@@ -45,7 +46,13 @@ static int cmp_int_desc(const void *a, const void *b) {
 VS_TEST(init) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
+    vs_binary_heap *heap = NULL;
+    if (vs_test_equal(
+            vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
 
     if (vs_binary_heap_size(heap) != 0) {
         return 1;
@@ -61,7 +68,13 @@ VS_TEST(init) {
 VS_TEST(peek) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
+    vs_binary_heap *heap = NULL;
+    if (vs_test_equal(
+            vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
     int value = 3;
 
     if (vs_test_null(vs_binary_heap_peek(heap)) != 0) {
@@ -87,7 +100,13 @@ VS_TEST(peek) {
 VS_TEST(pop) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
+    vs_binary_heap *heap = NULL;
+    if (vs_test_equal(
+            vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
     int values[] = {4, 1, 3};
 
     for (size_t i = 0; i < 3; i++) {
@@ -119,7 +138,13 @@ VS_TEST(pop) {
 VS_TEST(pop_uses_custom_comparator_order) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_desc, allocator);
+    vs_binary_heap *heap = NULL;
+    if (vs_test_equal(
+            vs_binary_heap_create(sizeof(int), cmp_int_desc, allocator, &heap),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
     int values[] = {5, 2, 8, 1};
     int expected[] = {8, 5, 2, 1};
 
@@ -147,7 +172,13 @@ VS_TEST(pop_uses_custom_comparator_order) {
 VS_TEST(push) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
+    vs_binary_heap *heap = NULL;
+    if (vs_test_equal(
+            vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
     int values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
@@ -175,7 +206,13 @@ VS_TEST(push) {
 VS_TEST(default_byte_ordering) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(uint8_t), NULL, allocator);
+    vs_binary_heap *heap = NULL;
+    if (vs_test_equal(
+            vs_binary_heap_create(sizeof(uint8_t), NULL, allocator, &heap),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
     uint8_t values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
@@ -200,7 +237,13 @@ VS_TEST(default_byte_ordering) {
 VS_TEST(custom_comparator) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_desc, allocator);
+    vs_binary_heap *heap = NULL;
+    if (vs_test_equal(
+            vs_binary_heap_create(sizeof(int), cmp_int_desc, allocator, &heap),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
     int values[] = {5, 2, 8, 1};
 
     for (size_t i = 0; i < 4; i++) {
@@ -225,7 +268,13 @@ VS_TEST(custom_comparator) {
 VS_TEST(iterator_walks_backing_storage) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator);
+    vs_binary_heap *heap = NULL;
+    if (vs_test_equal(
+            vs_binary_heap_create(sizeof(int), cmp_int_asc, allocator, &heap),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
     int values[] = {5, 2, 8, 1};
     const int *out;
     int sum = 0;

@@ -37,13 +37,15 @@ vs_hashset_for_each(uint64_t, value, set) {
 ### vs_hashset_create
 
 ```c
-vs_hashset *vs_hashset_create(size_t elem_size,
-                                vs_hashset_elem_eq_fn elem_eq,
-                                vs_allocator *allocator);
+vs_status vs_hashset_create(size_t elem_size,
+                            vs_hashset_elem_eq_fn elem_eq,
+                            vs_allocator *allocator,
+                            vs_hashset **out);
 ```
 
-- Parameters: `elem_size`, `elem_eq`, `allocator`
-- Returns: opaque hashset handle.
+- Parameters: `elem_size`, `elem_eq`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Writes: opaque hashset handle to `*out` on success.
 - Notes: the hashset stores `allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `allocator` is `NULL`, hashset uses the C
   library heap through `vs_malloc`. Custom `elem_eq` callbacks must be
@@ -51,39 +53,46 @@ vs_hashset *vs_hashset_create(size_t elem_size,
 - Example:
 
 ```c
-vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, NULL);
+vs_hashset *set = NULL;
+if (vs_hashset_create(sizeof(uint64_t), NULL, NULL, &set) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_hashset_reserve
 
 ```c
-void vs_hashset_reserve(vs_hashset *set, size_t size);
+vs_status vs_hashset_reserve(vs_hashset *set, size_t size);
 ```
 
 - Parameters: `set`, `size`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
 - Notes: grows bucket storage so at least `size` elements fit without another
   rehash at the default load factor.
 - Example:
 
 ```c
-vs_hashset_reserve(set, 1024);
+if (vs_hashset_reserve(set, 1024) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_hashset_insert
 
 ```c
-void vs_hashset_insert(vs_hashset *set, const void *elem);
+vs_status vs_hashset_insert(vs_hashset *set, const void *elem);
 ```
 
 - Parameters: `set`, `elem`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
 - Notes: copies `elem` into set-managed storage when it is not already present.
 - Example:
 
 ```c
 uint64_t value = 42;
-vs_hashset_insert(set, &value);
+if (vs_hashset_insert(set, &value) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_hashset_contains

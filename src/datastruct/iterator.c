@@ -27,6 +27,7 @@
 #include "vstd/assert.h"
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/vector.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 vs_iterator vs_iterator_from_callback(void *context, vs_iterator_next_fn next) {
@@ -80,44 +81,89 @@ const void *vs_iterator_next(vs_iterator *iter) {
     return item;
 }
 
-vs_vector *vs_iterator_collect(vs_iterator *source, size_t elem_size, vs_allocator *allocator) {
+vs_status vs_iterator_collect(
+    vs_iterator *source,
+    size_t elem_size,
+    vs_allocator *allocator,
+    vs_vector **out
+) {
     VSTD_ASSERT(source != NULL, "fatal: vs_iterator_collect invalid arguments");
     VSTD_ASSERT(elem_size > 0, "fatal: vs_iterator_collect invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_iterator_collect invalid arguments");
 
-    vs_vector *out = vs_vector_create(elem_size, allocator);
+    *out = NULL;
+
+    vs_vector *vector = NULL;
+    vs_status status = vs_vector_create(elem_size, allocator, &vector);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
     if (source->size_hint > 0) {
-        vs_vector_reserve(out, source->size_hint);
+        status = vs_vector_reserve(vector, source->size_hint);
+        if (status != VS_STATUS_OK) {
+            vs_vector_destroy(vector);
+            return status;
+        }
     }
     const void *item;
     while ((item = vs_iterator_next(source)) != NULL) {
-        vs_vector_push(out, item);
+        status = vs_vector_push(vector, item);
+        if (status != VS_STATUS_OK) {
+            vs_vector_destroy(vector);
+            return status;
+        }
     }
 
-    return out;
+    *out = vector;
+    return VS_STATUS_OK;
 }
 
-vs_vector *vs_iterator_collect_map(
+vs_status vs_iterator_collect_map(
     vs_iterator *source,
     size_t dst_elem_size,
     vs_iterator_map_into_fn map,
     void *context,
-    vs_allocator *allocator
+    vs_allocator *allocator,
+    vs_vector **out
 ) {
     VSTD_ASSERT(source != NULL, "fatal: vs_iterator_collect_map invalid arguments");
     VSTD_ASSERT(dst_elem_size > 0, "fatal: vs_iterator_collect_map invalid arguments");
     VSTD_ASSERT(map != NULL, "fatal: vs_iterator_collect_map invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_iterator_collect_map invalid arguments");
 
-    vs_vector *out = vs_vector_create(dst_elem_size, allocator);
-    if (source->size_hint > 0) {
-        vs_vector_reserve(out, source->size_hint);
+    *out = NULL;
+
+    vs_vector *vector = NULL;
+    vs_status status = vs_vector_create(dst_elem_size, allocator, &vector);
+    if (status != VS_STATUS_OK) {
+        return status;
     }
-    void *dst = vs_malloc(allocator, dst_elem_size);
+    if (source->size_hint > 0) {
+        status = vs_vector_reserve(vector, source->size_hint);
+        if (status != VS_STATUS_OK) {
+            vs_vector_destroy(vector);
+            return status;
+        }
+    }
+    void *dst = NULL;
+    status = vs_malloc(allocator, dst_elem_size, &dst);
+    if (status != VS_STATUS_OK) {
+        vs_vector_destroy(vector);
+        return status;
+    }
+
     const void *item;
     while ((item = vs_iterator_next(source)) != NULL) {
         map(context, item, dst);
-        vs_vector_push(out, dst);
+        status = vs_vector_push(vector, dst);
+        if (status != VS_STATUS_OK) {
+            vs_dealloc(allocator, dst);
+            vs_vector_destroy(vector);
+            return status;
+        }
     }
     vs_dealloc(allocator, dst);
 
-    return out;
+    *out = vector;
+    return VS_STATUS_OK;
 }

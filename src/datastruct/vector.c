@@ -28,6 +28,7 @@
 #include "vstd/assert.h"
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/vector.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 #define VS_VECTOR_DEFAULT_CAPACITY 16
@@ -65,56 +66,81 @@ static const void *vs_vector_iterator_next(void *context) {
     return item;
 }
 
-vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator) {
-    return vs_vector_create_with_capacity(elem_size, VS_VECTOR_DEFAULT_CAPACITY, allocator);
+vs_status vs_vector_create(size_t elem_size, vs_allocator *allocator, vs_vector **out) {
+    return vs_vector_create_with_capacity(elem_size, VS_VECTOR_DEFAULT_CAPACITY, allocator, out);
 }
 
-vs_vector *vs_vector_create_with_capacity(
+vs_status vs_vector_create_with_capacity(
     size_t elem_size,
     size_t capacity,
-    vs_allocator *allocator
+    vs_allocator *allocator,
+    vs_vector **out
 ) {
     VSTD_ASSERT(elem_size > 0, "fatal: vs_vector_create invalid arguments");
     VSTD_ASSERT(capacity > 0, "fatal: vs_vector_create invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_vector_create invalid arguments");
 
-    vs_vector *vector = vs_malloc(allocator, sizeof(vs_vector));
+    *out = NULL;
+
+    vs_vector *vector = NULL;
+    vs_status status = vs_malloc(allocator, sizeof(vs_vector), (void **)&vector);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
     vector->allocator = allocator;
 
     size_t alloc_size = elem_size * capacity;
-    void *buffer = vs_malloc(allocator, alloc_size);
+    void *buffer = NULL;
+    status = vs_malloc(allocator, alloc_size, &buffer);
+    if (status != VS_STATUS_OK) {
+        vs_dealloc(allocator, vector);
+        return status;
+    }
 
     vector->buffer = buffer;
     vector->size = 0;
     vector->elem_size = elem_size;
     vector->capacity = capacity;
 
-    return vector;
+    *out = vector;
+    return VS_STATUS_OK;
 }
 
-void vs_vector_reserve(vs_vector *vector, size_t capacity) {
+vs_status vs_vector_reserve(vs_vector *vector, size_t capacity) {
     VSTD_ASSERT(vector != NULL, "fatal: vs_vector_reserve invalid arguments");
 
     if (capacity <= vector->capacity) {
-        return;
+        return VS_STATUS_OK;
     }
 
     size_t alloc_size = capacity * vector->elem_size;
-    vector->buffer = vs_realloc(vector->allocator, vector->buffer, alloc_size);
+    void *buffer = NULL;
+    vs_status status = vs_realloc(vector->allocator, vector->buffer, alloc_size, &buffer);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
+    vector->buffer = buffer;
     vector->capacity = capacity;
+    return VS_STATUS_OK;
 }
 
-void vs_vector_push(vs_vector *vector, const void *element) {
+vs_status vs_vector_push(vs_vector *vector, const void *element) {
     VSTD_ASSERT(vector != NULL, "fatal: vs_vector_push invalid arguments");
     VSTD_ASSERT(element != NULL, "fatal: vs_vector_push invalid arguments");
 
     if (vector->size == vector->capacity) {
-        vs_vector_reserve(vector, vector->capacity * 2);
+        vs_status status = vs_vector_reserve(vector, vector->capacity * 2);
+        if (status != VS_STATUS_OK) {
+            return status;
+        }
     }
 
     uint8_t *base = (uint8_t *)vector->buffer;
     void *dst = base + (vector->size * vector->elem_size);
     memcpy(dst, element, vector->elem_size);
     vector->size += 1;
+    return VS_STATUS_OK;
 }
 
 void *vs_vector_pop(vs_vector *vector) {

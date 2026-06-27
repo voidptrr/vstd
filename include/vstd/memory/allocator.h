@@ -27,6 +27,8 @@
 
 #include <stddef.h>
 
+#include "vstd/error.h"
+
 typedef void *(*vs_alloc_fn)(void *ctx, size_t size);
 typedef void *(*vs_realloc_fn)(void *ctx, void *ptr, size_t size);
 typedef void (*vs_dealloc_fn)(void *ctx, void *ptr);
@@ -56,10 +58,10 @@ typedef struct vs_allocator {
 } vs_allocator;
 
 /* Allocate size bytes through allocator->alloc when provided, otherwise malloc. */
-void *vs_malloc(vs_allocator *allocator, size_t size);
+vs_status vs_malloc(vs_allocator *allocator, size_t size, void **out);
 
 /* Resize ptr through allocator->realloc when provided, otherwise realloc. */
-void *vs_realloc(vs_allocator *allocator, void *ptr, size_t size);
+vs_status vs_realloc(vs_allocator *allocator, void *ptr, size_t size, void **out);
 
 /* Release ptr through allocator->dealloc when advertised, otherwise free for NULL allocator. */
 void vs_dealloc(vs_allocator *allocator, void *ptr);

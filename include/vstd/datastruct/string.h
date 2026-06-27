@@ -29,6 +29,7 @@
 #include <stddef.h>
 
 #include "vstd/datastruct/iterator.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 #define vs_string_for_each_char(item, string) \
@@ -59,13 +60,13 @@
 typedef char *vs_string;
 
 /* Create a string from initial, or an empty string when initial is NULL. */
-vs_string vs_string_create(const char *initial, vs_allocator *allocator);
+vs_status vs_string_create(const char *initial, vs_allocator *allocator, vs_string *out);
 
 /* Append suffix to string, growing storage as needed. */
-void vs_string_append(vs_string *string, const char *suffix);
+vs_status vs_string_append(vs_string *string, const char *suffix);
 
 /* Prepend prefix to string, growing storage as needed. */
-void vs_string_prepend(vs_string *string, const char *prefix);
+vs_status vs_string_prepend(vs_string *string, const char *prefix);
 
 /* Return whether string contains needle. */
 bool vs_string_contains(const vs_string string, const char *needle);

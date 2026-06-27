@@ -32,6 +32,7 @@
 #include "vstd/datastruct/hashmap.h"
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/linked_list.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
 
@@ -171,18 +172,32 @@ static const void *vs_hashmap_value_iterator_next(void *context) {
     return vs_hashmap_entry_value_const(map, entry);
 }
 
-vs_hashmap *vs_hashmap_create(
+vs_status vs_hashmap_create(
     size_t key_size,
     size_t value_size,
     vs_hashmap_key_eq_fn key_eq,
-    vs_allocator *allocator
+    vs_allocator *allocator,
+    vs_hashmap **out
 ) {
     VSTD_ASSERT(key_size > 0, "fatal: vs_hashmap_create invalid arguments");
     VSTD_ASSERT(value_size > 0, "fatal: vs_hashmap_create invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_hashmap_create invalid arguments");
 
-    vs_hashmap *map = vs_malloc(allocator, sizeof(vs_hashmap));
+    *out = NULL;
+
+    vs_hashmap *map = NULL;
+    vs_status status = vs_malloc(allocator, sizeof(vs_hashmap), (void **)&map);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     map->allocator = allocator;
-    map->buckets = vs_hash_common_buckets_create(VS_HASH_COMMON_DEFAULT_CAPACITY, allocator);
+    status =
+        vs_hash_common_buckets_create(VS_HASH_COMMON_DEFAULT_CAPACITY, allocator, &map->buckets);
+    if (status != VS_STATUS_OK) {
+        vs_dealloc(allocator, map);
+        return status;
+    }
 
     map->size = 0;
     map->key_size = key_size;
@@ -190,28 +205,37 @@ vs_hashmap *vs_hashmap_create(
     map->capacity = VS_HASH_COMMON_DEFAULT_CAPACITY;
     map->key_eq = key_eq;
 
-    return map;
+    *out = map;
+    return VS_STATUS_OK;
 }
 
-void vs_hashmap_reserve(vs_hashmap *map, size_t size) {
+vs_status vs_hashmap_reserve(vs_hashmap *map, size_t size) {
     VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_reserve invalid arguments");
 
     size_t new_capacity = vs_hash_common_capacity_for_size(size);
     if (new_capacity <= map->capacity) {
-        return;
+        return VS_STATUS_OK;
     }
 
-    map->buckets = vs_hash_common_buckets_rehash(
+    vs_hash_common_bucket *new_buckets = NULL;
+    vs_status status = vs_hash_common_buckets_rehash(
         map->buckets,
         map->capacity,
         new_capacity,
         map->allocator,
-        vs_hashmap_entry_hash
+        vs_hashmap_entry_hash,
+        &new_buckets
     );
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
+    map->buckets = new_buckets;
     map->capacity = new_capacity;
+    return VS_STATUS_OK;
 }
 
-void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
+vs_status vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
     VSTD_ASSERT(map != NULL, "fatal: vs_hashmap_put invalid arguments");
     VSTD_ASSERT(key != NULL, "fatal: vs_hashmap_put invalid arguments");
     VSTD_ASSERT(value != NULL, "fatal: vs_hashmap_put invalid arguments");
@@ -231,17 +255,25 @@ void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
     if (node != NULL) {
         vs_hashmap_entry *entry = VS_CONTAINER_OF(node, vs_hashmap_entry, node);
         memcpy(vs_hashmap_entry_value(map, entry), value, map->value_size);
-        return;
+        return VS_STATUS_OK;
     }
 
     if (vs_hash_common_should_grow(map->size, map->capacity)) {
-        vs_hashmap_reserve(map, map->size + 1);
+        vs_status status = vs_hashmap_reserve(map, map->size + 1);
+        if (status != VS_STATUS_OK) {
+            return status;
+        }
         bucket = vs_hash_common_bucket_index(hash, map->capacity);
     }
 
     size_t value_offset = vs_align_up(map->key_size, VS_MEMORY_ALIGN);
     size_t alloc_size = sizeof(vs_hashmap_entry) + value_offset + map->value_size;
-    vs_hashmap_entry *entry = vs_malloc(allocator, alloc_size);
+    vs_hashmap_entry *entry = NULL;
+    vs_status status = vs_malloc(allocator, alloc_size, (void **)&entry);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     entry->hash = hash;
 
     memcpy(entry->data, key, map->key_size);
@@ -249,6 +281,7 @@ void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value) {
 
     vs_hash_common_bucket_pushfront(&map->buckets[bucket], &entry->node);
     map->size += 1;
+    return VS_STATUS_OK;
 }
 
 void *vs_hashmap_get(vs_hashmap *map, const void *key) {

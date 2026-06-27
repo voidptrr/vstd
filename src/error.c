@@ -23,44 +23,29 @@
  */
 
 #include "vstd/error.h"
-#include "vstd/memory/allocator.h"
-#include "vstd/memory/general_heap.h"
-#include "vstd/testing.h"
 
-int main(void) {
-    vs_heap *heap = NULL;
-    if (vs_test_equal(vs_heap_create(1024, &heap), VS_STATUS_OK)) {
-        return 1;
+const char *vs_status_message(vs_status status) {
+    switch (status) {
+        case VS_STATUS_OK:
+            return "ok";
+        case VS_STATUS_INVALID_ARGUMENT:
+            return "invalid argument";
+        case VS_STATUS_NO_MEMORY:
+            return "out of memory";
+        case VS_STATUS_OVERFLOW:
+            return "overflow";
+        case VS_STATUS_OUT_OF_RANGE:
+            return "out of range";
+        case VS_STATUS_NOT_FOUND:
+            return "not found";
+        case VS_STATUS_EOF:
+            return "end of file";
+        case VS_STATUS_IO_ERROR:
+            return "I/O error";
+        case VS_STATUS_INVALID_DATA:
+            return "invalid data";
+        case VS_STATUS_UNSUPPORTED:
+            return "unsupported operation";
     }
-    vs_allocator *allocator = vs_heap_allocator(heap);
-
-    if (vs_test_equal_ptr(allocator->ctx, heap) != 0) {
-        return 1;
-    }
-    if (vs_test_equal(allocator->alloc != NULL, true) != 0) {
-        return 1;
-    }
-    if (vs_test_equal(allocator->realloc != NULL, true) != 0) {
-        return 1;
-    }
-    if (vs_test_equal(allocator->dealloc != NULL, true) != 0) {
-        return 1;
-    }
-    if (vs_test_equal(
-            allocator->features == (VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC),
-            true
-        )
-        != 0) {
-        return 1;
-    }
-
-    if (vs_test_equal(vs_heap_capacity(heap) > 0, true) != 0) {
-        return 1;
-    }
-    if (vs_test_equal(vs_heap_available(heap) > 0, true) != 0) {
-        return 1;
-    }
-
-    vs_heap_destroy(heap);
-    return 0;
+    return "unknown error";
 }

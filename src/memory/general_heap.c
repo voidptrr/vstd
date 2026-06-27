@@ -28,6 +28,7 @@
 
 #include "vstd/assert.h"
 #include "vstd/datastruct/doubly_linked_list.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/general_heap.h"
 #include "vstd/memory/utils.h"
@@ -193,19 +194,36 @@ static void *vs_heap_realloc_callback(void *ctx, void *ptr, size_t size) {
     return vs_heap_realloc_impl(ctx, ptr, size);
 }
 
-vs_heap *vs_heap_create(size_t capacity) {
-    vs_heap *heap;
-
+vs_status vs_heap_create(size_t capacity, vs_heap **out) {
     capacity = vs_align_up(capacity, VS_MEMORY_ALIGN);
     VSTD_ASSERT(
         capacity > sizeof(vs_heap_block) + VS_MEMORY_ALIGN,
         "fatal: vs_heap_create invalid capacity"
     );
+    VSTD_ASSERT(out != NULL, "fatal: vs_heap_create invalid arguments");
 
-    heap = vs_malloc(NULL, sizeof(vs_heap));
-    heap->buffer = vs_malloc(NULL, capacity);
+    *out = NULL;
+
+    vs_heap *heap = NULL;
+    vs_status status = vs_malloc(NULL, sizeof(vs_heap), (void **)&heap);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
+    status = vs_malloc(NULL, capacity, &heap->buffer);
+    if (status != VS_STATUS_OK) {
+        vs_dealloc(NULL, heap);
+        return status;
+    }
+
     heap->capacity = capacity;
-    heap->blocks = vs_doubly_linked_list_create(NULL);
+    status = vs_doubly_linked_list_create(NULL, &heap->blocks);
+    if (status != VS_STATUS_OK) {
+        vs_dealloc(NULL, heap->buffer);
+        vs_dealloc(NULL, heap);
+        return status;
+    }
+
     heap->allocator = (vs_allocator){
         .ctx = heap,
         .features = VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC,
@@ -219,7 +237,8 @@ vs_heap *vs_heap_create(size_t capacity) {
     block->is_free = true;
     vs_doubly_linked_list_push(heap->blocks, &block->node);
 
-    return heap;
+    *out = heap;
+    return VS_STATUS_OK;
 }
 
 vs_allocator *vs_heap_allocator(vs_heap *heap) {

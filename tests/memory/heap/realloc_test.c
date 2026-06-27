@@ -24,11 +24,15 @@
 
 #include <string.h>
 
+#include "vstd/error.h"
 #include "vstd/memory/general_heap.h"
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_heap *heap = vs_heap_create(4096);
+    vs_heap *heap = NULL;
+    if (vs_test_equal(vs_heap_create(4096, &heap), VS_STATUS_OK)) {
+        return 1;
+    }
     char *ptr = (char *)vs_heap_realloc(heap, NULL, 32);
     if (vs_test_not_null(ptr) != 0) {
         return 1;

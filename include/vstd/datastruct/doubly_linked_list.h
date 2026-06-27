@@ -28,6 +28,7 @@
 #include <stddef.h>
 
 #include "vstd/datastruct/iterator.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
 
@@ -72,7 +73,7 @@ typedef struct vs_doubly_linked_list_node {
 typedef struct vs_doubly_linked_list vs_doubly_linked_list;
 
 /* Create an intrusive doubly linked list. */
-vs_doubly_linked_list *vs_doubly_linked_list_create(vs_allocator *allocator);
+vs_status vs_doubly_linked_list_create(vs_allocator *allocator, vs_doubly_linked_list **out);
 
 /* Append node at the tail. */
 void vs_doubly_linked_list_push(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node);

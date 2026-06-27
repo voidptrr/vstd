@@ -24,11 +24,15 @@
 
 #include <stddef.h>
 
+#include "vstd/error.h"
 #include "vstd/memory/general_heap.h"
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_heap *heap = vs_heap_create(2048);
+    vs_heap *heap = NULL;
+    if (vs_test_equal(vs_heap_create(2048, &heap), VS_STATUS_OK)) {
+        return 1;
+    }
     size_t before = vs_heap_available(heap);
 
     int *a = (int *)vs_heap_alloc(heap, sizeof(int));

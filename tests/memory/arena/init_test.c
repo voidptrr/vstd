@@ -24,12 +24,16 @@
 
 #include <stdint.h>
 
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/arena.h"
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_arena *arena = vs_arena_create(128);
+    vs_arena *arena = NULL;
+    if (vs_test_equal(vs_arena_create(128, &arena), VS_STATUS_OK)) {
+        return 1;
+    }
     vs_allocator *allocator = vs_arena_allocator(arena);
 
     if (vs_test_equal_ptr(allocator->ctx, arena) != 0) {

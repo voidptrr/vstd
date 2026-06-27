@@ -29,6 +29,7 @@
 #include <stddef.h>
 
 #include "vstd/datastruct/iterator.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 #define vs_hashset_for_each(type, item, set) \
@@ -68,20 +69,21 @@ typedef struct vs_linked_list_node vs_linked_list_node;
  * When elem_eq is NULL, element equality compares stored element bytes.
  * Initial capacity is implementation-defined.
  */
-vs_hashset *vs_hashset_create(
+vs_status vs_hashset_create(
     size_t elem_size,
     vs_hashset_elem_eq_fn elem_eq,
-    vs_allocator *allocator
+    vs_allocator *allocator,
+    vs_hashset **out
 );
 
 /* Ensure set can hold at least size elements without growing. */
-void vs_hashset_reserve(vs_hashset *set, size_t size);
+vs_status vs_hashset_reserve(vs_hashset *set, size_t size);
 
 /*
  * Insert element when it is not already present.
  * Existing elements are left unchanged.
  */
-void vs_hashset_insert(vs_hashset *set, const void *elem);
+vs_status vs_hashset_insert(vs_hashset *set, const void *elem);
 
 /*
  * Return true when element exists in set.

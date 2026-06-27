@@ -79,7 +79,10 @@ int main(void) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
 
-    vs_vector *vector = vs_vector_create(sizeof(int), allocator);
+    vs_vector *vector = NULL;
+if (vs_vector_create(sizeof(int), allocator, &vector) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
     int value = 7;
 
     vs_vector_push(vector, &value);

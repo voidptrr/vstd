@@ -49,18 +49,22 @@ job *item = VS_CONTAINER_OF(node, job, node);
 ### vs_linked_list_create
 
 ```c
-vs_linked_list *vs_linked_list_create(vs_allocator *allocator);
+vs_status vs_linked_list_create(vs_allocator *allocator, vs_linked_list **out);
 ```
 
-- Parameters: `allocator`
-- Returns: opaque linked-list handle.
+- Parameters: `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Writes: opaque linked-list handle to `*out` on success.
 - Notes: the list stores `allocator` and reuses it to destroy the list handle.
   Nodes remain caller-owned. When `allocator` is `NULL`, the handle uses the C
   library heap through `vs_malloc`.
 - Example:
 
 ```c
-vs_linked_list *list = vs_linked_list_create(NULL);
+vs_linked_list *list = NULL;
+if (vs_linked_list_create(NULL, &list) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_linked_list_push

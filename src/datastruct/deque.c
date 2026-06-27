@@ -28,6 +28,7 @@
 #include "vstd/assert.h"
 #include "vstd/datastruct/deque.h"
 #include "vstd/datastruct/iterator.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 #define VS_DEQUE_DEFAULT_CAPACITY 16
@@ -55,14 +56,18 @@ _Static_assert(
     "vs_deque_iterator_state must fit in vs_iterator"
 );
 
-static void vs_deque_grow(vs_deque *deque) {
+static vs_status vs_deque_grow(vs_deque *deque) {
     vs_allocator *allocator = deque->allocator;
     size_t old_capacity = deque->capacity;
     size_t new_capacity = old_capacity * 2;
     uint8_t *old_buffer = (uint8_t *)deque->buffer;
 
     size_t alloc_size = new_capacity * deque->elem_size;
-    uint8_t *new_buffer = vs_malloc(allocator, alloc_size);
+    uint8_t *new_buffer = NULL;
+    vs_status status = vs_malloc(allocator, alloc_size, (void **)&new_buffer);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
 
     if (deque->size > 0) {
         if (deque->head < deque->tail) {
@@ -95,6 +100,7 @@ static void vs_deque_grow(vs_deque *deque) {
     deque->capacity = new_capacity;
     deque->head = 0;
     deque->tail = deque->size;
+    return VS_STATUS_OK;
 }
 
 static const void *vs_deque_iterator_next(void *context) {
@@ -111,14 +117,26 @@ static const void *vs_deque_iterator_next(void *context) {
     return iterator->base + (storage_index * iterator->elem_size);
 }
 
-vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator) {
+vs_status vs_deque_create(size_t elem_size, vs_allocator *allocator, vs_deque **out) {
     VSTD_ASSERT(elem_size > 0, "fatal: vs_deque_create invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_deque_create invalid arguments");
 
-    vs_deque *deque = vs_malloc(allocator, sizeof(vs_deque));
+    *out = NULL;
+
+    vs_deque *deque = NULL;
+    vs_status status = vs_malloc(allocator, sizeof(vs_deque), (void **)&deque);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
     deque->allocator = allocator;
 
     size_t alloc_size = elem_size * VS_DEQUE_DEFAULT_CAPACITY;
-    void *buffer = vs_malloc(allocator, alloc_size);
+    void *buffer = NULL;
+    status = vs_malloc(allocator, alloc_size, &buffer);
+    if (status != VS_STATUS_OK) {
+        vs_dealloc(allocator, deque);
+        return status;
+    }
 
     deque->size = 0;
     deque->elem_size = elem_size;
@@ -127,16 +145,20 @@ vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator) {
     deque->tail = 0;
     deque->buffer = buffer;
 
-    return deque;
+    *out = deque;
+    return VS_STATUS_OK;
 }
 
-void vs_deque_push(vs_deque *deque, const void *element) {
+vs_status vs_deque_push(vs_deque *deque, const void *element) {
     VSTD_ASSERT(deque != NULL, "fatal: vs_deque_push invalid arguments");
     VSTD_ASSERT(element != NULL, "fatal: vs_deque_push invalid arguments");
     VSTD_ASSERT(deque->capacity > 0, "fatal: vs_deque_push invalid state");
 
     if (deque->size == deque->capacity) {
-        vs_deque_grow(deque);
+        vs_status status = vs_deque_grow(deque);
+        if (status != VS_STATUS_OK) {
+            return status;
+        }
     }
 
     uint8_t *base = (uint8_t *)deque->buffer;
@@ -144,15 +166,19 @@ void vs_deque_push(vs_deque *deque, const void *element) {
     memcpy(dst, element, deque->elem_size);
     deque->size += 1;
     deque->tail = (deque->tail + 1) % deque->capacity;
+    return VS_STATUS_OK;
 }
 
-void vs_deque_pushfront(vs_deque *deque, const void *element) {
+vs_status vs_deque_pushfront(vs_deque *deque, const void *element) {
     VSTD_ASSERT(deque != NULL, "fatal: vs_deque_pushfront invalid arguments");
     VSTD_ASSERT(element != NULL, "fatal: vs_deque_pushfront invalid arguments");
     VSTD_ASSERT(deque->capacity > 0, "fatal: vs_deque_pushfront invalid state");
 
     if (deque->size == deque->capacity) {
-        vs_deque_grow(deque);
+        vs_status status = vs_deque_grow(deque);
+        if (status != VS_STATUS_OK) {
+            return status;
+        }
     }
 
     deque->head = (deque->head + deque->capacity - 1) % deque->capacity;
@@ -161,6 +187,7 @@ void vs_deque_pushfront(vs_deque *deque, const void *element) {
     void *dst = base + (deque->head * deque->elem_size);
     memcpy(dst, element, deque->elem_size);
     deque->size += 1;
+    return VS_STATUS_OK;
 }
 
 void *vs_deque_popleft(vs_deque *deque) {

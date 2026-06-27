@@ -27,6 +27,7 @@
 #include "vstd/assert.h"
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/linked_list.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 struct vs_linked_list {
@@ -58,14 +59,24 @@ static const void *vs_linked_list_iterator_next(void *context) {
     return node;
 }
 
-vs_linked_list *vs_linked_list_create(vs_allocator *allocator) {
-    vs_linked_list *list = vs_malloc(allocator, sizeof(vs_linked_list));
+vs_status vs_linked_list_create(vs_allocator *allocator, vs_linked_list **out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_linked_list_create invalid arguments");
+
+    *out = NULL;
+
+    vs_linked_list *list = NULL;
+    vs_status status = vs_malloc(allocator, sizeof(vs_linked_list), (void **)&list);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     list->size = 0;
     list->head = NULL;
     list->tail = NULL;
     list->allocator = allocator;
 
-    return list;
+    *out = list;
+    return VS_STATUS_OK;
 }
 
 void vs_linked_list_push(vs_linked_list *list, vs_linked_list_node *node) {

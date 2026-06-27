@@ -29,11 +29,12 @@ typedef struct vs_arena vs_arena;
 ### vs_arena_create
 
 ```c
-vs_arena *vs_arena_create(size_t capacity);
+vs_status vs_arena_create(size_t capacity, vs_arena **out);
 ```
 
-- Parameters: `capacity`
-- Returns: arena pointer.
+- Parameters: `capacity`, `out`
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Writes: arena pointer to `*out` on success.
 - Notes: capacity is aligned up to the arena's internal memory alignment.
 
 ### vs_arena_allocator
@@ -123,7 +124,10 @@ void vs_arena_destroy(vs_arena *arena);
 
 int main(void) {
     int status = 0;
-    vs_arena *arena = vs_arena_create(1024);
+    vs_arena *arena = NULL;
+if (vs_arena_create(1024, &arena) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
     uint64_t *value = vs_arena_alloc(arena, sizeof(uint64_t));
     if (value == NULL) {
         status = 1;

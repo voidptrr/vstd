@@ -27,6 +27,7 @@
 
 #include <stddef.h>
 
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 /*
@@ -55,7 +56,7 @@ typedef struct vs_heap vs_heap;
 /*
  * Create a heap with `capacity` bytes of internal storage.
  */
-vs_heap *vs_heap_create(size_t capacity);
+vs_status vs_heap_create(size_t capacity, vs_heap **out);
 
 /*
  * Return the generic allocator view owned by this heap.

@@ -52,64 +52,77 @@ vs_vector_for_each(int, item, vector) {
 ### vs_vector_create
 
 ```c
-vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator);
+vs_status vs_vector_create(size_t elem_size, vs_allocator *allocator, vs_vector **out);
 ```
 
-- Parameters: `elem_size`, `allocator`
-- Returns: opaque vector handle.
+- Parameters: `elem_size`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Writes: opaque vector handle to `*out` on success.
 - Notes: the vector stores `allocator` and reuses it for growth and destroy.
   When `allocator` is `NULL`, vector uses the C library heap through
   `vs_malloc`/`vs_realloc`.
 - Example:
 
 ```c
-vs_vector *vector = vs_vector_create(sizeof(int), NULL);
+vs_vector *vector = NULL;
+if (vs_vector_create(sizeof(int), NULL, &vector) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_vector_create_with_capacity
 
 ```c
-vs_vector *vs_vector_create_with_capacity(size_t elem_size,
-                                          size_t capacity,
-                                          vs_allocator *allocator);
+vs_status vs_vector_create_with_capacity(size_t elem_size,
+                                        size_t capacity,
+                                        vs_allocator *allocator,
+                                        vs_vector **out);
 ```
 
-- Parameters: `elem_size`, `capacity`, `allocator`
-- Returns: opaque vector handle with at least `capacity` slots allocated.
+- Parameters: `elem_size`, `capacity`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Writes: opaque vector handle with at least `capacity` slots allocated to `*out`.
 - Example:
 
 ```c
-vs_vector *vector = vs_vector_create_with_capacity(sizeof(int), 128, NULL);
+vs_vector *vector = NULL;
+if (vs_vector_create_with_capacity(sizeof(int), 128, NULL, &vector) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_vector_reserve
 
 ```c
-void vs_vector_reserve(vs_vector *vector, size_t capacity);
+vs_status vs_vector_reserve(vs_vector *vector, size_t capacity);
 ```
 
 - Parameters: `vector`, `capacity`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
 - Notes: grows backing storage when needed; existing items are preserved.
 - Example:
 
 ```c
-vs_vector_reserve(vector, 1024);
+if (vs_vector_reserve(vector, 1024) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_vector_push
 
 ```c
-void vs_vector_push(vs_vector *vector, const void *element);
+vs_status vs_vector_push(vs_vector *vector, const void *element);
 ```
 
 - Parameters: `vector`, `element`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
 - Example:
 
 ```c
 int value = 42;
-vs_vector_push(vector, &value);
+if (vs_vector_push(vector, &value) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_vector_pop

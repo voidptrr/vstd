@@ -77,14 +77,16 @@ vs_hashmap_for_each_entry(entry, map) {
 ### vs_hashmap_create
 
 ```c
-vs_hashmap *vs_hashmap_create(size_t key_size,
-                                size_t value_size,
-                                vs_hashmap_key_eq_fn key_eq,
-                                vs_allocator *allocator);
+vs_status vs_hashmap_create(size_t key_size,
+                            size_t value_size,
+                            vs_hashmap_key_eq_fn key_eq,
+                            vs_allocator *allocator,
+                            vs_hashmap **out);
 ```
 
-- Parameters: `key_size`, `value_size`, `key_eq`, `allocator`
-- Returns: opaque hashmap handle.
+- Parameters: `key_size`, `value_size`, `key_eq`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
+- Writes: opaque hashmap handle to `*out` on success.
 - Notes: the hashmap stores `allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `allocator` is `NULL`, hashmap uses the C
   library heap through `vs_malloc`. Custom `key_eq` callbacks must be
@@ -92,39 +94,46 @@ vs_hashmap *vs_hashmap_create(size_t key_size,
 - Example:
 
 ```c
-vs_hashmap *map = vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, NULL);
+vs_hashmap *map = NULL;
+if (vs_hashmap_create(sizeof(uint64_t), sizeof(uint64_t), NULL, NULL, &map) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_hashmap_reserve
 
 ```c
-void vs_hashmap_reserve(vs_hashmap *map, size_t size);
+vs_status vs_hashmap_reserve(vs_hashmap *map, size_t size);
 ```
 
 - Parameters: `map`, `size`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
 - Notes: grows bucket storage so at least `size` entries fit without another
   rehash at the default load factor.
 - Example:
 
 ```c
-vs_hashmap_reserve(map, 1024);
+if (vs_hashmap_reserve(map, 1024) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_hashmap_put
 
 ```c
-void vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
+vs_status vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
 ```
 
 - Parameters: `map`, `key`, `value`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or `VS_STATUS_NO_MEMORY`.
 - Example:
 
 ```c
 uint64_t key = 42;
 uint64_t value = 9001;
-vs_hashmap_put(map, &key, &value);
+if (vs_hashmap_put(map, &key, &value) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_hashmap_get

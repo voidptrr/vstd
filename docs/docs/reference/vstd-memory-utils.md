@@ -66,7 +66,10 @@ typedef struct job {
 } job;
 
 int main(void) {
-    vs_linked_list *list = vs_linked_list_create(NULL);
+    vs_linked_list *list = NULL;
+if (vs_linked_list_create(NULL, &list) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
     job item = {.id = 7};
 
     vs_linked_list_push(list, &item.node);

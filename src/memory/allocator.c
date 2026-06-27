@@ -25,9 +25,12 @@
 #include <stdlib.h>
 
 #include "vstd/assert.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
-void *vs_malloc(vs_allocator *allocator, size_t size) {
+vs_status vs_malloc(vs_allocator *allocator, size_t size, void **out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_malloc invalid arguments");
+
     void *ptr = NULL;
     if (allocator == NULL || allocator->alloc == NULL) {
         ptr = malloc(size);
@@ -36,15 +39,21 @@ void *vs_malloc(vs_allocator *allocator, size_t size) {
     }
 
     if (ptr == NULL) {
-        vs_panic("fatal: vs_malloc out of memory");
+        *out = NULL;
+        return VS_STATUS_NO_MEMORY;
     }
-    return ptr;
+
+    *out = ptr;
+    return VS_STATUS_OK;
 }
 
-void *vs_realloc(vs_allocator *allocator, void *ptr, size_t size) {
+vs_status vs_realloc(vs_allocator *allocator, void *ptr, size_t size, void **out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_realloc invalid arguments");
+
     if (size == 0) {
         vs_dealloc(allocator, ptr);
-        return NULL;
+        *out = NULL;
+        return VS_STATUS_OK;
     }
 
     void *new_ptr = NULL;
@@ -55,9 +64,12 @@ void *vs_realloc(vs_allocator *allocator, void *ptr, size_t size) {
     }
 
     if (new_ptr == NULL) {
-        vs_panic("fatal: vs_realloc out of memory");
+        *out = NULL;
+        return VS_STATUS_NO_MEMORY;
     }
-    return new_ptr;
+
+    *out = new_ptr;
+    return VS_STATUS_OK;
 }
 
 void vs_dealloc(vs_allocator *allocator, void *ptr) {

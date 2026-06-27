@@ -29,6 +29,7 @@
 #include <stddef.h>
 
 #include "vstd/datastruct/linked_list.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 #define VS_HASH_COMMON_DEFAULT_CAPACITY 16
@@ -66,19 +67,24 @@ static inline size_t vs_hash_common_capacity_for_size(size_t size) {
 }
 
 /* Allocate and initialize an array of empty bucket lists. */
-vs_hash_common_bucket *vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator);
+vs_status vs_hash_common_buckets_create(
+    size_t capacity,
+    vs_allocator *allocator,
+    vs_hash_common_bucket **out
+);
 
 /*
  * Move all nodes into a newly allocated bucket array sized to new_capacity.
  * The old bucket array is destroyed, but entries are preserved and relinked
  * into the new buckets.
  */
-vs_hash_common_bucket *vs_hash_common_buckets_rehash(
+vs_status vs_hash_common_buckets_rehash(
     vs_hash_common_bucket *buckets,
     size_t capacity,
     size_t new_capacity,
     vs_allocator *allocator,
-    vs_hash_common_entry_hash_fn entry_hash
+    vs_hash_common_entry_hash_fn entry_hash,
+    vs_hash_common_bucket **out
 );
 
 /* Return the first node whose extracted value equals value, or NULL. */
