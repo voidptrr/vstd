@@ -29,28 +29,28 @@
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_heap *heap = NULL;
-    if (vs_test_equal(vs_heap_create(2048, &heap), VS_STATUS_OK)) {
+    heap *heap = NULL;
+    if (test_equal(heap_create(2048, &heap), STATUS_OK)) {
         return 1;
     }
-    size_t before = vs_heap_available(heap);
+    size_t before = heap_available(heap);
 
-    int *a = (int *)vs_heap_alloc(heap, sizeof(int));
-    int *b = (int *)vs_heap_alloc(heap, sizeof(int));
-    if (vs_test_not_null(a) != 0) {
+    int *a = (int *)heap_alloc(heap, sizeof(int));
+    int *b = (int *)heap_alloc(heap, sizeof(int));
+    if (test_not_null(a) != 0) {
         return 1;
     }
-    if (vs_test_not_null(b) != 0) {
-        return 1;
-    }
-
-    size_t after = vs_heap_available(heap);
-    if (vs_test_equal(after < before, true) != 0) {
+    if (test_not_null(b) != 0) {
         return 1;
     }
 
-    vs_heap_dealloc(heap, a);
-    vs_heap_dealloc(heap, b);
-    vs_heap_destroy(heap);
+    size_t after = heap_available(heap);
+    if (test_equal(after < before, true) != 0) {
+        return 1;
+    }
+
+    heap_dealloc(heap, a);
+    heap_dealloc(heap, b);
+    heap_destroy(heap);
     return 0;
 }

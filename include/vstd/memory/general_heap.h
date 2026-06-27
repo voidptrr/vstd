@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_GENERAL_HEAP_H
-#define VSTD_GENERAL_HEAP_H
+#ifndef GENERAL_HEAP_H
+#define GENERAL_HEAP_H
 
 #include <stddef.h>
 
@@ -51,44 +51,44 @@
  * - split large free blocks
  * - coalesce neighboring free blocks on dealloc
  */
-typedef struct vs_heap vs_heap;
+typedef struct heap heap;
 
 /*
  * Create a heap with `capacity` bytes of internal storage.
  */
-VS_NODISCARD vs_status vs_heap_create(size_t capacity, vs_heap **out);
+NODISCARD status heap_create(size_t capacity, heap **out);
 
 /*
  * Return the generic allocator view owned by this heap.
  */
-vs_allocator *vs_heap_allocator(vs_heap *heap);
+allocator *heap_allocator(heap *heap);
 
 /*
  * Allocate `size` bytes from heap.
  * Returns NULL when no suitable free block exists.
  */
-void *vs_heap_alloc(vs_heap *heap, size_t size);
+void *heap_alloc(heap *heap, size_t size);
 
 /*
- * Free a pointer previously returned by vs_heap_alloc/vs_heap_realloc.
+ * Free a pointer previously returned by heap_alloc/heap_realloc.
  */
-void vs_heap_dealloc(vs_heap *heap, void *ptr);
+void heap_dealloc(heap *heap, void *ptr);
 
 /*
  * Resize an existing heap allocation.
  * Behaves like realloc: NULL ptr allocates, size 0 frees and returns NULL.
  */
-void *vs_heap_realloc(vs_heap *heap, void *ptr, size_t size);
+void *heap_realloc(heap *heap, void *ptr, size_t size);
 
 /* Total managed bytes (including internal metadata overhead). */
-size_t vs_heap_capacity(const vs_heap *heap);
+size_t heap_capacity(const heap *heap);
 
 /* Sum of currently free payload bytes. */
-size_t vs_heap_available(const vs_heap *heap);
+size_t heap_available(const heap *heap);
 
 /*
  * Destroy and release heap resources.
  */
-void vs_heap_destroy(vs_heap *heap);
+void heap_destroy(heap *heap);
 
 #endif

@@ -22,19 +22,19 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_HASHSET_H
-#define VSTD_HASHSET_H
+#ifndef HASHSET_H
+#define HASHSET_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/datastruct/iterator.h"
+#include "vstd/ds/iterator.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
-#define vs_hashset_for_each(type, item, set) \
-    for (vs_iterator item##_vs_iter__ = vs_hashset_get_iterator((set)); \
-         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
+#define hashset_for_each(type, item, set) \
+    for (iterator item##_iter__ = hashset_get_iterator((set)); \
+         ((item) = ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
 
 /*
  * Opaque hash set with unique elements.
@@ -58,10 +58,10 @@
  */
 
 /* Element equality callback used to resolve collisions and lookups. */
-typedef bool (*vs_hashset_elem_eq_fn)(const void *lhs, const void *rhs);
+typedef bool (*hashset_elem_eq_fn)(const void *lhs, const void *rhs);
 
-typedef struct vs_hashset vs_hashset;
-typedef struct vs_linked_list_node vs_linked_list_node;
+typedef struct hashset hashset;
+typedef struct linked_list_node linked_list_node;
 
 /*
  * Create a hash set with fixed element size.
@@ -69,51 +69,47 @@ typedef struct vs_linked_list_node vs_linked_list_node;
  * When elem_eq is NULL, element equality compares stored element bytes.
  * Initial capacity is implementation-defined.
  */
-VS_NODISCARD vs_status vs_hashset_create(
-    size_t elem_size,
-    vs_hashset_elem_eq_fn elem_eq,
-    vs_allocator *allocator,
-    vs_hashset **out
-);
+NODISCARD status
+hashset_create(size_t elem_size, hashset_elem_eq_fn elem_eq, allocator *allocator, hashset **out);
 
 /* Ensure set can hold at least size elements without growing. */
-VS_NODISCARD vs_status vs_hashset_reserve(vs_hashset *set, size_t size);
+NODISCARD status hashset_reserve(hashset *set, size_t size);
 
 /*
  * Insert element when it is not already present.
  * Existing elements are left unchanged.
  */
-VS_NODISCARD vs_status vs_hashset_insert(vs_hashset *set, const void *elem);
+NODISCARD status hashset_insert(hashset *set, const void *elem);
 
 /*
  * Return true when element exists in set.
  */
-bool vs_hashset_contains(const vs_hashset *set, const void *elem);
+bool hashset_contains(const hashset *set, const void *elem);
 
 /*
  * Lookup element and return stored element pointer, or NULL when missing.
  */
-void *vs_hashset_get(vs_hashset *set, const void *elem);
+void *hashset_get(hashset *set, const void *elem);
 
 /*
  * Lookup element and return const stored element pointer, or NULL when missing.
  */
-const void *vs_hashset_get_const(const vs_hashset *set, const void *elem);
+const void *hashset_get_const(const hashset *set, const void *elem);
 
 /*
  * Remove element from set.
  */
-void vs_hashset_remove(vs_hashset *set, const void *elem);
+void hashset_remove(hashset *set, const void *elem);
 
 /* Return the number of stored elements. */
-size_t vs_hashset_size(const vs_hashset *set);
+size_t hashset_size(const hashset *set);
 
 /* Return an iterator over stored elements in bucket order. */
-vs_iterator vs_hashset_get_iterator(const vs_hashset *set);
+iterator hashset_get_iterator(const hashset *set);
 
 /*
  * Release all entries and the hashset handle.
  */
-void vs_hashset_destroy(vs_hashset *set);
+void hashset_destroy(hashset *set);
 
 #endif

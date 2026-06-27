@@ -25,22 +25,22 @@
 #include "vstd/logging.h"
 
 int main(void) {
-    vs_log_set_timestamp(VS_LOG_TIMESTAMP_TIME);
-    vs_log_set_prefixes("test", "test-error");
-    vs_log_set_color(false);
+    log_set_timestamp(LOG_TIMESTAMP_TIME);
+    log_set_prefixes("test", "test-error");
+    log_set_color(false);
 
-    vs_log_debug("debug %d", 1);
-    vs_log_info("info %d", 2);
-    vs_log_warn("warn %d", 3);
-    vs_log_error("error %d", 4);
+    log_debug("debug %d", 1);
+    log_info("info %d", 2);
+    log_warn("warn %d", 3);
+    log_error("error %d", 4);
 
-    vs_log_set_level(VS_LOG_LEVEL_ERROR);
-    vs_log_set_timestamp(VS_LOG_TIMESTAMP_UNIX);
-    vs_log_info("filtered");
-    vs_log_error("visible");
+    log_set_level(LOG_LEVEL_ERROR);
+    log_set_timestamp(LOG_TIMESTAMP_UNIX);
+    log_info("filtered");
+    log_error("visible");
 
-    vs_log_set_timestamp(VS_LOG_TIMESTAMP_DATETIME);
-    vs_log_error("configured logger");
+    log_set_timestamp(LOG_TIMESTAMP_DATETIME);
+    log_error("configured logger");
 
     return 0;
 }

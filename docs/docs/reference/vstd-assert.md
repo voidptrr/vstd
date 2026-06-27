@@ -6,23 +6,23 @@ The assert module provides fail-fast runtime assertions.
 
 ## RUNTIME ASSERTIONS
 
-### VSTD_ASSERT
+### ASSERT
 
 ```c
 #include <vstd/assert.h>
 
-#define VSTD_ASSERT(cond, message)
+#define ASSERT(cond, message)
 ```
 
 - Parameters: `cond`, `message`
-- Behavior: calls `vs_panic(message)` when `cond` is false.
+- Behavior: calls `panic(message)` when `cond` is false.
 
-### vs_panic
+### panic
 
 ```c
 #include <vstd/assert.h>
 
-_Noreturn void vs_panic(const char *message);
+_Noreturn void panic(const char *message);
 ```
 
 - Parameters: `message`

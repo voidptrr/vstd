@@ -31,65 +31,65 @@
 #include "vstd/memory/arena.h"
 #include "vstd/memory/utils.h"
 
-typedef struct vs_arena_alloc_header {
+typedef struct arena_alloc_header {
     size_t size;
-} vs_arena_alloc_header;
+} arena_alloc_header;
 
-struct vs_arena {
-    vs_allocator allocator;
+struct arena {
+    allocator allocator;
     void *buffer;
     size_t capacity;
     size_t offset;
 };
 
-void *vs_arena_alloc(vs_arena *arena, size_t size) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_alloc invalid arguments");
-    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_alloc invalid arena");
-    VSTD_ASSERT(size > 0, "fatal: vs_arena_alloc invalid arguments");
+void *arena_alloc(arena *arena, size_t size) {
+    ASSERT(arena != NULL, "fatal: arena_alloc invalid arguments");
+    ASSERT(arena->buffer != NULL, "fatal: arena_alloc invalid arena");
+    ASSERT(size > 0, "fatal: arena_alloc invalid arguments");
 
-    if (vs_align_up_overflow(size, VS_MEMORY_ALIGN, &size)) {
+    if (align_up_overflow(size, MEMORY_ALIGN, &size)) {
         return NULL;
     }
 
-    size_t header_size = vs_align_up(sizeof(vs_arena_alloc_header), VS_MEMORY_ALIGN);
+    size_t header_size = align_up(sizeof(arena_alloc_header), MEMORY_ALIGN);
     if (size > arena->capacity || header_size > arena->capacity - size
         || arena->offset > arena->capacity - header_size - size) {
         return NULL;
     }
 
     uint8_t *ptr = (uint8_t *)arena->buffer + arena->offset;
-    vs_arena_alloc_header *header = (vs_arena_alloc_header *)ptr;
+    arena_alloc_header *header = (arena_alloc_header *)ptr;
     header->size = size;
 
     arena->offset += header_size + size;
     return ptr + header_size;
 }
 
-void *vs_arena_realloc(vs_arena *arena, void *ptr, size_t size) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_realloc invalid arguments");
-    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_realloc invalid arena");
+void *arena_realloc(arena *arena, void *ptr, size_t size) {
+    ASSERT(arena != NULL, "fatal: arena_realloc invalid arguments");
+    ASSERT(arena->buffer != NULL, "fatal: arena_realloc invalid arena");
 
     if (ptr == NULL) {
-        return vs_arena_alloc(arena, size);
+        return arena_alloc(arena, size);
     }
 
     if (size == 0) {
         return NULL;
     }
 
-    size_t header_size = vs_align_up(sizeof(vs_arena_alloc_header), VS_MEMORY_ALIGN);
-    vs_arena_alloc_header *header = (vs_arena_alloc_header *)((uint8_t *)ptr - header_size);
-    if (vs_align_up_overflow(size, VS_MEMORY_ALIGN, &size)) {
+    size_t header_size = align_up(sizeof(arena_alloc_header), MEMORY_ALIGN);
+    arena_alloc_header *header = (arena_alloc_header *)((uint8_t *)ptr - header_size);
+    if (align_up_overflow(size, MEMORY_ALIGN, &size)) {
         return NULL;
     }
 
-    VSTD_ASSERT(size >= header->size, "fatal: vs_arena_realloc cannot shrink allocation");
+    ASSERT(size >= header->size, "fatal: arena_realloc cannot shrink allocation");
 
     if (size == header->size) {
         return ptr;
     }
 
-    void *new_ptr = vs_arena_alloc(arena, size);
+    void *new_ptr = arena_alloc(arena, size);
     if (new_ptr == NULL) {
         return NULL;
     }
@@ -98,88 +98,88 @@ void *vs_arena_realloc(vs_arena *arena, void *ptr, size_t size) {
     return new_ptr;
 }
 
-static void *vs_arena_alloc_callback(void *ctx, size_t size) {
-    return vs_arena_alloc(ctx, size);
+static void *arena_alloc_callback(void *ctx, size_t size) {
+    return arena_alloc(ctx, size);
 }
 
-static void *vs_arena_realloc_callback(void *ctx, void *ptr, size_t size) {
-    return vs_arena_realloc(ctx, ptr, size);
+static void *arena_realloc_callback(void *ctx, void *ptr, size_t size) {
+    return arena_realloc(ctx, ptr, size);
 }
 
-vs_status vs_arena_create(size_t capacity, vs_arena **out) {
-    if (vs_align_up_overflow(capacity, VS_MEMORY_ALIGN, &capacity)) {
-        return VS_STATUS_OVERFLOW;
+status arena_create(size_t capacity, arena **out) {
+    if (align_up_overflow(capacity, MEMORY_ALIGN, &capacity)) {
+        return STATUS_OVERFLOW;
     }
 
-    VSTD_ASSERT(capacity > 0, "fatal: vs_arena_create invalid capacity");
-    VSTD_ASSERT(out != NULL, "fatal: vs_arena_create invalid arguments");
+    ASSERT(capacity > 0, "fatal: arena_create invalid capacity");
+    ASSERT(out != NULL, "fatal: arena_create invalid arguments");
 
     *out = NULL;
 
-    vs_arena *arena = NULL;
-    vs_status status = vs_alloc(NULL, sizeof(vs_arena), (void **)&arena);
-    if (status != VS_STATUS_OK) {
-        return status;
+    arena *arena = NULL;
+    status st = alloc(NULL, sizeof(*arena), (void **)&arena);
+    if (st != STATUS_OK) {
+        return st;
     }
 
-    status = vs_alloc(NULL, capacity, &arena->buffer);
-    if (status != VS_STATUS_OK) {
-        vs_dealloc(NULL, arena);
-        return status;
+    st = alloc(NULL, capacity, &arena->buffer);
+    if (st != STATUS_OK) {
+        dealloc(NULL, arena);
+        return st;
     }
 
     arena->capacity = capacity;
     arena->offset = 0;
-    arena->allocator = (vs_allocator){
+    arena->allocator = (allocator){
         .ctx = arena,
-        .features = VS_ALLOCATOR_FEATURE_REALLOC | VS_ALLOCATOR_FEATURE_RESET,
-        .alloc = vs_arena_alloc_callback,
-        .realloc = vs_arena_realloc_callback,
+        .features = ALLOCATOR_FEATURE_REALLOC | ALLOCATOR_FEATURE_RESET,
+        .alloc = arena_alloc_callback,
+        .realloc = arena_realloc_callback,
         .dealloc = NULL,
     };
 
     *out = arena;
-    return VS_STATUS_OK;
+    return STATUS_OK;
 }
 
-vs_allocator *vs_arena_allocator(vs_arena *arena) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_allocator invalid arguments");
-    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_allocator invalid arena");
+allocator *arena_allocator(arena *arena) {
+    ASSERT(arena != NULL, "fatal: arena_allocator invalid arguments");
+    ASSERT(arena->buffer != NULL, "fatal: arena_allocator invalid arena");
 
     return &arena->allocator;
 }
 
-void vs_arena_reset(vs_arena *arena) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_reset invalid arguments");
-    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_reset invalid arena");
+void arena_reset(arena *arena) {
+    ASSERT(arena != NULL, "fatal: arena_reset invalid arguments");
+    ASSERT(arena->buffer != NULL, "fatal: arena_reset invalid arena");
 
     arena->offset = 0;
 }
 
-size_t vs_arena_capacity(const vs_arena *arena) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_capacity invalid arguments");
-    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_capacity invalid arena");
+size_t arena_capacity(const arena *arena) {
+    ASSERT(arena != NULL, "fatal: arena_capacity invalid arguments");
+    ASSERT(arena->buffer != NULL, "fatal: arena_capacity invalid arena");
 
     return arena->capacity;
 }
 
-size_t vs_arena_used(const vs_arena *arena) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_used invalid arguments");
-    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_used invalid arena");
+size_t arena_used(const arena *arena) {
+    ASSERT(arena != NULL, "fatal: arena_used invalid arguments");
+    ASSERT(arena->buffer != NULL, "fatal: arena_used invalid arena");
 
     return arena->offset;
 }
 
-size_t vs_arena_available(const vs_arena *arena) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_available invalid arguments");
-    VSTD_ASSERT(arena->buffer != NULL, "fatal: vs_arena_available invalid arena");
+size_t arena_available(const arena *arena) {
+    ASSERT(arena != NULL, "fatal: arena_available invalid arguments");
+    ASSERT(arena->buffer != NULL, "fatal: arena_available invalid arena");
 
     return arena->capacity - arena->offset;
 }
 
-void vs_arena_destroy(vs_arena *arena) {
-    VSTD_ASSERT(arena != NULL, "fatal: vs_arena_destroy invalid arguments");
+void arena_destroy(arena *arena) {
+    ASSERT(arena != NULL, "fatal: arena_destroy invalid arguments");
 
-    vs_dealloc(NULL, arena->buffer);
-    vs_dealloc(NULL, arena);
+    dealloc(NULL, arena->buffer);
+    dealloc(NULL, arena);
 }

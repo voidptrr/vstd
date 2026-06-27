@@ -22,27 +22,27 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_HASHMAP_H
-#define VSTD_HASHMAP_H
+#ifndef HASHMAP_H
+#define HASHMAP_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/datastruct/iterator.h"
+#include "vstd/ds/iterator.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
-#define vs_hashmap_for_each_entry(item, map) \
-    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_ENTRY); \
-         ((item) = VS_ITER_NEXT_AS(vs_hashmap_entry_view, &item##_vs_iter__)) != NULL;)
+#define hashmap_for_each_entry(item, map) \
+    for (iterator item##_iter__ = hashmap_get_iterator((map), HASHMAP_ITERATOR_ENTRY); \
+         ((item) = ITER_NEXT_AS(hashmap_entry_view, &item##_iter__)) != NULL;)
 
-#define vs_hashmap_for_each_key(type, item, map) \
-    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_KEY); \
-         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
+#define hashmap_for_each_key(type, item, map) \
+    for (iterator item##_iter__ = hashmap_get_iterator((map), HASHMAP_ITERATOR_KEY); \
+         ((item) = ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
 
-#define vs_hashmap_for_each_value(type, item, map) \
-    for (vs_iterator item##_vs_iter__ = vs_hashmap_get_iterator((map), VS_HASHMAP_ITERATOR_VALUE); \
-         ((item) = VS_ITER_NEXT_AS(type, &item##_vs_iter__)) != NULL;)
+#define hashmap_for_each_value(type, item, map) \
+    for (iterator item##_iter__ = hashmap_get_iterator((map), HASHMAP_ITERATOR_VALUE); \
+         ((item) = ITER_NEXT_AS(type, &item##_iter__)) != NULL;)
 
 /*
  * Opaque hash map with separate chaining.
@@ -66,21 +66,21 @@
  */
 
 /* Key equality callback used to resolve collisions and lookups. */
-typedef bool (*vs_hashmap_key_eq_fn)(const void *lhs, const void *rhs);
+typedef bool (*hashmap_key_eq_fn)(const void *lhs, const void *rhs);
 
-typedef struct vs_hashmap vs_hashmap;
-typedef struct vs_linked_list_node vs_linked_list_node;
+typedef struct hashmap hashmap;
+typedef struct linked_list_node linked_list_node;
 
-typedef struct vs_hashmap_entry_view {
+typedef struct hashmap_entry_view {
     const void *key;
     const void *value;
-} vs_hashmap_entry_view;
+} hashmap_entry_view;
 
-typedef enum vs_hashmap_iterator_type {
-    VS_HASHMAP_ITERATOR_ENTRY,
-    VS_HASHMAP_ITERATOR_KEY,
-    VS_HASHMAP_ITERATOR_VALUE,
-} vs_hashmap_iterator_type;
+typedef enum hashmap_iterator_type {
+    HASHMAP_ITERATOR_ENTRY,
+    HASHMAP_ITERATOR_KEY,
+    HASHMAP_ITERATOR_VALUE,
+} hashmap_iterator_type;
 
 /*
  * Create a hash map with fixed key/value sizes.
@@ -88,47 +88,47 @@ typedef enum vs_hashmap_iterator_type {
  * key_eq is NULL, key equality compares stored key bytes.
  * Initial capacity is implementation-defined.
  */
-VS_NODISCARD vs_status vs_hashmap_create(
+NODISCARD status hashmap_create(
     size_t key_size,
     size_t value_size,
-    vs_hashmap_key_eq_fn key_eq,
-    vs_allocator *allocator,
-    vs_hashmap **out
+    hashmap_key_eq_fn key_eq,
+    allocator *allocator,
+    hashmap **out
 );
 
 /* Ensure map can hold at least size entries without growing. */
-VS_NODISCARD vs_status vs_hashmap_reserve(vs_hashmap *map, size_t size);
+NODISCARD status hashmap_reserve(hashmap *map, size_t size);
 
 /*
  * Insert or update an entry.
  * If key exists, overwrite value in place.
  */
-VS_NODISCARD vs_status vs_hashmap_put(vs_hashmap *map, const void *key, const void *value);
+NODISCARD status hashmap_put(hashmap *map, const void *key, const void *value);
 
 /*
  * Lookup key and return stored value pointer, or NULL when missing.
  */
-void *vs_hashmap_get(vs_hashmap *map, const void *key);
+void *hashmap_get(hashmap *map, const void *key);
 
 /*
  * Lookup key and return const stored value pointer, or NULL when missing.
  */
-const void *vs_hashmap_get_const(const vs_hashmap *map, const void *key);
+const void *hashmap_get_const(const hashmap *map, const void *key);
 
 /*
  * Remove key from map.
  */
-void vs_hashmap_remove(vs_hashmap *map, const void *key);
+void hashmap_remove(hashmap *map, const void *key);
 
 /* Return the number of stored entries. */
-size_t vs_hashmap_size(const vs_hashmap *map);
+size_t hashmap_size(const hashmap *map);
 
 /* Return an iterator over entries, keys, or values in bucket order. */
-vs_iterator vs_hashmap_get_iterator(const vs_hashmap *map, vs_hashmap_iterator_type type);
+iterator hashmap_get_iterator(const hashmap *map, hashmap_iterator_type type);
 
 /*
  * Release all entries, bucket storage, and the hashmap handle.
  */
-void vs_hashmap_destroy(vs_hashmap *map);
+void hashmap_destroy(hashmap *map);
 
 #endif

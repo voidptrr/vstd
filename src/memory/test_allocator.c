@@ -27,8 +27,8 @@
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/test_allocator.h"
 
-static bool vs_test_allocator_should_fail(vs_test_allocator *test_allocator) {
-    if (test_allocator->fail_after == VS_TEST_ALLOCATOR_NO_FAILURE) {
+static bool test_allocator_should_fail(test_allocator *test_allocator) {
+    if (test_allocator->fail_after == TEST_ALLOCATOR_NO_FAILURE) {
         return false;
     }
 
@@ -41,10 +41,10 @@ static bool vs_test_allocator_should_fail(vs_test_allocator *test_allocator) {
     return false;
 }
 
-static void *vs_test_allocator_alloc(void *ctx, size_t size) {
-    vs_test_allocator *test_allocator = ctx;
+static void *test_allocator_alloc(void *ctx, size_t size) {
+    test_allocator *test_allocator = ctx;
 
-    if (vs_test_allocator_should_fail(test_allocator)) {
+    if (test_allocator_should_fail(test_allocator)) {
         return NULL;
     }
 
@@ -59,8 +59,8 @@ static void *vs_test_allocator_alloc(void *ctx, size_t size) {
     return ptr;
 }
 
-static void vs_test_allocator_dealloc(void *ctx, void *ptr) {
-    vs_test_allocator *test_allocator = ctx;
+static void test_allocator_dealloc(void *ctx, void *ptr) {
+    test_allocator *test_allocator = ctx;
 
     if (ptr == NULL) {
         return;
@@ -73,19 +73,19 @@ static void vs_test_allocator_dealloc(void *ctx, void *ptr) {
     free(ptr);
 }
 
-static void *vs_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
-    vs_test_allocator *test_allocator = ctx;
+static void *test_allocator_realloc(void *ctx, void *ptr, size_t size) {
+    test_allocator *test_allocator = ctx;
 
     if (ptr == NULL) {
-        return vs_test_allocator_alloc(ctx, size);
+        return test_allocator_alloc(ctx, size);
     }
 
     if (size == 0) {
-        vs_test_allocator_dealloc(ctx, ptr);
+        test_allocator_dealloc(ctx, ptr);
         return NULL;
     }
 
-    if (vs_test_allocator_should_fail(test_allocator)) {
+    if (test_allocator_should_fail(test_allocator)) {
         return NULL;
     }
 
@@ -99,30 +99,30 @@ static void *vs_test_allocator_realloc(void *ctx, void *ptr, size_t size) {
     return new_ptr;
 }
 
-vs_allocator *vs_test_allocator_init(vs_test_allocator *test_allocator) {
+allocator *test_allocator_init(test_allocator *test_allocator) {
     test_allocator->alloc_count = 0;
     test_allocator->realloc_count = 0;
     test_allocator->dealloc_count = 0;
     test_allocator->outstanding_allocations = 0;
     test_allocator->failed_allocations = 0;
-    test_allocator->fail_after = VS_TEST_ALLOCATOR_NO_FAILURE;
-    test_allocator->allocator = (vs_allocator){
+    test_allocator->fail_after = TEST_ALLOCATOR_NO_FAILURE;
+    test_allocator->allocator = (allocator){
         .ctx = test_allocator,
-        .features = VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC,
-        .alloc = vs_test_allocator_alloc,
-        .realloc = vs_test_allocator_realloc,
-        .dealloc = vs_test_allocator_dealloc,
+        .features = ALLOCATOR_FEATURE_DEALLOC | ALLOCATOR_FEATURE_REALLOC,
+        .alloc = test_allocator_alloc,
+        .realloc = test_allocator_realloc,
+        .dealloc = test_allocator_dealloc,
     };
     return &test_allocator->allocator;
 }
 
-void vs_test_allocator_reset_counts(vs_test_allocator *test_allocator) {
+void test_allocator_reset_counts(test_allocator *test_allocator) {
     test_allocator->alloc_count = 0;
     test_allocator->realloc_count = 0;
     test_allocator->dealloc_count = 0;
     test_allocator->failed_allocations = 0;
 }
 
-bool vs_test_allocator_is_clean(const vs_test_allocator *test_allocator) {
+bool test_allocator_is_clean(const test_allocator *test_allocator) {
     return test_allocator->outstanding_allocations == 0;
 }

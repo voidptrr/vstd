@@ -12,97 +12,97 @@ allocator lives in `vstd/memory/test_allocator.h`.
 
 All assertion helpers return `0` on success and `1` on failure.
 
-### vs_test_equal
+### test_equal
 
 ```c
-int vs_test_equal(intmax_t actual, intmax_t expected);
+int test_equal(intmax_t actual, intmax_t expected);
 ```
 
 Compares two scalar integer values. Boolean checks can use `true` or `false`
 as the expected value.
 
-### vs_test_not_equal
+### test_not_equal
 
 ```c
-int vs_test_not_equal(intmax_t actual, intmax_t expected);
+int test_not_equal(intmax_t actual, intmax_t expected);
 ```
 
 Verifies that two scalar integer values differ.
 
-### vs_test_equal_ptr
+### test_equal_ptr
 
 ```c
-int vs_test_equal_ptr(const void *actual, const void *expected);
+int test_equal_ptr(const void *actual, const void *expected);
 ```
 
 Compares two pointers.
 
-### vs_test_not_equal_ptr
+### test_not_equal_ptr
 
 ```c
-int vs_test_not_equal_ptr(const void *actual, const void *expected);
+int test_not_equal_ptr(const void *actual, const void *expected);
 ```
 
 Verifies that two pointers differ.
 
-### vs_test_null
+### test_null
 
 ```c
-int vs_test_null(const void *ptr);
+int test_null(const void *ptr);
 ```
 
 Verifies that `ptr` is `NULL`.
 
-### vs_test_not_null
+### test_not_null
 
 ```c
-int vs_test_not_null(const void *ptr);
+int test_not_null(const void *ptr);
 ```
 
 Verifies that `ptr` is not `NULL`.
 
-### vs_test_equal_str
+### test_equal_str
 
 ```c
-int vs_test_equal_str(const char *actual, const char *expected);
+int test_equal_str(const char *actual, const char *expected);
 ```
 
 Compares two C strings. Two `NULL` strings compare equal.
 
 ## TEST CASES
 
-### VS_TEST
+### TEST
 
 ```c
 #include <vstd/testing.h>
 
-#define VS_TEST(name)
+#define TEST(name)
 ```
 
 - Parameters: `name`
 - Behavior: defines a named test-case function that returns `0` on success and
   non-zero on failure.
 
-### VS_TEST_CASE
+### TEST_CASE
 
 ```c
 #include <vstd/testing.h>
 
-#define VS_TEST_CASE(name)
+#define TEST_CASE(name)
 ```
 
 - Parameters: `name`
-- Behavior: creates an entry for a `VS_TEST(name)` function.
+- Behavior: creates an entry for a `TEST(name)` function.
 
-### VS_TEST_MAIN
+### TEST_MAIN
 
 ```c
 #include <vstd/testing.h>
 
-#define VS_TEST_MAIN(...)
+#define TEST_MAIN(...)
 ```
 
-- Parameters: one or more `VS_TEST_CASE(name)` entries.
+- Parameters: one or more `TEST_CASE(name)` entries.
 - Behavior: defines `main`, runs every listed case, prints the failed case name,
   and returns `1` if any case fails.
 
@@ -111,13 +111,13 @@ Compares two C strings. Two `NULL` strings compare equal.
 ```c
 #include <vstd/testing.h>
 
-VS_TEST(value_matches_expected) {
+TEST(value_matches_expected) {
     int value = 7;
-    if (vs_test_equal(value, 7) != 0) {
+    if (test_equal(value, 7) != 0) {
         return 1;
     }
     return 0;
 }
 
-VS_TEST_MAIN(VS_TEST_CASE(value_matches_expected))
+TEST_MAIN(TEST_CASE(value_matches_expected))
 ```

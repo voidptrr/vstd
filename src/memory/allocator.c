@@ -28,8 +28,8 @@
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
-vs_status vs_alloc(vs_allocator *allocator, size_t size, void **out) {
-    VSTD_ASSERT(out != NULL, "fatal: vs_alloc invalid arguments");
+status alloc(allocator *allocator, size_t size, void **out) {
+    ASSERT(out != NULL, "fatal: alloc invalid arguments");
 
     void *ptr = NULL;
     if (allocator == NULL || allocator->alloc == NULL) {
@@ -40,20 +40,20 @@ vs_status vs_alloc(vs_allocator *allocator, size_t size, void **out) {
 
     if (ptr == NULL) {
         *out = NULL;
-        return VS_STATUS_NO_MEMORY;
+        return STATUS_NO_MEMORY;
     }
 
     *out = ptr;
-    return VS_STATUS_OK;
+    return STATUS_OK;
 }
 
-vs_status vs_resize(vs_allocator *allocator, void *ptr, size_t size, void **out) {
-    VSTD_ASSERT(out != NULL, "fatal: vs_resize invalid arguments");
+status resize(allocator *allocator, void *ptr, size_t size, void **out) {
+    ASSERT(out != NULL, "fatal: resize invalid arguments");
 
     if (size == 0) {
-        vs_dealloc(allocator, ptr);
+        dealloc(allocator, ptr);
         *out = NULL;
-        return VS_STATUS_OK;
+        return STATUS_OK;
     }
 
     void *new_ptr = NULL;
@@ -65,23 +65,23 @@ vs_status vs_resize(vs_allocator *allocator, void *ptr, size_t size, void **out)
 
     if (new_ptr == NULL) {
         *out = NULL;
-        return VS_STATUS_NO_MEMORY;
+        return STATUS_NO_MEMORY;
     }
 
     *out = new_ptr;
-    return VS_STATUS_OK;
+    return STATUS_OK;
 }
 
-void vs_dealloc(vs_allocator *allocator, void *ptr) {
+void dealloc(allocator *allocator, void *ptr) {
     if (allocator == NULL) {
         free(ptr);
         return;
     }
 
-    if ((allocator->features & VS_ALLOCATOR_FEATURE_DEALLOC) == 0) {
+    if ((allocator->features & ALLOCATOR_FEATURE_DEALLOC) == 0) {
         return;
     }
 
-    VSTD_ASSERT(allocator->dealloc != NULL, "fatal: vs_dealloc invalid arguments");
+    ASSERT(allocator->dealloc != NULL, "fatal: dealloc invalid arguments");
     allocator->dealloc(allocator->ctx, ptr);
 }

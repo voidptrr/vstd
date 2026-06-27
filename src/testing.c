@@ -28,7 +28,7 @@
 
 #include "vstd/testing.h"
 
-int vs_test_equal_intmax(intmax_t actual, intmax_t expected) {
+int test_equal_intmax(intmax_t actual, intmax_t expected) {
     if (actual == expected) {
         return 0;
     }
@@ -37,7 +37,7 @@ int vs_test_equal_intmax(intmax_t actual, intmax_t expected) {
     return 1;
 }
 
-int vs_test_not_equal_intmax(intmax_t actual, intmax_t expected) {
+int test_not_equal_intmax(intmax_t actual, intmax_t expected) {
     if (actual != expected) {
         return 0;
     }
@@ -46,7 +46,7 @@ int vs_test_not_equal_intmax(intmax_t actual, intmax_t expected) {
     return 1;
 }
 
-int vs_test_equal_ptr(const void *actual, const void *expected) {
+int test_equal_ptr(const void *actual, const void *expected) {
     if (actual == expected) {
         return 0;
     }
@@ -55,7 +55,7 @@ int vs_test_equal_ptr(const void *actual, const void *expected) {
     return 1;
 }
 
-int vs_test_not_equal_ptr(const void *actual, const void *expected) {
+int test_not_equal_ptr(const void *actual, const void *expected) {
     if (actual != expected) {
         return 0;
     }
@@ -64,7 +64,7 @@ int vs_test_not_equal_ptr(const void *actual, const void *expected) {
     return 1;
 }
 
-int vs_test_null(const void *ptr) {
+int test_null(const void *ptr) {
     if (ptr == NULL) {
         return 0;
     }
@@ -73,7 +73,7 @@ int vs_test_null(const void *ptr) {
     return 1;
 }
 
-int vs_test_not_null(const void *ptr) {
+int test_not_null(const void *ptr) {
     if (ptr != NULL) {
         return 0;
     }
@@ -82,7 +82,7 @@ int vs_test_not_null(const void *ptr) {
     return 1;
 }
 
-int vs_test_equal_str(const char *actual, const char *expected) {
+int test_equal_str(const char *actual, const char *expected) {
     if ((actual == NULL || expected == NULL) ? actual == expected : strcmp(actual, expected) == 0) {
         return 0;
     }
@@ -96,7 +96,7 @@ int vs_test_equal_str(const char *actual, const char *expected) {
     return 1;
 }
 
-bool vs_test_str_eq(const char *actual, const char *expected) {
+bool test_str_eq(const char *actual, const char *expected) {
     if (actual == NULL || expected == NULL) {
         return actual == expected;
     }
@@ -104,7 +104,7 @@ bool vs_test_str_eq(const char *actual, const char *expected) {
     return strcmp(actual, expected) == 0;
 }
 
-int vs_test_run(const vs_test_case *cases, size_t count) {
+int test_run(const test_case *cases, size_t count) {
     int failed = 0;
 
     for (size_t i = 0; i < count; i++) {

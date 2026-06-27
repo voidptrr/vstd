@@ -1,4 +1,4 @@
-# datastruct.binary_heap
+# ds.binary_heap
 
 ## DESCRIPTION
 
@@ -10,31 +10,31 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_binary_heap_iterator
+### binary_heap_iterator
 
 ```c
-typedef struct vs_binary_heap_iterator vs_binary_heap_iterator;
+typedef struct binary_heap_iterator binary_heap_iterator;
 ```
 
 Typed cursor for walking heap backing storage.
 
 ## FUNCTIONS
 
-### vs_binary_heap_create
+### binary_heap_create
 
 ```c
-vs_status vs_binary_heap_create(size_t elem_size,
-                                vs_binary_heap_cmp_fn cmp,
-                                vs_allocator *allocator,
-                                vs_binary_heap **out);
+status binary_heap_create(size_t elem_size,
+                                binary_heap_cmp_fn cmp,
+                                allocator *allocator,
+                                binary_heap **out);
 ```
 
 - Parameters: `elem_size`, `cmp`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: opaque binary-heap handle to `*out` on success.
 - Notes: the binary heap stores `allocator` and reuses it for growth and
   destroy. When `allocator` is `NULL`, binary heap storage uses the C library
-  heap through `vs_alloc`/`vs_resize`. When `cmp` is `NULL`, element ordering
+  heap through `alloc`/`resize`. When `cmp` is `NULL`, element ordering
   uses byte comparison.
 - Example:
 
@@ -45,33 +45,33 @@ static int cmp_int(const void *lhs, const void *rhs) {
     return (a > b) - (a < b);
 }
 
-vs_binary_heap *heap = NULL;
-if (vs_binary_heap_create(sizeof(int), cmp_int, NULL, &heap) != VS_STATUS_OK) {
+binary_heap *heap = NULL;
+if (binary_heap_create(sizeof(int), cmp_int, NULL, &heap) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_binary_heap_push
+### binary_heap_push
 
 ```c
-vs_status vs_binary_heap_push(vs_binary_heap *heap, const void *element);
+status binary_heap_push(binary_heap *heap, const void *element);
 ```
 
 - Parameters: `heap`, `element`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Example:
 
 ```c
 int value = 42;
-if (vs_binary_heap_push(heap, &value) != VS_STATUS_OK) {
+if (binary_heap_push(heap, &value) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_binary_heap_pop
+### binary_heap_pop
 
 ```c
-void *vs_binary_heap_pop(vs_binary_heap *heap);
+void *binary_heap_pop(binary_heap *heap);
 ```
 
 - Parameters: `heap`
@@ -79,16 +79,16 @@ void *vs_binary_heap_pop(vs_binary_heap *heap);
 - Example:
 
 ```c
-int *top = (int *)vs_binary_heap_pop(heap);
+int *top = (int *)binary_heap_pop(heap);
 if (top != NULL) {
     /* use *top */
 }
 ```
 
-### vs_binary_heap_peek
+### binary_heap_peek
 
 ```c
-const void *vs_binary_heap_peek(const vs_binary_heap *heap);
+const void *binary_heap_peek(const binary_heap *heap);
 ```
 
 - Parameters: `heap`
@@ -96,13 +96,13 @@ const void *vs_binary_heap_peek(const vs_binary_heap *heap);
 - Example:
 
 ```c
-const int *top = (const int *)vs_binary_heap_peek(heap);
+const int *top = (const int *)binary_heap_peek(heap);
 ```
 
-### vs_binary_heap_size
+### binary_heap_size
 
 ```c
-size_t vs_binary_heap_size(const vs_binary_heap *heap);
+size_t binary_heap_size(const binary_heap *heap);
 ```
 
 - Parameters: `heap`
@@ -110,13 +110,13 @@ size_t vs_binary_heap_size(const vs_binary_heap *heap);
 - Example:
 
 ```c
-size_t count = vs_binary_heap_size(heap);
+size_t count = binary_heap_size(heap);
 ```
 
-### vs_binary_heap_get_iterator
+### binary_heap_get_iterator
 
 ```c
-vs_iterator vs_binary_heap_get_iterator(const vs_binary_heap *heap);
+iterator binary_heap_get_iterator(const binary_heap *heap);
 ```
 
 - Parameters: `heap`
@@ -126,18 +126,18 @@ vs_iterator vs_binary_heap_get_iterator(const vs_binary_heap *heap);
 - Example:
 
 ```c
-vs_iterator iter = vs_binary_heap_get_iterator(heap);
+iterator iter = binary_heap_get_iterator(heap);
 
 const int *item;
-while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {
+while ((item = (const int *)iterator_next(&iter)) != NULL) {
     /* backing-storage order, not sorted order */
 }
 ```
 
-### vs_binary_heap_destroy
+### binary_heap_destroy
 
 ```c
-void vs_binary_heap_destroy(vs_binary_heap *heap);
+void binary_heap_destroy(binary_heap *heap);
 ```
 
 - Parameters: `heap`
@@ -146,5 +146,5 @@ void vs_binary_heap_destroy(vs_binary_heap *heap);
 - Example:
 
 ```c
-vs_binary_heap_destroy(heap);
+binary_heap_destroy(heap);
 ```

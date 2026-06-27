@@ -1,4 +1,4 @@
-# datastruct.deque
+# ds.deque
 
 ## DESCRIPTION
 
@@ -9,75 +9,75 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### vs_deque_iterator
+### deque_iterator
 
 ```c
-typedef struct vs_deque_iterator vs_deque_iterator;
+typedef struct deque_iterator deque_iterator;
 ```
 
 Typed cursor for walking deque elements.
 
 ## FUNCTIONS
 
-### vs_deque_create
+### deque_create
 
 ```c
-vs_status vs_deque_create(size_t elem_size, vs_allocator *allocator, vs_deque **out);
+status deque_create(size_t elem_size, allocator *allocator, deque **out);
 ```
 
 - Parameters: `elem_size`, `allocator`, `out`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Writes: opaque deque handle to `*out` on success.
 - Notes: the deque stores `allocator` and reuses it for growth and destroy.
   When `allocator` is `NULL`, deque uses the C library heap through
-  `vs_alloc`/`vs_resize`.
+  `alloc`/`resize`.
 - Example:
 
 ```c
-vs_deque *deque = NULL;
-if (vs_deque_create(sizeof(int), NULL, &deque) != VS_STATUS_OK) {
+deque *deque = NULL;
+if (deque_create(sizeof(int), NULL, &deque) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_deque_push
+### deque_push
 
 ```c
-vs_status vs_deque_push(vs_deque *deque, const void *element);
+status deque_push(deque *deque, const void *element);
 ```
 
 - Parameters: `deque`, `element`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Example:
 
 ```c
 int value = 2;
-if (vs_deque_push(deque, &value) != VS_STATUS_OK) {
+if (deque_push(deque, &value) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_deque_pushfront
+### deque_pushfront
 
 ```c
-vs_status vs_deque_pushfront(vs_deque *deque, const void *element);
+status deque_pushfront(deque *deque, const void *element);
 ```
 
 - Parameters: `deque`, `element`
-- Returns: `VS_STATUS_OK` on success, or an error status.
+- Returns: `STATUS_OK` on success, or an error status.
 - Example:
 
 ```c
 int value = 1;
-if (vs_deque_pushfront(deque, &value) != VS_STATUS_OK) {
+if (deque_pushfront(deque, &value) != STATUS_OK) {
     /* handle allocation failure */
 }
 ```
 
-### vs_deque_popleft
+### deque_popleft
 
 ```c
-void *vs_deque_popleft(vs_deque *deque);
+void *deque_popleft(deque *deque);
 ```
 
 - Parameters: `deque`
@@ -85,16 +85,16 @@ void *vs_deque_popleft(vs_deque *deque);
 - Example:
 
 ```c
-int *front = (int *)vs_deque_popleft(deque);
+int *front = (int *)deque_popleft(deque);
 if (front != NULL) {
     /* use *front */
 }
 ```
 
-### vs_deque_popback
+### deque_popback
 
 ```c
-void *vs_deque_popback(vs_deque *deque);
+void *deque_popback(deque *deque);
 ```
 
 - Parameters: `deque`
@@ -102,16 +102,16 @@ void *vs_deque_popback(vs_deque *deque);
 - Example:
 
 ```c
-int *back = (int *)vs_deque_popback(deque);
+int *back = (int *)deque_popback(deque);
 if (back != NULL) {
     /* use *back */
 }
 ```
 
-### vs_deque_peekleft
+### deque_peekleft
 
 ```c
-const void *vs_deque_peekleft(const vs_deque *deque);
+const void *deque_peekleft(const deque *deque);
 ```
 
 - Parameters: `deque`
@@ -119,13 +119,13 @@ const void *vs_deque_peekleft(const vs_deque *deque);
 - Example:
 
 ```c
-const int *front = (const int *)vs_deque_peekleft(deque);
+const int *front = (const int *)deque_peekleft(deque);
 ```
 
-### vs_deque_peekback
+### deque_peekback
 
 ```c
-const void *vs_deque_peekback(const vs_deque *deque);
+const void *deque_peekback(const deque *deque);
 ```
 
 - Parameters: `deque`
@@ -133,13 +133,13 @@ const void *vs_deque_peekback(const vs_deque *deque);
 - Example:
 
 ```c
-const int *back = (const int *)vs_deque_peekback(deque);
+const int *back = (const int *)deque_peekback(deque);
 ```
 
-### vs_deque_size
+### deque_size
 
 ```c
-size_t vs_deque_size(const vs_deque *deque);
+size_t deque_size(const deque *deque);
 ```
 
 - Parameters: `deque`
@@ -147,13 +147,13 @@ size_t vs_deque_size(const vs_deque *deque);
 - Example:
 
 ```c
-size_t count = vs_deque_size(deque);
+size_t count = deque_size(deque);
 ```
 
-### vs_deque_get_iterator
+### deque_get_iterator
 
 ```c
-vs_iterator vs_deque_get_iterator(const vs_deque *deque);
+iterator deque_get_iterator(const deque *deque);
 ```
 
 - Parameters: `deque`
@@ -163,18 +163,18 @@ vs_iterator vs_deque_get_iterator(const vs_deque *deque);
 - Example:
 
 ```c
-vs_iterator iter = vs_deque_get_iterator(deque);
+iterator iter = deque_get_iterator(deque);
 
 const int *item;
-while ((item = (const int *)vs_iterator_next(&iter)) != NULL) {
+while ((item = (const int *)iterator_next(&iter)) != NULL) {
     /* use *item */
 }
 ```
 
-### vs_deque_destroy
+### deque_destroy
 
 ```c
-void vs_deque_destroy(vs_deque *deque);
+void deque_destroy(deque *deque);
 ```
 
 - Parameters: `deque`
@@ -183,5 +183,5 @@ void vs_deque_destroy(vs_deque *deque);
 - Example:
 
 ```c
-vs_deque_destroy(deque);
+deque_destroy(deque);
 ```

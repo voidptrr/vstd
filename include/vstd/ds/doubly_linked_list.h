@@ -22,24 +22,23 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_DOUBLY_LINKED_LIST_H
-#define VSTD_DOUBLY_LINKED_LIST_H
+#ifndef DOUBLY_LINKED_LIST_H
+#define DOUBLY_LINKED_LIST_H
 
 #include <stddef.h>
 
-#include "vstd/datastruct/iterator.h"
+#include "vstd/ds/iterator.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
 
-#define vs_doubly_linked_list_for_each_node(item, list) \
-    for (vs_iterator item##_vs_iter__ = vs_doubly_linked_list_get_iterator((list)); \
-         ((item) = VS_ITER_NEXT_AS(vs_doubly_linked_list_node, &item##_vs_iter__)) != NULL;)
+#define doubly_linked_list_for_each_node(item, list) \
+    for (iterator item##_iter__ = doubly_linked_list_get_iterator((list)); \
+         ((item) = ITER_NEXT_AS(doubly_linked_list_node, &item##_iter__)) != NULL;)
 
-#define vs_doubly_linked_list_for_each_entry(type, member, item, list) \
-    for (vs_iterator item##_vs_iter__ = vs_doubly_linked_list_get_iterator((list)); \
-         ((item) = \
-              VS_CONTAINER_OF_CONST_OR_NULL(vs_iterator_next(&item##_vs_iter__), type, member)) \
+#define doubly_linked_list_for_each_entry(type, member, item, list) \
+    for (iterator item##_iter__ = doubly_linked_list_get_iterator((list)); \
+         ((item) = CONTAINER_OF_CONST_OR_NULL(iterator_next(&item##_iter__), type, member)) \
          != NULL;)
 
 /*
@@ -55,7 +54,7 @@
  *          +------+     +------+     +------+       +------+
  *             ^            ^            ^              ^
  *             |            |            |              |
- *       user object embeds vs_doubly_linked_list_node
+ *       user object embeds doubly_linked_list_node
  *
  * - push appends at tail
  * - pushfront prepends at head
@@ -65,52 +64,51 @@
  * - linked list nodes and owning objects are caller-owned
  */
 
-typedef struct vs_doubly_linked_list_node {
-    struct vs_doubly_linked_list_node *prev;
-    struct vs_doubly_linked_list_node *next;
-} vs_doubly_linked_list_node;
+typedef struct doubly_linked_list_node {
+    struct doubly_linked_list_node *prev;
+    struct doubly_linked_list_node *next;
+} doubly_linked_list_node;
 
-typedef struct vs_doubly_linked_list vs_doubly_linked_list;
+typedef struct doubly_linked_list doubly_linked_list;
 
 /* Create an intrusive doubly linked list. */
-VS_NODISCARD vs_status
-vs_doubly_linked_list_create(vs_allocator *allocator, vs_doubly_linked_list **out);
+NODISCARD status doubly_linked_list_create(allocator *allocator, doubly_linked_list **out);
 
 /* Append node at the tail. */
-void vs_doubly_linked_list_push(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node);
+void doubly_linked_list_push(doubly_linked_list *list, doubly_linked_list_node *node);
 
 /* Prepend node at the head. */
-void vs_doubly_linked_list_pushfront(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node);
+void doubly_linked_list_pushfront(doubly_linked_list *list, doubly_linked_list_node *node);
 
 /* Insert node after an existing node, or at the front when after is NULL. */
-void vs_doubly_linked_list_insert_after(
-    vs_doubly_linked_list *list,
-    vs_doubly_linked_list_node *after,
-    vs_doubly_linked_list_node *node
+void doubly_linked_list_insert_after(
+    doubly_linked_list *list,
+    doubly_linked_list_node *after,
+    doubly_linked_list_node *node
 );
 
 /* Remove and return the head node, or NULL when empty. */
-vs_doubly_linked_list_node *vs_doubly_linked_list_popleft(vs_doubly_linked_list *list);
+doubly_linked_list_node *doubly_linked_list_popleft(doubly_linked_list *list);
 
 /* Remove and return the tail node, or NULL when empty. */
-vs_doubly_linked_list_node *vs_doubly_linked_list_popback(vs_doubly_linked_list *list);
+doubly_linked_list_node *doubly_linked_list_popback(doubly_linked_list *list);
 
 /* Unlink node from list. */
-void vs_doubly_linked_list_remove(vs_doubly_linked_list *list, vs_doubly_linked_list_node *node);
+void doubly_linked_list_remove(doubly_linked_list *list, doubly_linked_list_node *node);
 
 /* Return the number of stored elements. */
-size_t vs_doubly_linked_list_size(const vs_doubly_linked_list *list);
+size_t doubly_linked_list_size(const doubly_linked_list *list);
 
 /* Return the head node, or NULL when empty. */
-vs_doubly_linked_list_node *vs_doubly_linked_list_head(const vs_doubly_linked_list *list);
+doubly_linked_list_node *doubly_linked_list_head(const doubly_linked_list *list);
 
 /* Return the tail node, or NULL when empty. */
-vs_doubly_linked_list_node *vs_doubly_linked_list_tail(const vs_doubly_linked_list *list);
+doubly_linked_list_node *doubly_linked_list_tail(const doubly_linked_list *list);
 
 /* Return an iterator over list nodes from head to tail. */
-vs_iterator vs_doubly_linked_list_get_iterator(const vs_doubly_linked_list *list);
+iterator doubly_linked_list_get_iterator(const doubly_linked_list *list);
 
 /* Release the linked-list handle. Nodes remain caller-owned. */
-void vs_doubly_linked_list_destroy(vs_doubly_linked_list *list);
+void doubly_linked_list_destroy(doubly_linked_list *list);
 
 #endif

@@ -22,36 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_ERROR_H
-#define VSTD_ERROR_H
+#ifndef ERROR_H
+#define ERROR_H
 
 #if defined(__GNUC__) || defined(__clang__)
-#define VS_NODISCARD __attribute__((warn_unused_result))
+#define NODISCARD __attribute__((warn_unused_result))
 #else
-#define VS_NODISCARD
+#define NODISCARD
 #endif
 
-#define VS_RETURN_IF_ERROR(expr) \
+#define RETURN_IF_ERROR(expr) \
     do { \
-        vs_status status__ = (expr); \
-        if (status__ != VS_STATUS_OK) { \
+        status status__ = (expr); \
+        if (status__ != STATUS_OK) { \
             return status__; \
         } \
     } while (0)
 
-typedef enum vs_status {
-    VS_STATUS_OK = 0,
-    VS_STATUS_INVALID_ARGUMENT,
-    VS_STATUS_NO_MEMORY,
-    VS_STATUS_OVERFLOW,
-    VS_STATUS_OUT_OF_RANGE,
-    VS_STATUS_NOT_FOUND,
-    VS_STATUS_EOF,
-    VS_STATUS_IO,
-    VS_STATUS_INVALID_DATA,
-    VS_STATUS_UNSUPPORTED,
-} vs_status;
+typedef enum status {
+    STATUS_OK = 0,
+    STATUS_INVALID_ARGUMENT,
+    STATUS_NO_MEMORY,
+    STATUS_OVERFLOW,
+    STATUS_OUT_OF_RANGE,
+    STATUS_NOT_FOUND,
+    STATUS_EOF,
+    STATUS_IO,
+    STATUS_INVALID_DATA,
+    STATUS_UNSUPPORTED,
+} status;
 
-const char *vs_status_message(vs_status status);
+const char *status_message(status status);
 
 #endif

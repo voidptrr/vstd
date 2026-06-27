@@ -28,39 +28,39 @@
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_heap *heap = NULL;
-    if (vs_test_equal(vs_heap_create(1024, &heap), VS_STATUS_OK)) {
+    heap *heap = NULL;
+    if (test_equal(heap_create(1024, &heap), STATUS_OK)) {
         return 1;
     }
-    vs_allocator *allocator = vs_heap_allocator(heap);
+    allocator *allocator = heap_allocator(heap);
 
-    if (vs_test_equal_ptr(allocator->ctx, heap) != 0) {
+    if (test_equal_ptr(allocator->ctx, heap) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator->alloc != NULL, true) != 0) {
+    if (test_equal(allocator->alloc != NULL, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator->realloc != NULL, true) != 0) {
+    if (test_equal(allocator->realloc != NULL, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(allocator->dealloc != NULL, true) != 0) {
+    if (test_equal(allocator->dealloc != NULL, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(
-            allocator->features == (VS_ALLOCATOR_FEATURE_DEALLOC | VS_ALLOCATOR_FEATURE_REALLOC),
+    if (test_equal(
+            allocator->features == (ALLOCATOR_FEATURE_DEALLOC | ALLOCATOR_FEATURE_REALLOC),
             true
         )
         != 0) {
         return 1;
     }
 
-    if (vs_test_equal(vs_heap_capacity(heap) > 0, true) != 0) {
+    if (test_equal(heap_capacity(heap) > 0, true) != 0) {
         return 1;
     }
-    if (vs_test_equal(vs_heap_available(heap) > 0, true) != 0) {
+    if (test_equal(heap_available(heap) > 0, true) != 0) {
         return 1;
     }
 
-    vs_heap_destroy(heap);
+    heap_destroy(heap);
     return 0;
 }

@@ -22,16 +22,16 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_ASSERT_H
-#define VSTD_ASSERT_H
+#ifndef ASSERT_H
+#define ASSERT_H
 
-#define VSTD_ASSERT(cond, message) \
+#define ASSERT(cond, message) \
     do { \
         if (!(cond)) { \
-            vs_panic(message); \
+            panic(message); \
         } \
     } while (0)
 
-_Noreturn void vs_panic(const char *message);
+_Noreturn void panic(const char *message);
 
 #endif

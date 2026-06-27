@@ -22,28 +22,27 @@
  * SOFTWARE.
  */
 
-#ifndef VSTD_STRING_H
-#define VSTD_STRING_H
+#ifndef STRING_H
+#define STRING_H
 
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "vstd/datastruct/iterator.h"
+#include "vstd/ds/iterator.h"
 #include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
-#define vs_string_for_each_char(item, string) \
-    for (vs_iterator item##_vs_iter__ = vs_string_get_iterator((string)); \
-         item##_vs_iter__.next != NULL; \
-         item##_vs_iter__.next = NULL) \
-        vs_iterator_for_each(char, item, &item##_vs_iter__)
+#define string_for_each_char(item, string) \
+    for (iterator item##_iter__ = string_get_iterator((string)); item##_iter__.next != NULL; \
+         item##_iter__.next = NULL) \
+    iterator_for_each(char, item, &item##_iter__)
 
 /*
  * Opaque growable string.
  *
  * Public view:
  *
- *   vs_string
+ *   string
  *        |
  *        v
  *      "hello\0"
@@ -55,39 +54,38 @@
  *   +----------------------+----------------------+-------------+
  *                                                 ^
  *                                                 |
- *                                            vs_string
+ *                                            string
  */
-typedef char *vs_string;
+typedef char *string;
 
 /* Create a string from initial, or an empty string when initial is NULL. */
-VS_NODISCARD vs_status
-vs_string_create(const char *initial, vs_allocator *allocator, vs_string *out);
+NODISCARD status string_create(const char *initial, allocator *allocator, string *out);
 
 /* Append suffix to string, growing storage as needed. */
-VS_NODISCARD vs_status vs_string_append(vs_string *string, const char *suffix);
+NODISCARD status string_append(string *string, const char *suffix);
 
 /* Prepend prefix to string, growing storage as needed. */
-VS_NODISCARD vs_status vs_string_prepend(vs_string *string, const char *prefix);
+NODISCARD status string_prepend(string *string, const char *prefix);
 
 /* Return whether string contains needle. */
-bool vs_string_contains(const vs_string string, const char *needle);
+bool string_contains(const string string, const char *needle);
 
 /* Return whether string begins with prefix. */
-bool vs_string_starts_with(const vs_string string, const char *prefix);
+bool string_starts_with(const string string, const char *prefix);
 
 /* Return whether string ends with suffix. */
-bool vs_string_ends_with(const vs_string string, const char *suffix);
+bool string_ends_with(const string string, const char *suffix);
 
 /* Reset string to empty without releasing storage. */
-void vs_string_clear(vs_string string);
+void string_clear(string string);
 
 /* Return the number of bytes before the terminating NUL. */
-size_t vs_string_len(const vs_string string);
+size_t string_len(const string string);
 
 /* Return an iterator over bytes before the terminating NUL. */
-vs_iterator vs_string_get_iterator(const vs_string string);
+iterator string_get_iterator(const string string);
 
 /* Destroy and release owned storage. */
-void vs_string_destroy(vs_string string);
+void string_destroy(string string);
 
 #endif
