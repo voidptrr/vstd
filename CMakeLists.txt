@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(vstd VERSION 0.2.0 LANGUAGES C)
+project(vstd VERSION 0.2.2 LANGUAGES C)
 
 include(CTest)
 include(GNUInstallDirs)
