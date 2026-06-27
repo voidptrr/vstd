@@ -32,6 +32,7 @@
 #include "vstd/datastruct/hashset.h"
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/linked_list.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
 
@@ -116,44 +117,74 @@ static const void *vs_hashset_iterator_next(void *context) {
     return entry->data;
 }
 
-vs_hashset *vs_hashset_create(
+vs_status vs_hashset_create(
     size_t elem_size,
     vs_hashset_elem_eq_fn elem_eq,
-    vs_allocator *allocator
+    vs_allocator *allocator,
+    vs_hashset **out
 ) {
     VSTD_ASSERT(elem_size > 0, "fatal: vs_hashset_create invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_hashset_create invalid arguments");
 
-    vs_hashset *set = vs_malloc(allocator, sizeof(vs_hashset));
+    *out = NULL;
+
+    size_t max_entry_size = 0;
+    if (vs_size_add_overflow(sizeof(vs_hashset_entry), elem_size, &max_entry_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+    (void)max_entry_size;
+
+    vs_hashset *set = NULL;
+    vs_status status = vs_alloc(allocator, sizeof(vs_hashset), (void **)&set);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     set->allocator = allocator;
-    set->buckets = vs_hash_common_buckets_create(VS_HASH_COMMON_DEFAULT_CAPACITY, allocator);
+    status =
+        vs_hash_common_buckets_create(VS_HASH_COMMON_DEFAULT_CAPACITY, allocator, &set->buckets);
+    if (status != VS_STATUS_OK) {
+        vs_dealloc(allocator, set);
+        return status;
+    }
 
     set->size = 0;
     set->elem_size = elem_size;
     set->capacity = VS_HASH_COMMON_DEFAULT_CAPACITY;
     set->elem_eq = elem_eq;
 
-    return set;
+    *out = set;
+    return VS_STATUS_OK;
 }
 
-void vs_hashset_reserve(vs_hashset *set, size_t size) {
+vs_status vs_hashset_reserve(vs_hashset *set, size_t size) {
     VSTD_ASSERT(set != NULL, "fatal: vs_hashset_reserve invalid arguments");
 
-    size_t new_capacity = vs_hash_common_capacity_for_size(size);
+    size_t new_capacity = 0;
+    VS_RETURN_IF_ERROR(vs_hash_common_capacity_for_size(size, &new_capacity));
     if (new_capacity <= set->capacity) {
-        return;
+        return VS_STATUS_OK;
     }
 
-    set->buckets = vs_hash_common_buckets_rehash(
+    vs_hash_common_bucket *new_buckets = NULL;
+    vs_status status = vs_hash_common_buckets_rehash(
         set->buckets,
         set->capacity,
         new_capacity,
         set->allocator,
-        vs_hashset_entry_hash
+        vs_hashset_entry_hash,
+        &new_buckets
     );
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
+    set->buckets = new_buckets;
     set->capacity = new_capacity;
+    return VS_STATUS_OK;
 }
 
-void vs_hashset_insert(vs_hashset *set, const void *elem) {
+vs_status vs_hashset_insert(vs_hashset *set, const void *elem) {
     VSTD_ASSERT(set != NULL, "fatal: vs_hashset_insert invalid arguments");
     VSTD_ASSERT(elem != NULL, "fatal: vs_hashset_insert invalid arguments");
 
@@ -170,20 +201,36 @@ void vs_hashset_insert(vs_hashset *set, const void *elem) {
         vs_hashset_entry_hash
     );
     if (node != NULL) {
-        return;
+        return VS_STATUS_OK;
     }
 
     if (vs_hash_common_should_grow(set->size, set->capacity)) {
-        vs_hashset_reserve(set, set->size + 1);
+        size_t reserve_size = 0;
+        if (vs_size_add_overflow(set->size, 1, &reserve_size)) {
+            return VS_STATUS_OVERFLOW;
+        }
+
+        VS_RETURN_IF_ERROR(vs_hashset_reserve(set, reserve_size));
         bucket = vs_hash_common_bucket_index(hash, set->capacity);
     }
 
-    vs_hashset_entry *entry = vs_malloc(allocator, sizeof(vs_hashset_entry) + set->elem_size);
+    vs_hashset_entry *entry = NULL;
+    size_t alloc_size = 0;
+    if (vs_size_add_overflow(sizeof(vs_hashset_entry), set->elem_size, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
+    vs_status status = vs_alloc(allocator, alloc_size, (void **)&entry);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     entry->hash = hash;
     memcpy(entry->data, elem, set->elem_size);
 
     vs_hash_common_bucket_pushfront(&set->buckets[bucket], &entry->node);
     set->size += 1;
+    return VS_STATUS_OK;
 }
 
 bool vs_hashset_contains(const vs_hashset *set, const void *elem) {

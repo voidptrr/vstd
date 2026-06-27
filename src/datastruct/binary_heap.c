@@ -29,6 +29,7 @@
 #include "vstd/datastruct/binary_heap.h"
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/vector.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 #include "vstd/memory/utils.h"
 
@@ -114,28 +115,47 @@ static const void *vs_binary_heap_iterator_next(void *context) {
     return item;
 }
 
-vs_binary_heap *vs_binary_heap_create(
+vs_status vs_binary_heap_create(
     size_t elem_size,
     vs_binary_heap_cmp_fn cmp,
-    vs_allocator *allocator
+    vs_allocator *allocator,
+    vs_binary_heap **out
 ) {
     VSTD_ASSERT(elem_size > 0, "fatal: vs_binary_heap_create invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_binary_heap_create invalid arguments");
 
-    vs_binary_heap *heap = vs_malloc(allocator, sizeof(vs_binary_heap));
-    heap->root = vs_vector_create(elem_size, allocator);
+    *out = NULL;
+
+    vs_binary_heap *heap = NULL;
+    vs_status status = vs_alloc(allocator, sizeof(vs_binary_heap), (void **)&heap);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
+    status = vs_vector_create(elem_size, allocator, &heap->root);
+    if (status != VS_STATUS_OK) {
+        vs_dealloc(allocator, heap);
+        return status;
+    }
+
     heap->cmp = cmp;
     heap->allocator = allocator;
 
-    return heap;
+    *out = heap;
+    return VS_STATUS_OK;
 }
 
-void vs_binary_heap_push(vs_binary_heap *heap, const void *element) {
+vs_status vs_binary_heap_push(vs_binary_heap *heap, const void *element) {
     VSTD_ASSERT(heap != NULL, "fatal: vs_binary_heap_push invalid arguments");
     VSTD_ASSERT(element != NULL, "fatal: vs_binary_heap_push invalid arguments");
 
-    vs_vector_push(heap->root, element);
+    vs_status status = vs_vector_push(heap->root, element);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
 
     vs_binary_heap_sift_up(heap, vs_vector_size(heap->root) - 1);
+    return VS_STATUS_OK;
 }
 
 void *vs_binary_heap_pop(vs_binary_heap *heap) {

@@ -21,49 +21,57 @@ typedef char *vs_string;
 ### vs_string_create
 
 ```c
-vs_string vs_string_create(const char *initial, vs_allocator *allocator);
+vs_status vs_string_create(const char *initial, vs_allocator *allocator, vs_string *out);
 ```
 
-- Parameters: `initial`, `allocator`
-- Returns: created string.
+- Parameters: `initial`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or an error status.
+- Writes: created string to `*out` on success.
 - Notes: when `initial` is `NULL`, creates an empty string. The string stores
   `allocator` in its header and reuses it for growth and destroy. When
   `allocator` is `NULL`, uses the C library heap through
-  `vs_malloc`/`vs_realloc`.
+  `vs_alloc`/`vs_resize`.
 - Example:
 
 ```c
-vs_string string = vs_string_create("hello", NULL);
+vs_string string = NULL;
+if (vs_string_create("hello", NULL, &string) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_string_append
 
 ```c
-void vs_string_append(vs_string *string, const char *suffix);
+vs_status vs_string_append(vs_string *string, const char *suffix);
 ```
 
 - Parameters: `string`, `suffix`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Notes: may reallocate and update `*string`.
 - Example:
 
 ```c
-vs_string_append(&string, " world");
+if (vs_string_append(&string, " world") != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_string_prepend
 
 ```c
-void vs_string_prepend(vs_string *string, const char *prefix);
+vs_status vs_string_prepend(vs_string *string, const char *prefix);
 ```
 
 - Parameters: `string`, `prefix`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Notes: may reallocate and update `*string`.
 - Example:
 
 ```c
-vs_string_prepend(&string, "say ");
+if (vs_string_prepend(&string, "say ") != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_string_contains

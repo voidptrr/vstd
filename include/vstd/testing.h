@@ -43,6 +43,8 @@
 #define vs_test_not_equal(actual, expected) \
     vs_test_not_equal_intmax((intmax_t)(actual), (intmax_t)(expected))
 
+#define vs_test_status_ok(expr) vs_test_equal((expr), 0)
+
 typedef int (*vs_test_fn)(void);
 
 typedef struct vs_test_case {

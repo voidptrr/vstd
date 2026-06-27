@@ -24,11 +24,12 @@ typedef struct vs_heap vs_heap;
 ### vs_heap_create
 
 ```c
-vs_heap *vs_heap_create(size_t capacity);
+vs_status vs_heap_create(size_t capacity, vs_heap **out);
 ```
 
-- Parameters: `capacity`
-- Returns: heap pointer.
+- Parameters: `capacity`, `out`
+- Returns: `VS_STATUS_OK` on success, or an error status.
+- Writes: heap pointer to `*out` on success.
 
 ### vs_heap_allocator
 

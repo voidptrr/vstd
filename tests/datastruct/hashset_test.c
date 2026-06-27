@@ -28,6 +28,7 @@
 
 #include "vstd/datastruct/hashset.h"
 #include "vstd/datastruct/iterator.h"
+#include "vstd/error.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
@@ -43,10 +44,16 @@ VS_TEST(allocator) {
     uint64_t value = 11;
 
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
     vs_test_allocator_reset_counts(&test_allocator);
 
-    vs_hashset_insert(set, &value);
+    if (vs_test_status_ok(vs_hashset_insert(set, &value))) {
+
+        return 1;
+    }
     if (test_allocator.alloc_count != 1) {
         return 1;
     }
@@ -61,7 +68,10 @@ VS_TEST(allocator) {
 VS_TEST(contains) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
 
     uint64_t present = 42;
     uint64_t missing = 7;
@@ -69,7 +79,10 @@ VS_TEST(contains) {
         return 1;
     }
 
-    vs_hashset_insert(set, &present);
+    if (vs_test_status_ok(vs_hashset_insert(set, &present))) {
+
+        return 1;
+    }
     if (vs_test_equal(vs_hashset_contains(set, &present), true) != 0) {
         return 1;
     }
@@ -79,7 +92,9 @@ VS_TEST(contains) {
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     if (vs_test_equal(vs_hashset_contains(set, &missing), true) != 0) {
@@ -96,7 +111,10 @@ VS_TEST(contains) {
 VS_TEST(get) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
     uint64_t value = 42;
     uint64_t missing = 7;
 
@@ -104,7 +122,10 @@ VS_TEST(get) {
         return 1;
     }
 
-    vs_hashset_insert(set, &value);
+    if (vs_test_status_ok(vs_hashset_insert(set, &value))) {
+
+        return 1;
+    }
 
     uint64_t *found = (uint64_t *)vs_hashset_get(set, &value);
     if (vs_test_not_null(found) != 0) {
@@ -137,7 +158,10 @@ VS_TEST(get) {
 VS_TEST(init) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
     if (vs_hashset_size(set) != 0) {
         return 1;
     }
@@ -152,12 +176,20 @@ VS_TEST(init) {
 VS_TEST(default_byte_equality) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
     uint64_t value = 42;
     uint64_t same_value = 42;
 
-    vs_hashset_insert(set, &value);
-    vs_hashset_insert(set, &same_value);
+    if (vs_test_status_ok(vs_hashset_insert(set, &value))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_hashset_insert(set, &same_value))) {
+        return 1;
+    }
     if (vs_test_equal(vs_hashset_contains(set, &same_value), true) != 0) {
         return 1;
     }
@@ -179,10 +211,21 @@ VS_TEST(custom_equality) {
     uint64_t same_value = 42;
 
     custom_eq_calls = 0;
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), custom_u64_eq, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(
+            vs_hashset_create(sizeof(uint64_t), custom_u64_eq, allocator, &set),
+            VS_STATUS_OK
+        )) {
+        return 1;
+    }
 
-    vs_hashset_insert(set, &value);
-    vs_hashset_insert(set, &same_value);
+    if (vs_test_status_ok(vs_hashset_insert(set, &value))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_hashset_insert(set, &same_value))) {
+        return 1;
+    }
     if (vs_test_equal(vs_hashset_contains(set, &same_value), true) != 0) {
         return 1;
     }
@@ -203,17 +246,26 @@ VS_TEST(custom_equality) {
 VS_TEST(insert) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
 
     uint64_t first = 42;
-    vs_hashset_insert(set, &first);
-    vs_hashset_insert(set, &first);
+    if (vs_test_status_ok(vs_hashset_insert(set, &first))) {
+        return 1;
+    }
+    if (vs_test_status_ok(vs_hashset_insert(set, &first))) {
+        return 1;
+    }
     if (vs_hashset_size(set) != 1) {
         return 1;
     }
 
     for (uint64_t i = 0; i < 256; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     if (vs_hashset_size(set) != 256) {
@@ -230,11 +282,18 @@ VS_TEST(insert) {
 VS_TEST(reserve) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
-    vs_hashset_reserve(set, 512);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
+    if (vs_test_status_ok(vs_hashset_reserve(set, 512))) {
+        return 1;
+    }
 
     for (uint64_t i = 0; i < 512; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     for (uint64_t i = 0; i < 512; i++) {
@@ -253,10 +312,15 @@ VS_TEST(reserve) {
 VS_TEST(remove) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
 
     for (uint64_t i = 0; i < 256; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     uint64_t removed = 42;
@@ -297,13 +361,18 @@ VS_TEST(remove) {
 VS_TEST(foreach_macro_walks_elements) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
     const uint64_t *elem;
     uint64_t sum = 0;
     size_t count = 0;
 
     for (uint64_t i = 1; i <= 4; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     vs_hashset_for_each(uint64_t, elem, set) {
@@ -328,13 +397,18 @@ VS_TEST(foreach_macro_walks_elements) {
 VS_TEST(iterator_walks_elements) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_hashset *set = vs_hashset_create(sizeof(uint64_t), NULL, allocator);
+    vs_hashset *set = NULL;
+    if (vs_test_equal(vs_hashset_create(sizeof(uint64_t), NULL, allocator, &set), VS_STATUS_OK)) {
+        return 1;
+    }
     const uint64_t *elem;
     uint64_t sum = 0;
     size_t count = 0;
 
     for (uint64_t i = 1; i <= 4; i++) {
-        vs_hashset_insert(set, &i);
+        if (vs_test_status_ok(vs_hashset_insert(set, &i))) {
+            return 1;
+        }
     }
 
     vs_iterator iter = vs_hashset_get_iterator(set);

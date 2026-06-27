@@ -27,6 +27,8 @@
 
 #include <stddef.h>
 
+#include "vstd/error.h"
+
 #define VS_ITERATOR_STATE_SIZE 64
 
 #define VS_ITER_NEXT_AS(type, iter) ((const type *)vs_iterator_next((iter)))
@@ -78,15 +80,21 @@ size_t vs_iterator_size_hint(const vs_iterator *iter);
 const void *vs_iterator_next(vs_iterator *iter);
 
 /* Collect remaining source items by copying elem_size bytes into a new vector. */
-vs_vector *vs_iterator_collect(vs_iterator *source, size_t elem_size, vs_allocator *allocator);
+VS_NODISCARD vs_status vs_iterator_collect(
+    vs_iterator *source,
+    size_t elem_size,
+    vs_allocator *allocator,
+    vs_vector **out
+);
 
 /* Map each remaining source item into dst_elem_size bytes and collect into a new vector. */
-vs_vector *vs_iterator_collect_map(
+VS_NODISCARD vs_status vs_iterator_collect_map(
     vs_iterator *source,
     size_t dst_elem_size,
     vs_iterator_map_into_fn map,
     void *context,
-    vs_allocator *allocator
+    vs_allocator *allocator,
+    vs_vector **out
 );
 
 #endif

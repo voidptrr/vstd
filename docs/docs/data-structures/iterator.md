@@ -147,26 +147,38 @@ size_t vs_iterator_size_hint(const vs_iterator *iter);
 ### vs_iterator_collect
 
 ```c
-vs_vector *vs_iterator_collect(vs_iterator *source,
-                               size_t elem_size,
-                               vs_allocator *allocator);
+vs_status vs_iterator_collect(vs_iterator *source,
+                              size_t elem_size,
+                              vs_allocator *allocator,
+                              vs_vector **out);
 ```
 
-- Parameters: `source`, `elem_size`, `allocator`
-- Returns: vector containing copies of the remaining source items.
+- Parameters: `source`, `elem_size`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or an error status.
+- Writes: vector containing copies of the remaining source items to `*out`.
 - Notes: consumes `source`. The returned vector owns its storage and can outlive
   the original data structure.
 - Example:
 
 ```c
-vs_vector *values = vs_vector_create(sizeof(int), NULL);
+vs_vector *values = NULL;
+if (vs_vector_create(sizeof(int), NULL, &values) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 int one = 1;
 int two = 2;
-vs_vector_push(values, &one);
-vs_vector_push(values, &two);
+if (vs_vector_push(values, &one) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
+if (vs_vector_push(values, &two) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 
 vs_iterator iter = vs_vector_get_iterator(values);
-vs_vector *copy = vs_iterator_collect(&iter, sizeof(int), NULL);
+vs_vector *copy = NULL;
+if (vs_iterator_collect(&iter, sizeof(int), NULL, &copy) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 
 vs_vector_destroy(values);
 /* copy still owns the collected ints. */
@@ -176,15 +188,17 @@ vs_vector_destroy(copy);
 ### vs_iterator_collect_map
 
 ```c
-vs_vector *vs_iterator_collect_map(vs_iterator *source,
-                                   size_t dst_elem_size,
-                                   vs_iterator_map_into_fn map,
-                                   void *context,
-                                   vs_allocator *allocator);
+vs_status vs_iterator_collect_map(vs_iterator *source,
+                                  size_t dst_elem_size,
+                                  vs_iterator_map_into_fn map,
+                                  void *context,
+                                  vs_allocator *allocator,
+                                  vs_vector **out);
 ```
 
-- Parameters: `source`, `dst_elem_size`, `map`, `context`, `allocator`
-- Returns: vector containing mapped copies of the remaining source items.
+- Parameters: `source`, `dst_elem_size`, `map`, `context`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or an error status.
+- Writes: vector containing mapped copies of the remaining source items to `*out`.
 - Notes: consumes `source`. Use this when the output element type or size is
   different from the source element type.
 - Example:
@@ -195,13 +209,20 @@ static void int_to_double(void *context, const void *src, void *dst) {
     *(double *)dst = (double)*(const int *)src;
 }
 
-vs_vector *ints = vs_vector_create(sizeof(int), NULL);
+vs_vector *ints = NULL;
+if (vs_vector_create(sizeof(int), NULL, &ints) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 int value = 42;
-vs_vector_push(ints, &value);
+if (vs_vector_push(ints, &value) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 
 vs_iterator iter = vs_vector_get_iterator(ints);
-vs_vector *doubles =
-    vs_iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL);
+vs_vector *doubles = NULL;
+if (vs_iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL, &doubles) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 
 const double *mapped = (const double *)vs_vector_get_const(doubles, 0);
 /* *mapped == 42.0 */

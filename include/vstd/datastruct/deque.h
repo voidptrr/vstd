@@ -29,6 +29,7 @@
 #include <stddef.h>
 
 #include "vstd/datastruct/iterator.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
 
 #define vs_deque_for_each(type, item, deque) \
@@ -58,13 +59,13 @@
 typedef struct vs_deque vs_deque;
 
 /* Create a deque with element size elem_size. */
-vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator);
+VS_NODISCARD vs_status vs_deque_create(size_t elem_size, vs_allocator *allocator, vs_deque **out);
 
 /* Enqueue one element by copying elem_size bytes from element. */
-void vs_deque_push(vs_deque *deque, const void *element);
+VS_NODISCARD vs_status vs_deque_push(vs_deque *deque, const void *element);
 
 /* Enqueue one element at the front by copying elem_size bytes from element. */
-void vs_deque_pushfront(vs_deque *deque, const void *element);
+VS_NODISCARD vs_status vs_deque_pushfront(vs_deque *deque, const void *element);
 
 /* Dequeue and return the front element pointer, or NULL when empty. */
 void *vs_deque_popleft(vs_deque *deque);

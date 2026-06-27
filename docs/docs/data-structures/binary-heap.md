@@ -23,16 +23,18 @@ Typed cursor for walking heap backing storage.
 ### vs_binary_heap_create
 
 ```c
-vs_binary_heap *vs_binary_heap_create(size_t elem_size,
-                                        vs_binary_heap_cmp_fn cmp,
-                                        vs_allocator *allocator);
+vs_status vs_binary_heap_create(size_t elem_size,
+                                vs_binary_heap_cmp_fn cmp,
+                                vs_allocator *allocator,
+                                vs_binary_heap **out);
 ```
 
-- Parameters: `elem_size`, `cmp`, `allocator`
-- Returns: opaque binary-heap handle.
+- Parameters: `elem_size`, `cmp`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or an error status.
+- Writes: opaque binary-heap handle to `*out` on success.
 - Notes: the binary heap stores `allocator` and reuses it for growth and
   destroy. When `allocator` is `NULL`, binary heap storage uses the C library
-  heap through `vs_malloc`/`vs_realloc`. When `cmp` is `NULL`, element ordering
+  heap through `vs_alloc`/`vs_resize`. When `cmp` is `NULL`, element ordering
   uses byte comparison.
 - Example:
 
@@ -43,22 +45,27 @@ static int cmp_int(const void *lhs, const void *rhs) {
     return (a > b) - (a < b);
 }
 
-vs_binary_heap *heap = vs_binary_heap_create(sizeof(int), cmp_int, NULL);
+vs_binary_heap *heap = NULL;
+if (vs_binary_heap_create(sizeof(int), cmp_int, NULL, &heap) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_binary_heap_push
 
 ```c
-void vs_binary_heap_push(vs_binary_heap *heap, const void *element);
+vs_status vs_binary_heap_push(vs_binary_heap *heap, const void *element);
 ```
 
 - Parameters: `heap`, `element`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Example:
 
 ```c
 int value = 42;
-vs_binary_heap_push(heap, &value);
+if (vs_binary_heap_push(heap, &value) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_binary_heap_pop

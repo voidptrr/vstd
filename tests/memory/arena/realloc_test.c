@@ -25,12 +25,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "vstd/error.h"
 #include "vstd/memory/arena.h"
 #include "vstd/memory/utils.h"
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_arena *arena = vs_arena_create(256);
+    vs_arena *arena = NULL;
+    if (vs_test_equal(vs_arena_create(256, &arena), VS_STATUS_OK)) {
+        return 1;
+    }
     size_t grown_size = VS_MEMORY_ALIGN * 2;
 
     uint64_t *value = (uint64_t *)vs_arena_alloc(arena, sizeof(uint64_t));

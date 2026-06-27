@@ -24,6 +24,7 @@
 
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/linked_list.h"
+#include "vstd/error.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/memory/utils.h"
 #include "vstd/testing.h"
@@ -36,7 +37,10 @@ typedef struct test_item {
 VS_TEST(head) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_linked_list *list = vs_linked_list_create(allocator);
+    vs_linked_list *list = NULL;
+    if (vs_test_equal(vs_linked_list_create(allocator, &list), VS_STATUS_OK)) {
+        return 1;
+    }
     test_item first = {.value = 1};
 
     if (vs_test_null(vs_linked_list_head(list)) != 0) {
@@ -58,7 +62,10 @@ VS_TEST(head) {
 VS_TEST(init) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_linked_list *list = vs_linked_list_create(allocator);
+    vs_linked_list *list = NULL;
+    if (vs_test_equal(vs_linked_list_create(allocator, &list), VS_STATUS_OK)) {
+        return 1;
+    }
 
     if (vs_linked_list_size(list) != 0) {
         return 1;
@@ -74,7 +81,10 @@ VS_TEST(init) {
 VS_TEST(popleft) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_linked_list *list = vs_linked_list_create(allocator);
+    vs_linked_list *list = NULL;
+    if (vs_test_equal(vs_linked_list_create(allocator, &list), VS_STATUS_OK)) {
+        return 1;
+    }
     test_item first = {.value = 5};
     test_item second = {.value = 9};
 
@@ -115,7 +125,10 @@ VS_TEST(popleft) {
 VS_TEST(push) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_linked_list *list = vs_linked_list_create(allocator);
+    vs_linked_list *list = NULL;
+    if (vs_test_equal(vs_linked_list_create(allocator, &list), VS_STATUS_OK)) {
+        return 1;
+    }
     test_item first = {.value = 7};
     test_item second = {.value = 11};
 
@@ -153,7 +166,10 @@ VS_TEST(push) {
 VS_TEST(pushfront) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_linked_list *list = vs_linked_list_create(allocator);
+    vs_linked_list *list = NULL;
+    if (vs_test_equal(vs_linked_list_create(allocator, &list), VS_STATUS_OK)) {
+        return 1;
+    }
     test_item first = {.value = 1};
     test_item second = {.value = 2};
 
@@ -191,7 +207,10 @@ VS_TEST(pushfront) {
 VS_TEST(remove_after) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_linked_list *list = vs_linked_list_create(allocator);
+    vs_linked_list *list = NULL;
+    if (vs_test_equal(vs_linked_list_create(allocator, &list), VS_STATUS_OK)) {
+        return 1;
+    }
     test_item first = {.value = 1};
     test_item second = {.value = 2};
     test_item third = {.value = 3};
@@ -236,7 +255,10 @@ VS_TEST(remove_after) {
 VS_TEST(iterator_walks_nodes) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_linked_list *list = vs_linked_list_create(allocator);
+    vs_linked_list *list = NULL;
+    if (vs_test_equal(vs_linked_list_create(allocator, &list), VS_STATUS_OK)) {
+        return 1;
+    }
     test_item first = {.value = 1};
     test_item second = {.value = 2};
     test_item third = {.value = 3};

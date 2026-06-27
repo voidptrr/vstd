@@ -28,7 +28,9 @@
 #include "datastruct/hash_common.h"
 #include "vstd/assert.h"
 #include "vstd/datastruct/linked_list.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
+#include "vstd/memory/utils.h"
 
 static bool vs_hash_common_value_eq(
     const void *lhs,
@@ -42,29 +44,55 @@ static bool vs_hash_common_value_eq(
     return memcmp(lhs, rhs, size) == 0;
 }
 
-vs_hash_common_bucket *vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator) {
+vs_status vs_hash_common_buckets_create(
+    size_t capacity,
+    vs_allocator *allocator,
+    vs_hash_common_bucket **out
+) {
     VSTD_ASSERT(capacity > 0, "fatal: vs_hash_common_buckets_create invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_hash_common_buckets_create invalid arguments");
 
-    size_t alloc_size = sizeof(vs_hash_common_bucket) * capacity;
-    vs_hash_common_bucket *buckets = (vs_hash_common_bucket *)vs_malloc(allocator, alloc_size);
+    *out = NULL;
+
+    size_t alloc_size = 0;
+    if (vs_size_mul_overflow(sizeof(vs_hash_common_bucket), capacity, &alloc_size)) {
+        return VS_STATUS_OVERFLOW;
+    }
+
+    vs_hash_common_bucket *buckets = NULL;
+    vs_status status = vs_alloc(allocator, alloc_size, (void **)&buckets);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     memset((void *)buckets, 0, alloc_size);
 
-    return buckets;
+    *out = buckets;
+    return VS_STATUS_OK;
 }
 
-vs_hash_common_bucket *vs_hash_common_buckets_rehash(
+vs_status vs_hash_common_buckets_rehash(
     vs_hash_common_bucket *buckets,
     size_t capacity,
     size_t new_capacity,
     vs_allocator *allocator,
-    vs_hash_common_entry_hash_fn entry_hash
+    vs_hash_common_entry_hash_fn entry_hash,
+    vs_hash_common_bucket **out
 ) {
     VSTD_ASSERT(buckets != NULL, "fatal: vs_hash_common_buckets_rehash invalid arguments");
     VSTD_ASSERT(capacity > 0, "fatal: vs_hash_common_buckets_rehash invalid arguments");
     VSTD_ASSERT(new_capacity > 0, "fatal: vs_hash_common_buckets_rehash invalid arguments");
     VSTD_ASSERT(entry_hash != NULL, "fatal: vs_hash_common_buckets_rehash invalid arguments");
+    VSTD_ASSERT(out != NULL, "fatal: vs_hash_common_buckets_rehash invalid arguments");
 
-    vs_hash_common_bucket *new_buckets = vs_hash_common_buckets_create(new_capacity, allocator);
+    *out = NULL;
+
+    vs_hash_common_bucket *new_buckets = NULL;
+    vs_status status = vs_hash_common_buckets_create(new_capacity, allocator, &new_buckets);
+    if (status != VS_STATUS_OK) {
+        return status;
+    }
+
     for (size_t i = 0; i < capacity; i++) {
         vs_linked_list_node *node = buckets[i].head;
         while (node != NULL) {
@@ -77,7 +105,8 @@ vs_hash_common_bucket *vs_hash_common_buckets_rehash(
     }
 
     vs_dealloc(allocator, (void *)buckets);
-    return new_buckets;
+    *out = new_buckets;
+    return VS_STATUS_OK;
 }
 
 vs_linked_list_node *vs_hash_common_bucket_find(

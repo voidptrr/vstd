@@ -43,6 +43,42 @@ static inline size_t vs_align_up(size_t value, size_t alignment);
 - Returns: `value` rounded up to the next multiple of `alignment`.
 - Notes: `alignment` must be non-zero and a power of two.
 
+### vs_size_add_overflow
+
+```c
+#include <vstd/memory/utils.h>
+
+static inline bool vs_size_add_overflow(size_t lhs, size_t rhs, size_t *out);
+```
+
+- Parameters: `lhs`, `rhs`, `out`
+- Returns: true when `lhs + rhs` would overflow.
+- Writes: sum to `*out` when no overflow occurs.
+
+### vs_size_mul_overflow
+
+```c
+#include <vstd/memory/utils.h>
+
+static inline bool vs_size_mul_overflow(size_t lhs, size_t rhs, size_t *out);
+```
+
+- Parameters: `lhs`, `rhs`, `out`
+- Returns: true when `lhs * rhs` would overflow.
+- Writes: product to `*out` when no overflow occurs.
+
+### vs_align_up_overflow
+
+```c
+#include <vstd/memory/utils.h>
+
+static inline bool vs_align_up_overflow(size_t value, size_t alignment, size_t *out);
+```
+
+- Parameters: `value`, `alignment`, `out`
+- Returns: true when rounding up would overflow.
+- Writes: aligned value to `*out` when no overflow occurs.
+
 ### vs_memswap
 
 ```c
@@ -66,7 +102,10 @@ typedef struct job {
 } job;
 
 int main(void) {
-    vs_linked_list *list = vs_linked_list_create(NULL);
+    vs_linked_list *list = NULL;
+    if (vs_linked_list_create(NULL, &list) != VS_STATUS_OK) {
+        /* handle allocation failure */
+    }
     job item = {.id = 7};
 
     vs_linked_list_push(list, &item.node);

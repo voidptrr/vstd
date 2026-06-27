@@ -25,6 +25,7 @@
 #ifndef VSTD_MEMORY_UTILS_H
 #define VSTD_MEMORY_UTILS_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h> /* IWYU pragma: keep */
 
@@ -45,6 +46,34 @@
 static inline size_t vs_align_up(size_t value, size_t alignment) {
     size_t mask = alignment - 1;
     return (value + mask) & ~mask;
+}
+
+static inline bool vs_size_add_overflow(size_t lhs, size_t rhs, size_t *out) {
+    if (lhs > SIZE_MAX - rhs) {
+        return true;
+    }
+
+    *out = lhs + rhs;
+    return false;
+}
+
+static inline bool vs_size_mul_overflow(size_t lhs, size_t rhs, size_t *out) {
+    if (rhs != 0 && lhs > SIZE_MAX / rhs) {
+        return true;
+    }
+
+    *out = lhs * rhs;
+    return false;
+}
+
+static inline bool vs_align_up_overflow(size_t value, size_t alignment, size_t *out) {
+    size_t mask = alignment - 1;
+    if (vs_size_add_overflow(value, mask, out)) {
+        return true;
+    }
+
+    *out &= ~mask;
+    return false;
 }
 
 /* Swap size bytes between memory regions a and b. */

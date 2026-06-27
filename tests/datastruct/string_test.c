@@ -26,6 +26,7 @@
 
 #include "vstd/datastruct/iterator.h"
 #include "vstd/datastruct/string.h"
+#include "vstd/error.h"
 #include "vstd/memory/test_allocator.h"
 #include "vstd/testing.h"
 
@@ -33,7 +34,10 @@ VS_TEST(allocator) {
     vs_test_allocator test_allocator;
 
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_string value = vs_string_create("abc", allocator);
+    vs_string value = NULL;
+    if (vs_test_equal(vs_string_create("abc", allocator, &value), VS_STATUS_OK)) {
+        return 1;
+    }
     if (test_allocator.alloc_count != 1) {
         return 1;
     }
@@ -44,7 +48,10 @@ VS_TEST(allocator) {
         return 1;
     }
 
-    vs_string_append(&value, "012345678901234567890123456789");
+    if (vs_test_status_ok(vs_string_append(&value, "012345678901234567890123456789"))) {
+
+        return 1;
+    }
     if (test_allocator.realloc_count != 1) {
         return 1;
     }
@@ -68,11 +75,21 @@ VS_TEST(allocator) {
 VS_TEST(append) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_string value = vs_string_create("hello", allocator);
+    vs_string value = NULL;
+    if (vs_test_equal(vs_string_create("hello", allocator, &value), VS_STATUS_OK)) {
+        return 1;
+    }
 
-    vs_string_append(&value, ", ");
-    vs_string_append(&value, "world");
-    vs_string_append(&value, "");
+    if (vs_test_status_ok(vs_string_append(&value, ", "))) {
+
+        return 1;
+    }
+    if (vs_test_status_ok(vs_string_append(&value, "world"))) {
+        return 1;
+    }
+    if (vs_test_status_ok(vs_string_append(&value, ""))) {
+        return 1;
+    }
     if (vs_string_len(value) != 12) {
         return 1;
     }
@@ -80,7 +97,10 @@ VS_TEST(append) {
         return 1;
     }
 
-    vs_string_append(&value, "012345678901234567890123456789");
+    if (vs_test_status_ok(vs_string_append(&value, "012345678901234567890123456789"))) {
+
+        return 1;
+    }
     if (vs_string_len(value) != 42) {
         return 1;
     }
@@ -98,7 +118,10 @@ VS_TEST(append) {
 VS_TEST(clear) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_string value = vs_string_create("hello", allocator);
+    vs_string value = NULL;
+    if (vs_test_equal(vs_string_create("hello", allocator, &value), VS_STATUS_OK)) {
+        return 1;
+    }
 
     vs_string_clear(value);
     if (vs_string_len(value) != 0) {
@@ -108,7 +131,10 @@ VS_TEST(clear) {
         return 1;
     }
 
-    vs_string_append(&value, "again");
+    if (vs_test_status_ok(vs_string_append(&value, "again"))) {
+
+        return 1;
+    }
     if (vs_test_equal_str(value, "again") != 0) {
         return 1;
     }
@@ -123,7 +149,10 @@ VS_TEST(clear) {
 VS_TEST(init) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_string empty = vs_string_create(NULL, allocator);
+    vs_string empty = NULL;
+    if (vs_test_equal(vs_string_create(NULL, allocator, &empty), VS_STATUS_OK)) {
+        return 1;
+    }
     if (vs_test_not_null(empty) != 0) {
         return 1;
     }
@@ -138,7 +167,10 @@ VS_TEST(init) {
         return 1;
     }
 
-    vs_string value = vs_string_create("hello", allocator);
+    vs_string value = NULL;
+    if (vs_test_equal(vs_string_create("hello", allocator, &value), VS_STATUS_OK)) {
+        return 1;
+    }
     if (vs_test_not_null(value) != 0) {
         return 1;
     }
@@ -158,14 +190,23 @@ VS_TEST(init) {
 VS_TEST(prepend) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_string value = vs_string_create("world", allocator);
+    vs_string value = NULL;
+    if (vs_test_equal(vs_string_create("world", allocator, &value), VS_STATUS_OK)) {
+        return 1;
+    }
 
-    vs_string_prepend(&value, "hello ");
+    if (vs_test_status_ok(vs_string_prepend(&value, "hello "))) {
+
+        return 1;
+    }
     if (vs_test_equal_str(value, "hello world") != 0) {
         return 1;
     }
 
-    vs_string_prepend(&value, "");
+    if (vs_test_status_ok(vs_string_prepend(&value, ""))) {
+
+        return 1;
+    }
     if (vs_test_equal_str(value, "hello world") != 0) {
         return 1;
     }
@@ -180,7 +221,10 @@ VS_TEST(prepend) {
 VS_TEST(search) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_string value = vs_string_create("hello world", allocator);
+    vs_string value = NULL;
+    if (vs_test_equal(vs_string_create("hello world", allocator, &value), VS_STATUS_OK)) {
+        return 1;
+    }
 
     if (vs_test_equal(vs_string_contains(value, "lo wo"), true) != 0) {
         return 1;
@@ -224,7 +268,10 @@ VS_TEST(search) {
 VS_TEST(iterator_walks_bytes) {
     vs_test_allocator test_allocator;
     vs_allocator *allocator = vs_test_allocator_init(&test_allocator);
-    vs_string value = vs_string_create("abc", allocator);
+    vs_string value = NULL;
+    if (vs_test_equal(vs_string_create("abc", allocator, &value), VS_STATUS_OK)) {
+        return 1;
+    }
     vs_iterator iter = vs_string_get_iterator(value);
     const char *out;
     const char *expected = "abc";

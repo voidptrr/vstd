@@ -29,13 +29,8 @@
 #include <stddef.h>
 
 #include "vstd/datastruct/iterator.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
-
-#define VS_VECTOR_PUSH_AS(vector, type, value) \
-    do { \
-        type vs_vector_push_value__ = (value); \
-        vs_vector_push((vector), &vs_vector_push_value__); \
-    } while (0)
 
 #define vs_vector_for_each(type, item, vector) \
     for (vs_iterator item##_vs_iter__ = vs_vector_get_iterator((vector)); \
@@ -63,20 +58,21 @@ typedef struct vs_vector vs_vector;
 typedef int (*vs_vector_cmp_fn)(const void *lhs, const void *rhs);
 
 /* Create a vector with element size elem_size. */
-vs_vector *vs_vector_create(size_t elem_size, vs_allocator *allocator);
+VS_NODISCARD vs_status vs_vector_create(size_t elem_size, vs_allocator *allocator, vs_vector **out);
 
 /* Create a vector with element size elem_size and at least capacity slots. */
-vs_vector *vs_vector_create_with_capacity(
+VS_NODISCARD vs_status vs_vector_create_with_capacity(
     size_t elem_size,
     size_t capacity,
-    vs_allocator *allocator
+    vs_allocator *allocator,
+    vs_vector **out
 );
 
 /* Ensure vector can hold at least capacity elements without growing. */
-void vs_vector_reserve(vs_vector *vector, size_t capacity);
+VS_NODISCARD vs_status vs_vector_reserve(vs_vector *vector, size_t capacity);
 
 /* Append one element by copying elem_size bytes from element. */
-void vs_vector_push(vs_vector *vector, const void *element);
+VS_NODISCARD vs_status vs_vector_push(vs_vector *vector, const void *element);
 
 /* Remove and return the last element pointer, or NULL when empty. */
 void *vs_vector_pop(vs_vector *vector);

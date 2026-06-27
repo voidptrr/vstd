@@ -22,48 +22,56 @@ Typed cursor for walking deque elements.
 ### vs_deque_create
 
 ```c
-vs_deque *vs_deque_create(size_t elem_size, vs_allocator *allocator);
+vs_status vs_deque_create(size_t elem_size, vs_allocator *allocator, vs_deque **out);
 ```
 
-- Parameters: `elem_size`, `allocator`
-- Returns: opaque deque handle.
+- Parameters: `elem_size`, `allocator`, `out`
+- Returns: `VS_STATUS_OK` on success, or an error status.
+- Writes: opaque deque handle to `*out` on success.
 - Notes: the deque stores `allocator` and reuses it for growth and destroy.
   When `allocator` is `NULL`, deque uses the C library heap through
-  `vs_malloc`/`vs_realloc`.
+  `vs_alloc`/`vs_resize`.
 - Example:
 
 ```c
-vs_deque *deque = vs_deque_create(sizeof(int), NULL);
+vs_deque *deque = NULL;
+if (vs_deque_create(sizeof(int), NULL, &deque) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_deque_push
 
 ```c
-void vs_deque_push(vs_deque *deque, const void *element);
+vs_status vs_deque_push(vs_deque *deque, const void *element);
 ```
 
 - Parameters: `deque`, `element`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Example:
 
 ```c
 int value = 2;
-vs_deque_push(deque, &value);
+if (vs_deque_push(deque, &value) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_deque_pushfront
 
 ```c
-void vs_deque_pushfront(vs_deque *deque, const void *element);
+vs_status vs_deque_pushfront(vs_deque *deque, const void *element);
 ```
 
 - Parameters: `deque`, `element`
-- Returns: none.
+- Returns: `VS_STATUS_OK` on success, or an error status.
 - Example:
 
 ```c
 int value = 1;
-vs_deque_pushfront(deque, &value);
+if (vs_deque_pushfront(deque, &value) != VS_STATUS_OK) {
+    /* handle allocation failure */
+}
 ```
 
 ### vs_deque_popleft

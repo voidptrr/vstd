@@ -28,8 +28,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "vstd/assert.h"
 #include "vstd/datastruct/linked_list.h"
+#include "vstd/error.h"
 #include "vstd/memory/allocator.h"
+#include "vstd/memory/utils.h"
 
 #define VS_HASH_COMMON_DEFAULT_CAPACITY 16
 #define VS_HASH_COMMON_MAX_LOAD_NUMERATOR 3
@@ -51,34 +54,67 @@ static inline size_t vs_hash_common_bucket_index(size_t hash, size_t capacity) {
 
 /* Return true when inserting one more item would exceed the load limit. */
 static inline bool vs_hash_common_should_grow(size_t size, size_t capacity) {
-    return ((size + 1) * VS_HASH_COMMON_MAX_LOAD_DENOMINATOR)
-           > (capacity * VS_HASH_COMMON_MAX_LOAD_NUMERATOR);
+    size_t next_size = 0;
+    size_t scaled_size = 0;
+    size_t scaled_capacity = 0;
+    if (vs_size_add_overflow(size, 1, &next_size)
+        || vs_size_mul_overflow(next_size, VS_HASH_COMMON_MAX_LOAD_DENOMINATOR, &scaled_size)) {
+        return true;
+    }
+
+    if (vs_size_mul_overflow(capacity, VS_HASH_COMMON_MAX_LOAD_NUMERATOR, &scaled_capacity)) {
+        return false;
+    }
+
+    return scaled_size > scaled_capacity;
 }
 
 /* Return a power-of-two capacity that can hold size items at the max load. */
-static inline size_t vs_hash_common_capacity_for_size(size_t size) {
+static inline vs_status vs_hash_common_capacity_for_size(size_t size, size_t *out) {
+    VSTD_ASSERT(out != NULL, "fatal: vs_hash_common_capacity_for_size invalid arguments");
+
     size_t capacity = VS_HASH_COMMON_DEFAULT_CAPACITY;
-    while ((size * VS_HASH_COMMON_MAX_LOAD_DENOMINATOR)
-           > (capacity * VS_HASH_COMMON_MAX_LOAD_NUMERATOR)) {
-        capacity *= 2;
+    size_t scaled_size = 0;
+    if (vs_size_mul_overflow(size, VS_HASH_COMMON_MAX_LOAD_DENOMINATOR, &scaled_size)) {
+        return VS_STATUS_OVERFLOW;
     }
-    return capacity;
+
+    while (1) {
+        size_t scaled_capacity = 0;
+        if (vs_size_mul_overflow(capacity, VS_HASH_COMMON_MAX_LOAD_NUMERATOR, &scaled_capacity)) {
+            return VS_STATUS_OVERFLOW;
+        }
+        if (scaled_size <= scaled_capacity) {
+            break;
+        }
+        if (vs_size_mul_overflow(capacity, 2, &capacity)) {
+            return VS_STATUS_OVERFLOW;
+        }
+    }
+
+    *out = capacity;
+    return VS_STATUS_OK;
 }
 
 /* Allocate and initialize an array of empty bucket lists. */
-vs_hash_common_bucket *vs_hash_common_buckets_create(size_t capacity, vs_allocator *allocator);
+VS_NODISCARD vs_status vs_hash_common_buckets_create(
+    size_t capacity,
+    vs_allocator *allocator,
+    vs_hash_common_bucket **out
+);
 
 /*
  * Move all nodes into a newly allocated bucket array sized to new_capacity.
  * The old bucket array is destroyed, but entries are preserved and relinked
  * into the new buckets.
  */
-vs_hash_common_bucket *vs_hash_common_buckets_rehash(
+VS_NODISCARD vs_status vs_hash_common_buckets_rehash(
     vs_hash_common_bucket *buckets,
     size_t capacity,
     size_t new_capacity,
     vs_allocator *allocator,
-    vs_hash_common_entry_hash_fn entry_hash
+    vs_hash_common_entry_hash_fn entry_hash,
+    vs_hash_common_bucket **out
 );
 
 /* Return the first node whose extracted value equals value, or NULL. */

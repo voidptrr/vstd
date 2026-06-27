@@ -24,11 +24,15 @@
 
 #include <stdint.h>
 
+#include "vstd/error.h"
 #include "vstd/memory/arena.h"
 #include "vstd/testing.h"
 
 int main(void) {
-    vs_arena *arena = vs_arena_create(128);
+    vs_arena *arena = NULL;
+    if (vs_test_equal(vs_arena_create(128, &arena), VS_STATUS_OK)) {
+        return 1;
+    }
     void *before = vs_arena_alloc(arena, 8);
     if (vs_test_not_null(before) != 0) {
         return 1;
