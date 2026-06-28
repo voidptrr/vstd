@@ -1,5 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
-
 /*
  * MIT License
  *
@@ -30,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "k4c/error.h"
@@ -38,8 +37,14 @@
 #include "k4c/memory/test_allocator.h"
 #include "k4c/testing.h"
 
-static int make_temp_dir(char *template) {
-    return mkdtemp(template) == NULL ? 1 : 0;
+static int make_temp_dir(char *out, size_t out_size) {
+    static unsigned int counter;
+
+    int written = snprintf(out, out_size, "/tmp/k4c-file-test-%ld-%u", (long)getpid(), counter++);
+    if (written < 0 || (size_t)written >= out_size) {
+        return 1;
+    }
+    return mkdir(out, 0700) != 0 ? 1 : 0;
 }
 
 static int make_temp_file_path(char *out, size_t out_size, const char *dir, const char *name) {
@@ -51,8 +56,8 @@ static int make_temp_file_path(char *out, size_t out_size, const char *dir, cons
 }
 
 K4C_TEST(is_dir_reports_directories_and_files) {
-    char dir[] = "/tmp/k4c-file-test-XXXXXX";
-    if (make_temp_dir(dir) != 0) {
+    char dir[256];
+    if (make_temp_dir(dir, sizeof(dir)) != 0) {
         return 1;
     }
 
@@ -116,8 +121,8 @@ K4C_TEST(missing_path_returns_not_found) {
 }
 
 K4C_TEST(file_size_reports_regular_file_size) {
-    char dir[] = "/tmp/k4c-file-test-XXXXXX";
-    if (make_temp_dir(dir) != 0) {
+    char dir[256];
+    if (make_temp_dir(dir, sizeof(dir)) != 0) {
         return 1;
     }
 
@@ -149,8 +154,8 @@ K4C_TEST(file_size_reports_regular_file_size) {
 }
 
 K4C_TEST(write_all_and_read_all_round_trip) {
-    char dir[] = "/tmp/k4c-file-test-XXXXXX";
-    if (make_temp_dir(dir) != 0) {
+    char dir[256];
+    if (make_temp_dir(dir, sizeof(dir)) != 0) {
         return 1;
     }
 

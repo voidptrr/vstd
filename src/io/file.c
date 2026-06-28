@@ -22,11 +22,13 @@
  * SOFTWARE.
  */
 
+#include <asm-generic/errno-base.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #include "k4c/assert.h"
@@ -110,12 +112,15 @@ k4c_status k4c_file_read_all(
         return K4C_STATUS_IO;
     }
 
+    size_t alloc_len = len + 1;
+
     uint8_t *data = NULL;
-    k4c_status st = k4c_alloc(k4c_allocator, len + 1, (void **)&data);
+    k4c_status st = k4c_alloc(k4c_allocator, alloc_len, (void **)&data);
     if (st != K4C_STATUS_OK) {
         (void)fclose(file);
         return st;
     }
+    memset(data, 0, alloc_len);
 
     size_t read_len = fread(data, 1, len, file);
     if (read_len != len || ferror(file)) {
@@ -123,7 +128,6 @@ k4c_status k4c_file_read_all(
         (void)fclose(file);
         return K4C_STATUS_IO;
     }
-    data[len] = 0;
 
     if (fclose(file) != 0) {
         k4c_dealloc(k4c_allocator, data);
