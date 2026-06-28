@@ -16,3 +16,5 @@ Checks: >-
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
 WarningsAsErrors: '*'
 HeaderFilterRegex: '^.*/(src|include)/.*'
+CheckOptions:
+  misc-include-cleaner.IgnoreHeaders: 'asm-generic/errno-base.h'
