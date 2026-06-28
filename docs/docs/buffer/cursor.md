@@ -66,10 +66,10 @@ k4c_buf_cursor k4c_buf_cursor_create_from_cstr(const char *text);
 k4c_buf_cursor cursor = k4c_buf_cursor_create_from_cstr("name = value");
 ```
 
-### k4c_buf_cursor_is_eof
+### k4c_buf_cursor_at_end
 
 ```c
-bool k4c_buf_cursor_is_eof(const k4c_buf_cursor *cursor);
+bool k4c_buf_cursor_at_end(const k4c_buf_cursor *cursor);
 ```
 
 - Parameters: `cursor`

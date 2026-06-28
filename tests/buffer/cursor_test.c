@@ -57,7 +57,7 @@ K4C_TEST(create_tracks_buffer) {
     if (k4c_test_equal(k4c_buf_cursor_remaining(&cursor), 3) != 0) {
         return 1;
     }
-    if (k4c_test_equal(k4c_buf_cursor_is_eof(&cursor), false) != 0) {
+    if (k4c_test_equal(k4c_buf_cursor_at_end(&cursor), false) != 0) {
         return 1;
     }
     return 0;
@@ -143,7 +143,7 @@ K4C_TEST(next_skip_and_next_if_advance) {
     if (k4c_test_status_ok(k4c_buf_cursor_skip(&cursor, 1)) != 0) {
         return 1;
     }
-    if (k4c_test_equal(k4c_buf_cursor_is_eof(&cursor), true) != 0) {
+    if (k4c_test_equal(k4c_buf_cursor_at_end(&cursor), true) != 0) {
         return 1;
     }
     if (k4c_test_equal(k4c_buf_cursor_next(&cursor, &byte), K4C_STATUS_EOF) != 0) {
@@ -167,7 +167,7 @@ K4C_TEST(skip_while_uses_predicate) {
     if (k4c_test_equal(k4c_buf_cursor_skip_while(&cursor, byte_in_set, "0123456789"), 3) != 0) {
         return 1;
     }
-    if (k4c_test_equal(k4c_buf_cursor_is_eof(&cursor), true) != 0) {
+    if (k4c_test_equal(k4c_buf_cursor_at_end(&cursor), true) != 0) {
         return 1;
     }
     return 0;

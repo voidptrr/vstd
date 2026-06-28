@@ -46,7 +46,7 @@ k4c_buf_cursor k4c_buf_cursor_create(const void *data, size_t len);
 k4c_buf_cursor k4c_buf_cursor_create_from_cstr(const char *text);
 
 /* Return whether cursor has no remaining bytes. */
-bool k4c_buf_cursor_is_eof(const k4c_buf_cursor *cursor);
+bool k4c_buf_cursor_at_end(const k4c_buf_cursor *cursor);
 
 /* Return the current zero-based offset from the start of the buffer. */
 size_t k4c_buf_cursor_position(const k4c_buf_cursor *cursor);

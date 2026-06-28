@@ -52,8 +52,8 @@ k4c_buf_cursor k4c_buf_cursor_create_from_cstr(const char *text) {
     return k4c_buf_cursor_create(text, strlen(text));
 }
 
-bool k4c_buf_cursor_is_eof(const k4c_buf_cursor *cursor) {
-    K4C_ASSERT(cursor != NULL, "fatal: k4c_buf_cursor_is_eof invalid arguments");
+bool k4c_buf_cursor_at_end(const k4c_buf_cursor *cursor) {
+    K4C_ASSERT(cursor != NULL, "fatal: k4c_buf_cursor_at_end invalid arguments");
 
     return cursor->pos >= cursor->len;
 }
@@ -140,7 +140,7 @@ size_t k4c_buf_cursor_skip_while(
     K4C_ASSERT(predicate != NULL, "fatal: k4c_buf_cursor_skip_while invalid arguments");
 
     size_t start = cursor->pos;
-    while (!k4c_buf_cursor_is_eof(cursor)) {
+    while (!k4c_buf_cursor_at_end(cursor)) {
         uint8_t byte = 0;
         if (k4c_buf_cursor_peek(cursor, &byte) != K4C_STATUS_OK || !predicate(context, byte)) {
             break;
