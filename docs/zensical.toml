@@ -37,6 +37,9 @@ nav = [
   { "Buffer" = [
     { "Cursor" = "buffer/cursor.md" },
   ] },
+  { "IO" = [
+    { "File" = "io/file.md" },
+  ] },
   { "Memory" = [
     { "Utilities" = "reference/k4c-memory-utils.md" },
     { "Allocators" = [
