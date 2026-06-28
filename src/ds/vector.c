@@ -273,6 +273,93 @@ k4c_iterator k4c_vector_get_iterator(const k4c_vector *k4c_vector) {
     return iter;
 }
 
+k4c_status k4c_vector_collect(
+    k4c_iterator *source,
+    size_t elem_size,
+    k4c_allocator *k4c_allocator,
+    k4c_vector **out
+) {
+    K4C_ASSERT(source != NULL, "fatal: k4c_vector_collect invalid arguments");
+    K4C_ASSERT(elem_size > 0, "fatal: k4c_vector_collect invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_vector_collect invalid arguments");
+
+    *out = NULL;
+
+    k4c_vector *k4c_vector = NULL;
+    k4c_status st = k4c_vector_create(elem_size, k4c_allocator, &k4c_vector);
+    if (st != K4C_STATUS_OK) {
+        return st;
+    }
+    if (source->size_hint > 0) {
+        st = k4c_vector_reserve(k4c_vector, source->size_hint);
+        if (st != K4C_STATUS_OK) {
+            k4c_vector_destroy(k4c_vector);
+            return st;
+        }
+    }
+    const void *item;
+    while ((item = k4c_iterator_next(source)) != NULL) {
+        st = k4c_vector_push(k4c_vector, item);
+        if (st != K4C_STATUS_OK) {
+            k4c_vector_destroy(k4c_vector);
+            return st;
+        }
+    }
+
+    *out = k4c_vector;
+    return K4C_STATUS_OK;
+}
+
+k4c_status k4c_vector_collect_map(
+    k4c_iterator *source,
+    size_t dst_elem_size,
+    k4c_vector_collect_map_fn map,
+    void *context,
+    k4c_allocator *k4c_allocator,
+    k4c_vector **out
+) {
+    K4C_ASSERT(source != NULL, "fatal: k4c_vector_collect_map invalid arguments");
+    K4C_ASSERT(dst_elem_size > 0, "fatal: k4c_vector_collect_map invalid arguments");
+    K4C_ASSERT(map != NULL, "fatal: k4c_vector_collect_map invalid arguments");
+    K4C_ASSERT(out != NULL, "fatal: k4c_vector_collect_map invalid arguments");
+
+    *out = NULL;
+
+    k4c_vector *k4c_vector = NULL;
+    k4c_status st = k4c_vector_create(dst_elem_size, k4c_allocator, &k4c_vector);
+    if (st != K4C_STATUS_OK) {
+        return st;
+    }
+    if (source->size_hint > 0) {
+        st = k4c_vector_reserve(k4c_vector, source->size_hint);
+        if (st != K4C_STATUS_OK) {
+            k4c_vector_destroy(k4c_vector);
+            return st;
+        }
+    }
+    void *dst = NULL;
+    st = k4c_alloc(k4c_allocator, dst_elem_size, &dst);
+    if (st != K4C_STATUS_OK) {
+        k4c_vector_destroy(k4c_vector);
+        return st;
+    }
+
+    const void *item;
+    while ((item = k4c_iterator_next(source)) != NULL) {
+        map(context, item, dst);
+        st = k4c_vector_push(k4c_vector, dst);
+        if (st != K4C_STATUS_OK) {
+            k4c_dealloc(k4c_allocator, dst);
+            k4c_vector_destroy(k4c_vector);
+            return st;
+        }
+    }
+    k4c_dealloc(k4c_allocator, dst);
+
+    *out = k4c_vector;
+    return K4C_STATUS_OK;
+}
+
 size_t k4c_vector_lower_bound(
     const k4c_vector *k4c_vector,
     const void *key,

@@ -9,13 +9,22 @@ This API is fail-fast: invalid required arguments are programmer errors and are 
 
 ## TYPES
 
-### k4c_vector_iterator
+### k4c_vector
 
 ```c
-typedef struct k4c_vector_iterator k4c_vector_iterator;
+typedef struct k4c_vector k4c_vector;
 ```
 
-Typed cursor for walking k4c_vector elements.
+Opaque generic contiguous dynamic array.
+
+### k4c_vector_collect_map_fn
+
+```c
+typedef void (*k4c_vector_collect_map_fn)(void *context, const void *src, void *dst);
+```
+
+Map callback used by `k4c_vector_collect_map`. Write the mapped value into `dst`.
+The destination storage has the element size passed to `k4c_vector_collect_map`.
 
 ## FUNCTIONS
 
@@ -229,6 +238,93 @@ const int *item;
 while ((item = (const int *)k4c_iterator_next(&iter)) != NULL) {
     /* use *item */
 }
+```
+
+### k4c_vector_collect
+
+```c
+k4c_status k4c_vector_collect(k4c_iterator *source,
+                              size_t elem_size,
+                              k4c_allocator *k4c_allocator,
+                              k4c_vector **out);
+```
+
+- Parameters: `source`, `elem_size`, `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
+- Writes: k4c_vector containing copies of the remaining source items to `*out`.
+- Notes: consumes `source`. The returned k4c_vector owns its storage and can outlive
+  the original data structure.
+- Example:
+
+```c
+k4c_vector *values = NULL;
+if (k4c_vector_create(sizeof(int), NULL, &values) != K4C_STATUS_OK) {
+    /* handle allocation failure */
+}
+int one = 1;
+int two = 2;
+if (k4c_vector_push(values, &one) != K4C_STATUS_OK) {
+    /* handle allocation failure */
+}
+if (k4c_vector_push(values, &two) != K4C_STATUS_OK) {
+    /* handle allocation failure */
+}
+
+k4c_iterator iter = k4c_vector_get_iterator(values);
+k4c_vector *copy = NULL;
+if (k4c_vector_collect(&iter, sizeof(int), NULL, &copy) != K4C_STATUS_OK) {
+    /* handle allocation failure */
+}
+
+k4c_vector_destroy(values);
+/* copy still owns the collected ints. */
+k4c_vector_destroy(copy);
+```
+
+### k4c_vector_collect_map
+
+```c
+k4c_status k4c_vector_collect_map(k4c_iterator *source,
+                                  size_t dst_elem_size,
+                                  k4c_vector_collect_map_fn map,
+                                  void *context,
+                                  k4c_allocator *k4c_allocator,
+                                  k4c_vector **out);
+```
+
+- Parameters: `source`, `dst_elem_size`, `map`, `context`, `k4c_allocator`, `out`
+- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
+- Writes: k4c_vector containing mapped copies of the remaining source items to `*out`.
+- Notes: consumes `source`. Use this when the output element type or size is
+  different from the source element type.
+- Example:
+
+```c
+static void int_to_double(void *context, const void *src, void *dst) {
+    (void)context;
+    *(double *)dst = (double)*(const int *)src;
+}
+
+k4c_vector *ints = NULL;
+if (k4c_vector_create(sizeof(int), NULL, &ints) != K4C_STATUS_OK) {
+    /* handle allocation failure */
+}
+int value = 42;
+if (k4c_vector_push(ints, &value) != K4C_STATUS_OK) {
+    /* handle allocation failure */
+}
+
+k4c_iterator iter = k4c_vector_get_iterator(ints);
+k4c_vector *doubles = NULL;
+if (k4c_vector_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL, &doubles) != K4C_STATUS_OK) {
+    /* handle allocation failure */
+}
+
+const double *mapped = (const double *)k4c_vector_get(doubles, 0);
+/* *mapped == 42.0 */
+
+k4c_vector_destroy(ints);
+k4c_vector_destroy(doubles);
 ```
 
 ### k4c_vector_lower_bound

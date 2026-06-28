@@ -57,6 +57,9 @@ typedef struct k4c_vector k4c_vector;
 /* Comparator callback: negative if lhs < rhs, zero if equal, positive if lhs > rhs. */
 typedef int (*k4c_vector_cmp_fn)(const void *lhs, const void *rhs);
 
+/* Map callback used when collecting iterator items into a vector. */
+typedef void (*k4c_vector_collect_map_fn)(void *context, const void *src, void *dst);
+
 /* Create a k4c_vector with element size elem_size. */
 k4c_status k4c_vector_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_vector **out);
 
@@ -97,6 +100,24 @@ size_t k4c_vector_size(const k4c_vector *k4c_vector);
 
 /* Return an k4c_iterator over k4c_vector from index 0 to size - 1. */
 k4c_iterator k4c_vector_get_iterator(const k4c_vector *k4c_vector);
+
+/* Collect remaining source items by copying elem_size bytes into a new k4c_vector. */
+k4c_status k4c_vector_collect(
+    k4c_iterator *source,
+    size_t elem_size,
+    k4c_allocator *k4c_allocator,
+    k4c_vector **out
+);
+
+/* Map each remaining source item into dst_elem_size bytes and collect into a new k4c_vector. */
+k4c_status k4c_vector_collect_map(
+    k4c_iterator *source,
+    size_t dst_elem_size,
+    k4c_vector_collect_map_fn map,
+    void *context,
+    k4c_allocator *k4c_allocator,
+    k4c_vector **out
+);
 
 /* Return the first sorted index whose item is not less than key. */
 size_t k4c_vector_lower_bound(const k4c_vector *k4c_vector, const void *key, k4c_vector_cmp_fn cmp);

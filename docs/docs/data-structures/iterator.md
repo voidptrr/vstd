@@ -5,7 +5,7 @@
 The k4c_iterator module provides a generic k4c_iterator that can walk all k4c data
 structures with k4c_iterator support. Data structures own their k4c_iterator state,
 construction, and advancement functions. The generic k4c_iterator module only owns
-the basic callback k4c_iterator shape and eager collection helpers.
+the basic callback k4c_iterator shape.
 
 Iterators do not allocate. They borrow the data structure or caller-owned
 callback context they point at.
@@ -34,15 +34,6 @@ typedef const void *(*k4c_iterator_next_fn)(void *context);
 
 Callback used by custom iterators. Return the next item pointer, or `NULL` when
 the k4c_iterator is exhausted.
-
-### k4c_iterator_map_into_fn
-
-```c
-typedef void (*k4c_iterator_map_into_fn)(void *context, const void *src, void *dst);
-```
-
-Map callback used by `collect_map`. Write the mapped value into `dst`. The
-destination storage has the element size passed to `k4c_iterator_collect_map`.
 
 ## FUNCTIONS
 
@@ -84,8 +75,8 @@ k4c_iterator k4c_iterator_from_callback(void *context, k4c_iterator_next_fn next
 
 - Parameters: `context`, `next`
 - Returns: k4c_iterator backed by caller-owned state.
-- Notes: use this to integrate custom data structures with k4c helpers such as
-  `k4c_iterator_collect`.
+- Notes: use this to integrate custom data structures with helpers that consume
+  k4c_iterators.
 - Example:
 
 ```c
@@ -132,8 +123,8 @@ void k4c_iterator_set_size_hint(k4c_iterator *iter, size_t size_hint);
 
 - Parameters: `iter`, `size_hint`
 - Returns: none.
-- Notes: sets a conservative remaining-item count used by collect helpers to
-  reserve output storage.
+- Notes: sets a conservative remaining-item count used by consumers to reserve
+  output storage.
 
 ### k4c_iterator_size_hint
 
@@ -143,90 +134,3 @@ size_t k4c_iterator_size_hint(const k4c_iterator *iter);
 
 - Parameters: `iter`
 - Returns: remaining-item hint, or zero when unknown.
-
-### k4c_iterator_collect
-
-```c
-k4c_status k4c_iterator_collect(k4c_iterator *source,
-                              size_t elem_size,
-                              k4c_allocator *k4c_allocator,
-                              k4c_vector **out);
-```
-
-- Parameters: `source`, `elem_size`, `k4c_allocator`, `out`
-- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
-- Writes: k4c_vector containing copies of the remaining source items to `*out`.
-- Notes: consumes `source`. The returned k4c_vector owns its storage and can outlive
-  the original data structure.
-- Example:
-
-```c
-k4c_vector *values = NULL;
-if (k4c_vector_create(sizeof(int), NULL, &values) != K4C_STATUS_OK) {
-    /* handle allocation failure */
-}
-int one = 1;
-int two = 2;
-if (k4c_vector_push(values, &one) != K4C_STATUS_OK) {
-    /* handle allocation failure */
-}
-if (k4c_vector_push(values, &two) != K4C_STATUS_OK) {
-    /* handle allocation failure */
-}
-
-k4c_iterator iter = k4c_vector_get_iterator(values);
-k4c_vector *copy = NULL;
-if (k4c_iterator_collect(&iter, sizeof(int), NULL, &copy) != K4C_STATUS_OK) {
-    /* handle allocation failure */
-}
-
-k4c_vector_destroy(values);
-/* copy still owns the collected ints. */
-k4c_vector_destroy(copy);
-```
-
-### k4c_iterator_collect_map
-
-```c
-k4c_status k4c_iterator_collect_map(k4c_iterator *source,
-                                  size_t dst_elem_size,
-                                  k4c_iterator_map_into_fn map,
-                                  void *context,
-                                  k4c_allocator *k4c_allocator,
-                                  k4c_vector **out);
-```
-
-- Parameters: `source`, `dst_elem_size`, `map`, `context`, `k4c_allocator`, `out`
-- Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
-- Writes: k4c_vector containing mapped copies of the remaining source items to `*out`.
-- Notes: consumes `source`. Use this when the output element type or size is
-  different from the source element type.
-- Example:
-
-```c
-static void int_to_double(void *context, const void *src, void *dst) {
-    (void)context;
-    *(double *)dst = (double)*(const int *)src;
-}
-
-k4c_vector *ints = NULL;
-if (k4c_vector_create(sizeof(int), NULL, &ints) != K4C_STATUS_OK) {
-    /* handle allocation failure */
-}
-int value = 42;
-if (k4c_vector_push(ints, &value) != K4C_STATUS_OK) {
-    /* handle allocation failure */
-}
-
-k4c_iterator iter = k4c_vector_get_iterator(ints);
-k4c_vector *doubles = NULL;
-if (k4c_iterator_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL, &doubles) != K4C_STATUS_OK) {
-    /* handle allocation failure */
-}
-
-const double *mapped = (const double *)k4c_vector_get(doubles, 0);
-/* *mapped == 42.0 */
-
-k4c_vector_destroy(ints);
-k4c_vector_destroy(doubles);
-```

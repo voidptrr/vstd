@@ -28,6 +28,7 @@
 #include "k4c/ds/iterator.h"
 #include "k4c/ds/vector.h"
 #include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 #include "k4c/memory/test_allocator.h"
 #include "k4c/testing.h"
 
@@ -287,7 +288,7 @@ K4C_TEST(iterator_walks_front_to_back) {
     return 0;
 }
 
-K4C_TEST(iterator_collect_copies_items) {
+K4C_TEST(vector_collect_copies_items) {
     k4c_test_allocator k4c_test_allocator;
     k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
     k4c_deque *q = NULL;
@@ -305,7 +306,7 @@ K4C_TEST(iterator_collect_copies_items) {
     k4c_iterator iter = k4c_deque_get_iterator(q);
     k4c_vector *out = NULL;
     if (k4c_test_equal(
-            k4c_iterator_collect(&iter, sizeof(int), k4c_allocator, &out),
+            k4c_vector_collect(&iter, sizeof(int), k4c_allocator, &out),
             K4C_STATUS_OK
         )) {
         return 1;
@@ -372,6 +373,6 @@ K4C_TEST_MAIN(
     K4C_TEST_CASE(push),
     K4C_TEST_CASE(pushfront),
     K4C_TEST_CASE(iterator_walks_front_to_back),
-    K4C_TEST_CASE(iterator_collect_copies_items),
+    K4C_TEST_CASE(vector_collect_copies_items),
     K4C_TEST_CASE(iterator_walks_items_after_growth)
 )

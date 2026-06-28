@@ -29,6 +29,7 @@
 #include "k4c/ds/hashmap.h"
 #include "k4c/ds/iterator.h"
 #include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 #include "k4c/memory/test_allocator.h"
 #include "k4c/testing.h"
 

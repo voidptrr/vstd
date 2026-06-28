@@ -27,6 +27,7 @@
 #include "k4c/ds/iterator.h"
 #include "k4c/ds/vector.h"
 #include "k4c/error.h"
+#include "k4c/memory/allocator.h"
 #include "k4c/memory/test_allocator.h"
 #include "k4c/testing.h"
 
@@ -387,7 +388,7 @@ K4C_TEST(custom_callback_iterator_takes_ten_at_a_time) {
     return 0;
 }
 
-K4C_TEST(iterator_collect_copies_items) {
+K4C_TEST(vector_collect_copies_items) {
     k4c_test_allocator k4c_test_allocator;
     k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
     k4c_vector *v = NULL;
@@ -405,7 +406,7 @@ K4C_TEST(iterator_collect_copies_items) {
     k4c_iterator iter = k4c_vector_get_iterator(v);
     k4c_vector *out = NULL;
     if (k4c_test_equal(
-            k4c_iterator_collect(&iter, sizeof(int), k4c_allocator, &out),
+            k4c_vector_collect(&iter, sizeof(int), k4c_allocator, &out),
             K4C_STATUS_OK
         )) {
         return 1;
@@ -428,7 +429,7 @@ K4C_TEST(iterator_collect_copies_items) {
     return 0;
 }
 
-K4C_TEST(iterator_collect_reserves_from_size_hint) {
+K4C_TEST(vector_collect_reserves_from_size_hint) {
     k4c_test_allocator k4c_test_allocator;
     k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
     k4c_vector *v = NULL;
@@ -445,7 +446,7 @@ K4C_TEST(iterator_collect_reserves_from_size_hint) {
     k4c_iterator iter = k4c_vector_get_iterator(v);
     k4c_vector *out = NULL;
     if (k4c_test_equal(
-            k4c_iterator_collect(&iter, sizeof(int), k4c_allocator, &out),
+            k4c_vector_collect(&iter, sizeof(int), k4c_allocator, &out),
             K4C_STATUS_OK
         )) {
         return 1;
@@ -466,7 +467,7 @@ K4C_TEST(iterator_collect_reserves_from_size_hint) {
     return 0;
 }
 
-K4C_TEST(iterator_collect_map_changes_type) {
+K4C_TEST(vector_collect_map_changes_type) {
     k4c_test_allocator k4c_test_allocator;
     k4c_allocator *k4c_allocator = k4c_test_allocator_init(&k4c_test_allocator);
     k4c_vector *v = NULL;
@@ -484,14 +485,7 @@ K4C_TEST(iterator_collect_map_changes_type) {
     k4c_iterator iter = k4c_vector_get_iterator(v);
     k4c_vector *out = NULL;
     if (k4c_test_equal(
-            k4c_iterator_collect_map(
-                &iter,
-                sizeof(double),
-                int_to_double,
-                NULL,
-                k4c_allocator,
-                &out
-            ),
+            k4c_vector_collect_map(&iter, sizeof(double), int_to_double, NULL, k4c_allocator, &out),
             K4C_STATUS_OK
         )) {
         return 1;
@@ -578,8 +572,8 @@ K4C_TEST_MAIN(
     K4C_TEST_CASE(iterator_walks_vector),
     K4C_TEST_CASE(vector_for_each_macro_walks_items),
     K4C_TEST_CASE(custom_callback_iterator_takes_ten_at_a_time),
-    K4C_TEST_CASE(iterator_collect_copies_items),
-    K4C_TEST_CASE(iterator_collect_reserves_from_size_hint),
-    K4C_TEST_CASE(iterator_collect_map_changes_type),
+    K4C_TEST_CASE(vector_collect_copies_items),
+    K4C_TEST_CASE(vector_collect_reserves_from_size_hint),
+    K4C_TEST_CASE(vector_collect_map_changes_type),
     K4C_TEST_CASE(binary_search_bounds)
 )

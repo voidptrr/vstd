@@ -27,8 +27,6 @@
 
 #include <stddef.h>
 
-#include "k4c/error.h"
-
 #define K4C_ITERATOR_STATE_SIZE 64
 
 #define K4C_ITER_NEXT_AS(type, iter) ((const type *)k4c_iterator_next((iter)))
@@ -44,10 +42,6 @@
  * k4c_iterator_next returns the next item pointer, or NULL when exhausted.
  */
 typedef const void *(*k4c_iterator_next_fn)(void *context);
-typedef void (*k4c_iterator_map_into_fn)(void *context, const void *src, void *dst);
-
-typedef struct k4c_allocator k4c_allocator;
-typedef struct k4c_vector k4c_vector;
 
 typedef union k4c_iterator_storage {
     max_align_t align;
@@ -78,23 +72,5 @@ size_t k4c_iterator_size_hint(const k4c_iterator *iter);
 
 /* Return the next item from iter, or NULL when exhausted. */
 const void *k4c_iterator_next(k4c_iterator *iter);
-
-/* Collect remaining source items by copying elem_size bytes into a new k4c_vector. */
-k4c_status k4c_iterator_collect(
-    k4c_iterator *source,
-    size_t elem_size,
-    k4c_allocator *k4c_allocator,
-    k4c_vector **out
-);
-
-/* Map each remaining source item into dst_elem_size bytes and collect into a new k4c_vector. */
-k4c_status k4c_iterator_collect_map(
-    k4c_iterator *source,
-    size_t dst_elem_size,
-    k4c_iterator_map_into_fn map,
-    void *context,
-    k4c_allocator *k4c_allocator,
-    k4c_vector **out
-);
 
 #endif
