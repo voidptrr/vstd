@@ -182,12 +182,12 @@ size_t k4c_buf_cursor_skip_while(
 - Example:
 
 ```c
-static bool is_digit(void *context, uint8_t byte) {
-    (void)context;
-    return byte >= '0' && byte <= '9';
+static bool is_one_of(void *context, uint8_t byte) {
+    const char *bytes = context;
+    return strchr(bytes, byte) != NULL;
 }
 
-size_t digits = k4c_buf_cursor_skip_while(&cursor, is_digit, NULL);
+size_t digits = k4c_buf_cursor_skip_while(&cursor, is_one_of, "0123456789");
 ```
 
 ### k4c_buf_cursor_skip_ascii_whitespace

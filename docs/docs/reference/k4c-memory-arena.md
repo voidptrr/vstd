@@ -37,35 +37,15 @@ k4c_status k4c_arena_create(size_t capacity, k4c_arena **out);
 - Writes: k4c_arena pointer to `*out` on success.
 - Notes: capacity is aligned up to the k4c_arena's internal memory alignment.
 
-### k4c_arena_allocator
+### k4c_arena_allocator_view
 
 ```c
-k4c_allocator *k4c_arena_allocator(k4c_arena *k4c_arena);
+k4c_allocator k4c_arena_allocator_view(k4c_arena *k4c_arena);
 ```
 
 - Parameters: `k4c_arena`
-- Returns: generic k4c_allocator view owned by `k4c_arena`.
+- Returns: generic k4c_allocator value for `k4c_arena`.
 - Notes: the returned k4c_allocator advertises `K4C_ALLOCATOR_FEATURE_REALLOC | K4C_ALLOCATOR_FEATURE_RESET`.
-
-### k4c_arena_alloc
-
-```c
-void *k4c_arena_alloc(k4c_arena *k4c_arena, size_t size);
-```
-
-- Parameters: `k4c_arena`, `size`
-- Returns: allocated pointer, or `NULL` when allocation cannot be satisfied.
-- Notes: returned pointers are aligned to the k4c_arena's internal memory alignment.
-
-### k4c_arena_realloc
-
-```c
-void *k4c_arena_realloc(k4c_arena *k4c_arena, void *ptr, size_t size);
-```
-
-- Parameters: `k4c_arena`, `ptr`, `size`
-- Returns: grown pointer, original pointer when the aligned size is unchanged, or `NULL` on failure.
-- Notes: `ptr == NULL` behaves like allocation. `size == 0` with an existing pointer returns `NULL`. Shrinking an existing allocation is invalid.
 
 ### k4c_arena_reset
 
@@ -115,32 +95,73 @@ void k4c_arena_destroy(k4c_arena *k4c_arena);
 - Returns: none.
 - Behavior: releases the backing buffer and k4c_arena handle.
 
-## EXAMPLE
+## EXAMPLES
+
+### Allocate Scratch Memory
+
+Use the allocator view when code should allocate through the generic allocator
+API. Reset the arena when the whole scratch lifetime is finished.
 
 ```c
 #include <stdint.h>
 
+#include <k4c/error.h>
+#include <k4c/memory/allocator.h>
 #include <k4c/memory/arena.h>
 
 int main(void) {
-    int k4c_status = 0;
-    k4c_arena *k4c_arena = NULL;
-if (k4c_arena_create(1024, &k4c_arena) != K4C_STATUS_OK) {
-    /* handle allocation failure */
-}
-    uint64_t *value = k4c_arena_alloc(k4c_arena, sizeof(uint64_t));
-    if (value == NULL) {
-        k4c_status = 1;
-        goto cleanup;
+    k4c_arena *arena = NULL;
+    if (k4c_arena_create(1024, &arena) != K4C_STATUS_OK) {
+        return 1;
+    }
+
+    k4c_allocator allocator = k4c_arena_allocator_view(arena);
+    uint64_t *value = NULL;
+    if (k4c_alloc(&allocator, sizeof(uint64_t), (void **)&value) != K4C_STATUS_OK) {
+        k4c_arena_destroy(arena);
+        return 1;
     }
 
     *value = 42;
 
-    k4c_arena_reset(k4c_arena);
+    k4c_arena_reset(arena);
+    k4c_arena_destroy(arena);
+    return 0;
+}
+```
 
-cleanup:
-    k4c_arena_destroy(k4c_arena);
+### Inspect Usage
 
-    return k4c_status;
+```c
+#include <stddef.h>
+
+#include <k4c/error.h>
+#include <k4c/memory/allocator.h>
+#include <k4c/memory/arena.h>
+
+int main(void) {
+    k4c_arena *arena = NULL;
+    if (k4c_arena_create(2048, &arena) != K4C_STATUS_OK) {
+        return 1;
+    }
+
+    k4c_allocator allocator = k4c_arena_allocator_view(arena);
+    void *scratch = NULL;
+    if (k4c_alloc(&allocator, 512, &scratch) != K4C_STATUS_OK) {
+        k4c_arena_destroy(arena);
+        return 1;
+    }
+
+    size_t capacity = k4c_arena_capacity(arena);
+    size_t used = k4c_arena_used(arena);
+    size_t available = k4c_arena_available(arena);
+
+    if (used == 0 || available >= capacity) {
+        k4c_arena_destroy(arena);
+        return 1;
+    }
+
+    k4c_arena_destroy(arena);
+    return 0;
 }
 ```

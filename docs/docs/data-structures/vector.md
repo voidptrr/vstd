@@ -53,7 +53,7 @@ k4c_status k4c_vector_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c
 - Parameters: `elem_size`, `k4c_allocator`, `out`
 - Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Writes: opaque k4c_vector handle to `*out` on success.
-- Notes: the k4c_vector stores `k4c_allocator` and reuses it for growth and destroy.
+- Notes: the k4c_vector copies `k4c_allocator` and reuses it for growth and destroy.
   When `k4c_allocator` is `NULL`, k4c_vector uses the C library k4c_heap through
   `k4c_alloc`/`k4c_resize`.
 - Example:
@@ -300,9 +300,9 @@ k4c_status k4c_vector_collect_map(k4c_iterator *source,
 - Example:
 
 ```c
-static void int_to_double(void *context, const void *src, void *dst) {
-    (void)context;
-    *(double *)dst = (double)*(const int *)src;
+static void scale_int(void *context, const void *src, void *dst) {
+    const double *scale = context;
+    *(double *)dst = (double)*(const int *)src * *scale;
 }
 
 k4c_vector *ints = NULL;
@@ -315,13 +315,14 @@ if (k4c_vector_push(ints, &value) != K4C_STATUS_OK) {
 }
 
 k4c_iterator iter = k4c_vector_get_iterator(ints);
+double scale = 2.0;
 k4c_vector *doubles = NULL;
-if (k4c_vector_collect_map(&iter, sizeof(double), int_to_double, NULL, NULL, &doubles) != K4C_STATUS_OK) {
+if (k4c_vector_collect_map(&iter, sizeof(double), scale_int, &scale, NULL, &doubles) != K4C_STATUS_OK) {
     /* handle allocation failure */
 }
 
 const double *mapped = (const double *)k4c_vector_get(doubles, 0);
-/* *mapped == 42.0 */
+/* *mapped == 84.0 */
 
 k4c_vector_destroy(ints);
 k4c_vector_destroy(doubles);

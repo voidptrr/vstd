@@ -46,7 +46,7 @@ k4c_status k4c_hashset_create(size_t elem_size,
 - Parameters: `elem_size`, `elem_eq`, `k4c_allocator`, `out`
 - Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Writes: opaque k4c_hashset handle to `*out` on success.
-- Notes: the k4c_hashset stores `k4c_allocator` and reuses it for entries, buckets,
+- Notes: the k4c_hashset copies `k4c_allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `k4c_allocator` is `NULL`, k4c_hashset uses the C
   library k4c_heap through `k4c_alloc`. Custom `elem_eq` callbacks must be
   consistent with the byte hash used for bucket selection.

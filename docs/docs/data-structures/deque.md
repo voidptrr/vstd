@@ -28,7 +28,7 @@ k4c_status k4c_deque_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_
 - Parameters: `elem_size`, `k4c_allocator`, `out`
 - Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Writes: opaque k4c_deque handle to `*out` on success.
-- Notes: the k4c_deque stores `k4c_allocator` and reuses it for growth and destroy.
+- Notes: the k4c_deque copies `k4c_allocator` and reuses it for growth and destroy.
   When `k4c_allocator` is `NULL`, k4c_deque uses the C library k4c_heap through
   `k4c_alloc`/`k4c_resize`.
 - Example:

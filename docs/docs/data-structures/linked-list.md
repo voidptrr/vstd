@@ -55,7 +55,7 @@ k4c_status k4c_linked_list_create(k4c_allocator *k4c_allocator, k4c_linked_list 
 - Parameters: `k4c_allocator`, `out`
 - Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Writes: opaque linked-list handle to `*out` on success.
-- Notes: the list stores `k4c_allocator` and reuses it to destroy the list handle.
+- Notes: the list copies `k4c_allocator` and reuses it to destroy the list handle.
   Nodes remain caller-owned. When `k4c_allocator` is `NULL`, the handle uses the C
   library k4c_heap through `k4c_alloc`.
 - Example:

@@ -32,7 +32,7 @@ k4c_status k4c_binary_heap_create(size_t elem_size,
 - Parameters: `elem_size`, `cmp`, `k4c_allocator`, `out`
 - Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Writes: opaque binary-k4c_heap handle to `*out` on success.
-- Notes: the binary k4c_heap stores `k4c_allocator` and reuses it for growth and
+- Notes: the binary k4c_heap copies `k4c_allocator` and reuses it for growth and
   destroy. When `k4c_allocator` is `NULL`, binary k4c_heap storage uses the C library
   k4c_heap through `k4c_alloc`/`k4c_resize`. When `cmp` is `NULL`, element ordering
   uses byte comparison.

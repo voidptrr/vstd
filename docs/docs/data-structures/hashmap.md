@@ -87,7 +87,7 @@ k4c_status k4c_hashmap_create(size_t key_size,
 - Parameters: `key_size`, `value_size`, `key_eq`, `k4c_allocator`, `out`
 - Returns: `K4C_STATUS_OK` on success, or an error k4c_status.
 - Writes: opaque k4c_hashmap handle to `*out` on success.
-- Notes: the k4c_hashmap stores `k4c_allocator` and reuses it for entries, buckets,
+- Notes: the k4c_hashmap copies `k4c_allocator` and reuses it for entries, buckets,
   rehashing, and destroy. When `k4c_allocator` is `NULL`, k4c_hashmap uses the C
   library k4c_heap through `k4c_alloc`. Custom `key_eq` callbacks must be
   consistent with the byte hash used for bucket selection.
