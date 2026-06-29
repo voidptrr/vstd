@@ -205,10 +205,6 @@ static void *k4c_heap_vtable_realloc(void *ctx, void *ptr, size_t size) {
 }
 
 k4c_status k4c_heap_create(size_t capacity, k4c_heap **out) {
-    if (k4c_align_up_overflow(capacity, K4C_MEMORY_ALIGN, &capacity)) {
-        return K4C_STATUS_OVERFLOW;
-    }
-
     K4C_ASSERT(
         capacity > sizeof(k4c_heap_block) + K4C_MEMORY_ALIGN,
         "fatal: k4c_heap_create invalid capacity"
@@ -216,6 +212,10 @@ k4c_status k4c_heap_create(size_t capacity, k4c_heap **out) {
     K4C_ASSERT(out != NULL, "fatal: k4c_heap_create invalid arguments");
 
     *out = NULL;
+
+    if (k4c_align_up_overflow(capacity, K4C_MEMORY_ALIGN, &capacity)) {
+        return K4C_STATUS_OVERFLOW;
+    }
 
     k4c_heap *k4c_heap = NULL;
     k4c_status st = k4c_alloc(NULL, sizeof(*k4c_heap), (void **)&k4c_heap);
@@ -267,12 +267,11 @@ size_t k4c_heap_capacity(const k4c_heap *k4c_heap) {
 }
 
 size_t k4c_heap_available(const k4c_heap *k4c_heap) {
-    size_t total = 0;
-
     K4C_ASSERT(k4c_heap != NULL, "fatal: k4c_heap_available invalid arguments");
     K4C_ASSERT(k4c_heap->buffer != NULL, "fatal: k4c_heap_available invalid k4c_heap");
     K4C_ASSERT(k4c_heap->blocks != NULL, "fatal: k4c_heap_available invalid k4c_heap");
 
+    size_t total = 0;
     const k4c_heap_block *block = k4c_heap_head(k4c_heap);
     while (block != NULL) {
         if (block->is_free) {

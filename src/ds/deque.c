@@ -159,18 +159,17 @@ k4c_status k4c_deque_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_
 
     *out = NULL;
 
+    size_t alloc_size = 0;
+    if (k4c_size_mul_overflow(elem_size, K4C_DEQUE_DEFAULT_CAPACITY, &alloc_size)) {
+        return K4C_STATUS_OVERFLOW;
+    }
+
     k4c_deque *k4c_deque = NULL;
     k4c_status st = k4c_alloc(k4c_allocator, sizeof(*k4c_deque), (void **)&k4c_deque);
     if (st != K4C_STATUS_OK) {
         return st;
     }
     k4c_deque->k4c_allocator = k4c_allocator_copy(k4c_allocator);
-
-    size_t alloc_size = 0;
-    if (k4c_size_mul_overflow(elem_size, K4C_DEQUE_DEFAULT_CAPACITY, &alloc_size)) {
-        k4c_dealloc(k4c_allocator, k4c_deque);
-        return K4C_STATUS_OVERFLOW;
-    }
 
     void *buffer = NULL;
     st = k4c_alloc(&k4c_deque->k4c_allocator, alloc_size, &buffer);
