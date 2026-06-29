@@ -27,77 +27,19 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
+#include "common.h"
 #include "k4c/buffer/cursor.h"
 #include "k4c/error.h"
 #include "k4c/io/file.h"
 #include "k4c/io/file_reader.h"
 #include "k4c/testing.h"
 
-static int make_temp_dir(char *out, size_t out_size) {
-    static unsigned int counter;
-
-    int written =
-        snprintf(out, out_size, "/tmp/k4c-file-reader-test-%ld-%u", (long)getpid(), counter++);
-    if (written < 0 || (size_t)written >= out_size) {
-        return 1;
-    }
-    return mkdir(out, 0700) != 0 ? 1 : 0;
-}
-
-static int make_temp_file_path(char *out, size_t out_size, const char *dir, const char *name) {
-    int written = snprintf(out, out_size, "%s/%s", dir, name);
-    if (written < 0 || (size_t)written >= out_size) {
-        return 1;
-    }
-    return 0;
-}
-
 static int close_reader_and_return(k4c_file_reader *reader, int result) {
     if (k4c_file_reader_close(reader) != K4C_STATUS_OK) {
         return 1;
     }
     return result;
-}
-
-static int cleanup_dir_and_return(const char *dir, int result) {
-    if (rmdir(dir) != 0) {
-        return 1;
-    }
-    return result;
-}
-
-static int cleanup_file_dir_and_return(const char *file_path, const char *dir, int result) {
-    int cleanup_result = 0;
-
-    if (unlink(file_path) != 0) {
-        cleanup_result = 1;
-    }
-    if (rmdir(dir) != 0) {
-        cleanup_result = 1;
-    }
-
-    return cleanup_result != 0 ? 1 : result;
-}
-
-static int cleanup_stream_file_dir_and_return(
-    FILE *file,
-    const char *file_path,
-    const char *dir,
-    int result
-) {
-    int cleanup_result = 0;
-
-    if (file != NULL && fclose(file) != 0) {
-        cleanup_result = 1;
-    }
-    if (cleanup_file_dir_and_return(file_path, dir, result) != result) {
-        cleanup_result = 1;
-    }
-
-    return cleanup_result != 0 ? 1 : result;
 }
 
 static int cleanup_reader_stream_file_dir_and_return(
@@ -110,7 +52,7 @@ static int cleanup_reader_stream_file_dir_and_return(
     if (close_reader_and_return(reader, 0) != 0) {
         result = 1;
     }
-    return cleanup_stream_file_dir_and_return(file, file_path, dir, result);
+    return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, result);
 }
 
 static int cursor_equal(k4c_buf_cursor *cursor, const char *text) {
@@ -124,23 +66,47 @@ static int cursor_equal(k4c_buf_cursor *cursor, const char *text) {
     return 0;
 }
 
+static int reader_next_matches(k4c_file_reader *reader, const char **expected, size_t count) {
+    size_t index = 0;
+    k4c_buf_cursor cursor;
+    k4c_status st = K4C_STATUS_OK;
+
+    while ((st = k4c_file_reader_next(reader, &cursor)) == K4C_STATUS_OK) {
+        if (index >= count) {
+            return 1;
+        }
+        if (cursor_equal(&cursor, expected[index]) != 0) {
+            return 1;
+        }
+        index++;
+    }
+
+    if (k4c_test_equal(st, K4C_STATUS_EOF) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(index, count) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 K4C_TEST(init_initializes_reader) {
     char dir[256];
-    if (make_temp_dir(dir, sizeof(dir)) != 0) {
+    if (k4c_io_test_make_temp_dir(dir, sizeof(dir), "k4c-file-reader-test") != 0) {
         return 1;
     }
 
     char file_path[256];
-    if (make_temp_file_path(file_path, sizeof(file_path), dir, "data.bin") != 0) {
-        return cleanup_dir_and_return(dir, 1);
+    if (k4c_io_test_make_temp_file_path(file_path, sizeof(file_path), dir, "data.bin") != 0) {
+        return k4c_io_test_cleanup_dir_and_return(dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_write_all(file_path, "abc", 3)) != 0) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
 
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
     uint8_t data[64];
     k4c_file_reader reader;
@@ -148,7 +114,7 @@ K4C_TEST(init_initializes_reader) {
             k4c_file_reader_init(&reader, file, K4C_FILE_READER_MODE_BYTES, data, sizeof(data))
         )
         != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
 
     if (k4c_test_equal(reader.mode, K4C_FILE_READER_MODE_BYTES) != 0) {
@@ -210,21 +176,21 @@ K4C_TEST(init_rejects_zero_buffer_capacity) {
 
 K4C_TEST(close_resets_reader_without_closing_stream) {
     char dir[256];
-    if (make_temp_dir(dir, sizeof(dir)) != 0) {
+    if (k4c_io_test_make_temp_dir(dir, sizeof(dir), "k4c-file-reader-test") != 0) {
         return 1;
     }
 
     char file_path[256];
-    if (make_temp_file_path(file_path, sizeof(file_path), dir, "data.bin") != 0) {
-        return cleanup_dir_and_return(dir, 1);
+    if (k4c_io_test_make_temp_file_path(file_path, sizeof(file_path), dir, "data.bin") != 0) {
+        return k4c_io_test_cleanup_dir_and_return(dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_write_all(file_path, "abc", 3)) != 0) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
 
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
     uint8_t data[64];
     k4c_file_reader reader;
@@ -232,51 +198,51 @@ K4C_TEST(close_resets_reader_without_closing_stream) {
             k4c_file_reader_init(&reader, file, K4C_FILE_READER_MODE_BYTES, data, sizeof(data))
         )
         != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
 
     if (k4c_test_status_ok(k4c_file_reader_close(&reader)) != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_equal(reader.file == NULL, true) != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_equal(reader.data == NULL, true) != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_equal(reader.len, 0) != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_equal(reader.buffer_capacity, 0) != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_reader_close(&reader)) != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_equal(fgetc(file), 'a') != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
 
-    return cleanup_stream_file_dir_and_return(file, file_path, dir, 0);
+    return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 0);
 }
 
 K4C_TEST(next_reads_byte_chunks) {
     char dir[256];
-    if (make_temp_dir(dir, sizeof(dir)) != 0) {
+    if (k4c_io_test_make_temp_dir(dir, sizeof(dir), "k4c-file-reader-test") != 0) {
         return 1;
     }
 
     char file_path[256];
-    if (make_temp_file_path(file_path, sizeof(file_path), dir, "data.bin") != 0) {
-        return cleanup_dir_and_return(dir, 1);
+    if (k4c_io_test_make_temp_file_path(file_path, sizeof(file_path), dir, "data.bin") != 0) {
+        return k4c_io_test_cleanup_dir_and_return(dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_write_all(file_path, "abcdef", 6)) != 0) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
 
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
     uint8_t data[2];
     k4c_file_reader reader;
@@ -284,29 +250,11 @@ K4C_TEST(next_reads_byte_chunks) {
             k4c_file_reader_init(&reader, file, K4C_FILE_READER_MODE_BYTES, data, sizeof(data))
         )
         != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
 
-    k4c_buf_cursor cursor;
-    if (k4c_test_status_ok(k4c_file_reader_next(&reader, &cursor)) != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (cursor_equal(&cursor, "ab") != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (k4c_test_status_ok(k4c_file_reader_next(&reader, &cursor)) != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (cursor_equal(&cursor, "cd") != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (k4c_test_status_ok(k4c_file_reader_next(&reader, &cursor)) != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (cursor_equal(&cursor, "ef") != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (k4c_test_equal(k4c_file_reader_next(&reader, &cursor), K4C_STATUS_EOF) != 0) {
+    const char *expected[] = {"ab", "cd", "ef"};
+    if (reader_next_matches(&reader, expected, sizeof(expected) / sizeof(expected[0])) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
 
@@ -315,21 +263,21 @@ K4C_TEST(next_reads_byte_chunks) {
 
 K4C_TEST(next_reads_lines) {
     char dir[256];
-    if (make_temp_dir(dir, sizeof(dir)) != 0) {
+    if (k4c_io_test_make_temp_dir(dir, sizeof(dir), "k4c-file-reader-test") != 0) {
         return 1;
     }
 
     char file_path[256];
-    if (make_temp_file_path(file_path, sizeof(file_path), dir, "data.txt") != 0) {
-        return cleanup_dir_and_return(dir, 1);
+    if (k4c_io_test_make_temp_file_path(file_path, sizeof(file_path), dir, "data.txt") != 0) {
+        return k4c_io_test_cleanup_dir_and_return(dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_write_all(file_path, "one\ntwo\nthree", 13)) != 0) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
 
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
     uint8_t data[8];
     k4c_file_reader reader;
@@ -337,29 +285,11 @@ K4C_TEST(next_reads_lines) {
             k4c_file_reader_init(&reader, file, K4C_FILE_READER_MODE_LINE, data, sizeof(data))
         )
         != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
 
-    k4c_buf_cursor cursor;
-    if (k4c_test_status_ok(k4c_file_reader_next(&reader, &cursor)) != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (cursor_equal(&cursor, "one\n") != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (k4c_test_status_ok(k4c_file_reader_next(&reader, &cursor)) != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (cursor_equal(&cursor, "two\n") != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (k4c_test_status_ok(k4c_file_reader_next(&reader, &cursor)) != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (cursor_equal(&cursor, "three") != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (k4c_test_equal(k4c_file_reader_next(&reader, &cursor), K4C_STATUS_EOF) != 0) {
+    const char *expected[] = {"one\n", "two\n", "three"};
+    if (reader_next_matches(&reader, expected, sizeof(expected) / sizeof(expected[0])) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
 
@@ -368,21 +298,21 @@ K4C_TEST(next_reads_lines) {
 
 K4C_TEST(next_rejects_lines_over_buffer_capacity) {
     char dir[256];
-    if (make_temp_dir(dir, sizeof(dir)) != 0) {
+    if (k4c_io_test_make_temp_dir(dir, sizeof(dir), "k4c-file-reader-test") != 0) {
         return 1;
     }
 
     char file_path[256];
-    if (make_temp_file_path(file_path, sizeof(file_path), dir, "data.txt") != 0) {
-        return cleanup_dir_and_return(dir, 1);
+    if (k4c_io_test_make_temp_file_path(file_path, sizeof(file_path), dir, "data.txt") != 0) {
+        return k4c_io_test_cleanup_dir_and_return(dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_write_all(file_path, "abcdef\n", 7)) != 0) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
 
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
     uint8_t data[4];
     k4c_file_reader reader;
@@ -390,7 +320,7 @@ K4C_TEST(next_rejects_lines_over_buffer_capacity) {
             k4c_file_reader_init(&reader, file, K4C_FILE_READER_MODE_LINE, data, sizeof(data))
         )
         != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
 
     k4c_buf_cursor cursor;
@@ -406,21 +336,21 @@ K4C_TEST(next_rejects_lines_over_buffer_capacity) {
 
 K4C_TEST(next_accepts_final_line_at_buffer_capacity) {
     char dir[256];
-    if (make_temp_dir(dir, sizeof(dir)) != 0) {
+    if (k4c_io_test_make_temp_dir(dir, sizeof(dir), "k4c-file-reader-test") != 0) {
         return 1;
     }
 
     char file_path[256];
-    if (make_temp_file_path(file_path, sizeof(file_path), dir, "data.txt") != 0) {
-        return cleanup_dir_and_return(dir, 1);
+    if (k4c_io_test_make_temp_file_path(file_path, sizeof(file_path), dir, "data.txt") != 0) {
+        return k4c_io_test_cleanup_dir_and_return(dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_write_all(file_path, "abcd", 4)) != 0) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
 
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) {
-        return cleanup_file_dir_and_return(file_path, dir, 1);
+        return k4c_io_test_cleanup_file_dir_and_return(file_path, dir, 1);
     }
     uint8_t data[4];
     k4c_file_reader reader;
@@ -428,17 +358,11 @@ K4C_TEST(next_accepts_final_line_at_buffer_capacity) {
             k4c_file_reader_init(&reader, file, K4C_FILE_READER_MODE_LINE, data, sizeof(data))
         )
         != 0) {
-        return cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
+        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
 
-    k4c_buf_cursor cursor;
-    if (k4c_test_status_ok(k4c_file_reader_next(&reader, &cursor)) != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (cursor_equal(&cursor, "abcd") != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
-    if (k4c_test_equal(k4c_file_reader_next(&reader, &cursor), K4C_STATUS_EOF) != 0) {
+    const char *expected[] = {"abcd"};
+    if (reader_next_matches(&reader, expected, sizeof(expected) / sizeof(expected[0])) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
 
