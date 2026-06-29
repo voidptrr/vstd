@@ -31,17 +31,18 @@
 #include "k4c/io/reader.h"
 
 static k4c_status k4c_reader_fill_more(k4c_reader *reader) {
-    if (reader->pos > 0 && reader->pos < reader->len) {
-        reader->len -= reader->pos;
-        memmove(reader->data, reader->data + reader->pos, reader->len);
-        reader->pos = 0;
-    } else if (reader->pos >= reader->len) {
-        reader->pos = 0;
-        reader->len = 0;
+    size_t available = reader->len - reader->pos;
+    if (available == reader->capacity) {
+        return K4C_STATUS_OVERFLOW;
     }
 
-    if (reader->len == reader->capacity) {
-        return K4C_STATUS_OVERFLOW;
+    if (available == 0) {
+        reader->pos = 0;
+        reader->len = 0;
+    } else if (reader->pos > 0) {
+        memmove(reader->data, reader->data + reader->pos, available);
+        reader->pos = 0;
+        reader->len = available;
     }
 
     size_t read_len = 0;
@@ -118,31 +119,41 @@ k4c_status k4c_reader_take_delimiter(k4c_reader *reader, uint8_t delimiter, k4c_
     while (true) {
         uint8_t *start = reader->data + reader->pos;
         size_t available = reader->len - reader->pos;
-        uint8_t *found = memchr(start, delimiter, available);
-        if (found != NULL) {
-            size_t out_len = (size_t)(found - start) + 1;
-            *out = k4c_buf_cursor_create(start, out_len);
-            reader->pos += out_len;
-            return K4C_STATUS_OK;
+
+        if (available == 0) {
+            k4c_status st = k4c_reader_fill_more(reader);
+            if (st != K4C_STATUS_OK) {
+                return st;
+            }
+            continue;
         }
 
-        if (available == reader->capacity) {
+        uint8_t *found = memchr(start, delimiter, available);
+        if (found == NULL && available == reader->capacity) {
             return K4C_STATUS_OVERFLOW;
         }
 
-        k4c_status st = k4c_reader_fill_more(reader);
-        if (st == K4C_STATUS_EOF) {
-            available = reader->len - reader->pos;
-            if (available == 0) {
-                return K4C_STATUS_EOF;
-            }
+        if (found == NULL) {
+            k4c_status st = k4c_reader_fill_more(reader);
+            if (st == K4C_STATUS_EOF) {
+                available = reader->len - reader->pos;
+                if (available == 0) {
+                    return K4C_STATUS_EOF;
+                }
 
-            *out = k4c_buf_cursor_create(reader->data + reader->pos, available);
-            reader->pos = reader->len;
-            return K4C_STATUS_OK;
+                *out = k4c_buf_cursor_create(reader->data + reader->pos, available);
+                reader->pos = reader->len;
+                return K4C_STATUS_OK;
+            }
+            if (st != K4C_STATUS_OK) {
+                return st;
+            }
+            continue;
         }
-        if (st != K4C_STATUS_OK) {
-            return st;
-        }
+
+        size_t out_len = (size_t)(found - start) + 1;
+        *out = k4c_buf_cursor_create(start, out_len);
+        reader->pos += out_len;
+        return K4C_STATUS_OK;
     }
 }

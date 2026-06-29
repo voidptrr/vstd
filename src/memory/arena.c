@@ -90,12 +90,12 @@ static void *k4c_arena_vtable_realloc(void *ctx, void *ptr, size_t size) {
         return NULL;
     }
 
-    size_t header_size = k4c_align_up(sizeof(k4c_arena_alloc_header), K4C_MEMORY_ALIGN);
-    k4c_arena_alloc_header *header = (k4c_arena_alloc_header *)((uint8_t *)ptr - header_size);
     if (k4c_align_up_overflow(size, K4C_MEMORY_ALIGN, &size)) {
         return NULL;
     }
 
+    size_t header_size = k4c_align_up(sizeof(k4c_arena_alloc_header), K4C_MEMORY_ALIGN);
+    k4c_arena_alloc_header *header = (k4c_arena_alloc_header *)((uint8_t *)ptr - header_size);
     K4C_ASSERT(size >= header->size, "fatal: k4c_arena_realloc cannot shrink allocation");
 
     if (size == header->size) {
@@ -112,14 +112,14 @@ static void *k4c_arena_vtable_realloc(void *ctx, void *ptr, size_t size) {
 }
 
 k4c_status k4c_arena_create(size_t capacity, k4c_arena **out) {
-    if (k4c_align_up_overflow(capacity, K4C_MEMORY_ALIGN, &capacity)) {
-        return K4C_STATUS_OVERFLOW;
-    }
-
     K4C_ASSERT(capacity > 0, "fatal: k4c_arena_create invalid capacity");
     K4C_ASSERT(out != NULL, "fatal: k4c_arena_create invalid arguments");
 
     *out = NULL;
+
+    if (k4c_align_up_overflow(capacity, K4C_MEMORY_ALIGN, &capacity)) {
+        return K4C_STATUS_OVERFLOW;
+    }
 
     k4c_arena *k4c_arena = NULL;
     k4c_status st = k4c_alloc(NULL, sizeof(*k4c_arena), (void **)&k4c_arena);
