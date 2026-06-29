@@ -25,19 +25,13 @@ This API is byte-oriented. Returned chunks are not NUL-terminated.
 typedef struct k4c_file_reader {
     FILE *file;
     uint8_t *data;
-    size_t len;
     size_t buffer_capacity;
-    size_t buffer_pos;
-    size_t buffer_len;
 } k4c_file_reader;
 ```
 
 - `file`: caller-owned `FILE *`.
-- `data`: caller-owned byte buffer used as reader storage.
-- `len`: number of bytes in the most recent returned chunk.
+- `data`: caller-owned byte buffer used by the generic reader view.
 - `buffer_capacity`: maximum bytes held in `data` for the buffered window.
-- `buffer_pos`: current unread offset inside `data`.
-- `buffer_len`: number of buffered bytes currently held in `data`.
 
 ## FUNCTIONS
 
@@ -65,7 +59,8 @@ k4c_reader k4c_file_reader_view(k4c_file_reader *reader);
 
 - Parameters: `reader`
 - Returns: generic reader value over `reader`.
-- Notes: the returned value is non-owning. `reader` must outlive it.
+- Notes: the returned value is non-owning and stores its current buffered state
+  by value. `reader` and its buffer must outlive it.
 
 ### k4c_file_reader_close
 

@@ -2,9 +2,10 @@
 
 ## DESCRIPTION
 
-The reader module defines a small generic byte-reader interface. It does not own
-the underlying source. Concrete readers provide a context pointer and vtable
-used by the generic dispatch helpers.
+The reader module defines a small generic buffered byte-reader interface. It
+does not own the underlying source or buffer. Concrete readers provide a context
+pointer and a vtable read function; the generic reader owns the buffered window
+state and implements byte and delimiter operations on top of that primitive.
 
 This API is byte-oriented. Returned delimiter chunks are not NUL-terminated.
 
@@ -16,36 +17,49 @@ This API is byte-oriented. Returned delimiter chunks are not NUL-terminated.
 typedef struct k4c_reader {
     void *ctx;
     const k4c_reader_vtable *vtable;
+    uint8_t *data;
+    size_t pos;
+    size_t len;
+    size_t capacity;
 } k4c_reader;
 ```
 
 - `ctx`: caller-owned concrete reader state.
-- `vtable`: operation table used by generic reader helpers.
+- `vtable`: source operation table used when the buffer needs more bytes.
+- `data`: caller-owned buffer used as the reader window.
+- `pos`: current unread offset inside `data`.
+- `len`: number of valid buffered bytes in `data`.
+- `capacity`: total bytes available in `data`.
 
 ### k4c_reader_vtable
 
 ```c
 typedef struct k4c_reader_vtable {
-    k4c_reader_take_byte_fn take_byte;
-    k4c_reader_take_delimiter_fn take_delimiter;
+    k4c_reader_read_fn read;
 } k4c_reader_vtable;
 ```
 
-- `take_byte`: implementation function for consuming one byte.
-- `take_delimiter`: implementation function for consuming through a delimiter.
+- `read`: implementation function for reading more bytes from the concrete
+  source into a provided destination buffer.
 
 ## FUNCTIONS
 
 ### k4c_reader_create
 
 ```c
-k4c_reader k4c_reader_create(void *ctx, const k4c_reader_vtable *vtable);
+k4c_reader k4c_reader_create(
+    void *ctx,
+    const k4c_reader_vtable *vtable,
+    uint8_t *data,
+    size_t capacity
+);
 ```
 
-- Parameters: `ctx`, `vtable`
+- Parameters: `ctx`, `vtable`, `data`, `capacity`
 - Returns: a generic reader value.
-- Notes: the reader does not take ownership of `ctx`. `vtable`,
-  `vtable->take_byte`, and `vtable->take_delimiter` must not be `NULL`.
+- Notes: the reader does not take ownership of `ctx` or `data`. `vtable`,
+  `vtable->read`, and `data` must not be `NULL`; `capacity` must be greater
+  than zero.
 
 ### k4c_reader_take_byte
 
@@ -57,6 +71,7 @@ k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out);
 - Returns: `K4C_STATUS_OK` when one byte was consumed, `K4C_STATUS_EOF` when no
   byte is available, or another status from the concrete reader.
 - Writes: the consumed byte to `*out` on success.
+- Notes: refills the reader buffer through `vtable->read` when needed.
 
 ### k4c_reader_take_delimiter
 
@@ -70,21 +85,24 @@ k4c_status k4c_reader_take_delimiter(
 
 - Parameters: `reader`, `delimiter`, `out`
 - Returns: `K4C_STATUS_OK` when bytes were consumed, `K4C_STATUS_EOF` when no
-  bytes are available, or another status from the concrete reader.
+  bytes are available, `K4C_STATUS_OVERFLOW` when no delimiter fits in the
+  reader buffer, or another status from the concrete reader.
 - Writes: a cursor over the consumed bytes to `*out` on success.
-- Notes: the generic wrapper dispatches to the concrete reader. The concrete
-  reader defines whether final unterminated data is returned as a last chunk.
+- Notes: the returned cursor points into `reader->data` and is invalidated by
+  the next reader operation that refills or rebases the buffer.
 
 ## EXAMPLES
 
 ### Implement a memory reader
 
-Concrete readers keep their own state and expose it through a `k4c_reader`
-value. The vtable functions consume from that concrete state.
+Concrete readers keep only source-specific state. The vtable function copies
+bytes from that source into the generic reader's buffer; byte and delimiter
+operations are shared by all readers.
 
 ```c
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <k4c/buffer/cursor.h>
 #include <k4c/error.h>
@@ -94,48 +112,25 @@ typedef struct memory_reader {
     k4c_buf_cursor cursor;
 } memory_reader;
 
-static k4c_status memory_take_byte(void *context, uint8_t *out);
-static k4c_status memory_take_delimiter(
-    void *context,
-    uint8_t delimiter,
-    k4c_buf_cursor *out
-);
+static k4c_status memory_read(void *context, uint8_t *data, size_t capacity, size_t *out_len);
 
 static const k4c_reader_vtable memory_reader_vtable = {
-    .take_byte = memory_take_byte,
-    .take_delimiter = memory_take_delimiter,
+    .read = memory_read,
 };
 
-static k4c_status memory_take_byte(void *context, uint8_t *out) {
+static k4c_status memory_read(void *context, uint8_t *data, size_t capacity, size_t *out_len) {
     memory_reader *reader = context;
+    size_t remaining = k4c_buf_cursor_remaining(&reader->cursor);
+    size_t read_len = remaining < capacity ? remaining : capacity;
 
-    return k4c_buf_cursor_next(&reader->cursor, out);
-}
-
-static k4c_status memory_take_delimiter(
-    void *context,
-    uint8_t delimiter,
-    k4c_buf_cursor *out
-) {
-    memory_reader *reader = context;
-    size_t start = reader->cursor.pos;
-
-    while (!k4c_buf_cursor_at_end(&reader->cursor)) {
-        uint8_t byte = 0;
-        K4C_RETURN_IF_ERROR(k4c_buf_cursor_next(&reader->cursor, &byte));
-        if (byte == delimiter) {
-            *out = k4c_buf_cursor_create(
-                reader->cursor.data + start,
-                reader->cursor.pos - start
-            );
-            return K4C_STATUS_OK;
-        }
-    }
-
-    if (reader->cursor.pos > start) {
-        *out = k4c_buf_cursor_create(reader->cursor.data + start, reader->cursor.pos - start);
+    if (read_len > 0) {
+        memcpy(data, reader->cursor.data + reader->cursor.pos, read_len);
+        reader->cursor.pos += read_len;
+        *out_len = read_len;
         return K4C_STATUS_OK;
     }
+
+    *out_len = 0;
     return K4C_STATUS_EOF;
 }
 
@@ -143,11 +138,17 @@ int main(void) {
     memory_reader memory = {
         .cursor = k4c_buf_cursor_create_from_cstr("first\nsecond"),
     };
-    k4c_reader reader = k4c_reader_create(&memory, &memory_reader_vtable);
+    uint8_t buffer[128];
+    k4c_reader reader = k4c_reader_create(
+        &memory,
+        &memory_reader_vtable,
+        buffer,
+        sizeof(buffer)
+    );
 
     k4c_buf_cursor line;
     while (k4c_reader_take_delimiter(&reader, '\n', &line) == K4C_STATUS_OK) {
-        /* line.data points into memory.cursor.data and has line.len bytes */
+        /* line.data points into buffer and has line.len bytes */
     }
     return 0;
 }

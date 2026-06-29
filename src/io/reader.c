@@ -23,40 +23,126 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 
 #include "k4c/assert.h"
 #include "k4c/buffer/cursor.h"
 #include "k4c/error.h"
 #include "k4c/io/reader.h"
 
-k4c_reader k4c_reader_create(void *ctx, const k4c_reader_vtable *vtable) {
+static k4c_status k4c_reader_fill_more(k4c_reader *reader) {
+    if (reader->pos > 0 && reader->pos < reader->len) {
+        reader->len -= reader->pos;
+        memmove(reader->data, reader->data + reader->pos, reader->len);
+        reader->pos = 0;
+    } else if (reader->pos >= reader->len) {
+        reader->pos = 0;
+        reader->len = 0;
+    }
+
+    if (reader->len == reader->capacity) {
+        return K4C_STATUS_OVERFLOW;
+    }
+
+    size_t read_len = 0;
+    k4c_status st = reader->vtable->read(
+        reader->ctx,
+        reader->data + reader->len,
+        reader->capacity - reader->len,
+        &read_len
+    );
+    K4C_ASSERT(
+        read_len <= reader->capacity - reader->len,
+        "fatal: k4c_reader_fill_more invalid read result"
+    );
+
+    reader->len += read_len;
+    if (read_len > 0) {
+        return K4C_STATUS_OK;
+    }
+    if (st == K4C_STATUS_OK) {
+        return K4C_STATUS_EOF;
+    }
+    return st;
+}
+
+k4c_reader k4c_reader_create(
+    void *ctx,
+    const k4c_reader_vtable *vtable,
+    uint8_t *data,
+    size_t capacity
+) {
     K4C_ASSERT(vtable != NULL, "fatal: k4c_reader_create invalid arguments");
-    K4C_ASSERT(vtable->take_byte != NULL, "fatal: k4c_reader_create invalid arguments");
-    K4C_ASSERT(vtable->take_delimiter != NULL, "fatal: k4c_reader_create invalid arguments");
+    K4C_ASSERT(vtable->read != NULL, "fatal: k4c_reader_create invalid arguments");
+    K4C_ASSERT(data != NULL, "fatal: k4c_reader_create invalid arguments");
+    K4C_ASSERT(capacity > 0, "fatal: k4c_reader_create invalid arguments");
 
     return (k4c_reader){
         .ctx = ctx,
         .vtable = vtable,
+        .data = data,
+        .pos = 0,
+        .len = 0,
+        .capacity = capacity,
     };
 }
 
 k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out) {
     K4C_ASSERT(reader != NULL, "fatal: k4c_reader_take_byte invalid arguments");
     K4C_ASSERT(reader->vtable != NULL, "fatal: k4c_reader_take_byte invalid arguments");
-    K4C_ASSERT(reader->vtable->take_byte != NULL, "fatal: k4c_reader_take_byte invalid arguments");
+    K4C_ASSERT(reader->vtable->read != NULL, "fatal: k4c_reader_take_byte invalid arguments");
+    K4C_ASSERT(reader->data != NULL, "fatal: k4c_reader_take_byte invalid arguments");
+    K4C_ASSERT(reader->capacity > 0, "fatal: k4c_reader_take_byte invalid arguments");
     K4C_ASSERT(out != NULL, "fatal: k4c_reader_take_byte invalid arguments");
 
-    return reader->vtable->take_byte(reader->ctx, out);
+    if (reader->pos >= reader->len) {
+        k4c_status st = k4c_reader_fill_more(reader);
+        if (st != K4C_STATUS_OK) {
+            return st;
+        }
+    }
+
+    *out = reader->data[reader->pos];
+    reader->pos += 1;
+    return K4C_STATUS_OK;
 }
 
 k4c_status k4c_reader_take_delimiter(k4c_reader *reader, uint8_t delimiter, k4c_buf_cursor *out) {
     K4C_ASSERT(reader != NULL, "fatal: k4c_reader_take_delimiter invalid arguments");
     K4C_ASSERT(reader->vtable != NULL, "fatal: k4c_reader_take_delimiter invalid arguments");
-    K4C_ASSERT(
-        reader->vtable->take_delimiter != NULL,
-        "fatal: k4c_reader_take_delimiter invalid arguments"
-    );
+    K4C_ASSERT(reader->vtable->read != NULL, "fatal: k4c_reader_take_delimiter invalid arguments");
+    K4C_ASSERT(reader->data != NULL, "fatal: k4c_reader_take_delimiter invalid arguments");
+    K4C_ASSERT(reader->capacity > 0, "fatal: k4c_reader_take_delimiter invalid arguments");
     K4C_ASSERT(out != NULL, "fatal: k4c_reader_take_delimiter invalid arguments");
 
-    return reader->vtable->take_delimiter(reader->ctx, delimiter, out);
+    while (true) {
+        uint8_t *start = reader->data + reader->pos;
+        size_t available = reader->len - reader->pos;
+        uint8_t *found = memchr(start, delimiter, available);
+        if (found != NULL) {
+            size_t out_len = (size_t)(found - start) + 1;
+            *out = k4c_buf_cursor_create(start, out_len);
+            reader->pos += out_len;
+            return K4C_STATUS_OK;
+        }
+
+        if (available == reader->capacity) {
+            return K4C_STATUS_OVERFLOW;
+        }
+
+        k4c_status st = k4c_reader_fill_more(reader);
+        if (st == K4C_STATUS_EOF) {
+            available = reader->len - reader->pos;
+            if (available == 0) {
+                return K4C_STATUS_EOF;
+            }
+
+            *out = k4c_buf_cursor_create(reader->data + reader->pos, available);
+            reader->pos = reader->len;
+            return K4C_STATUS_OK;
+        }
+        if (st != K4C_STATUS_OK) {
+            return st;
+        }
+    }
 }

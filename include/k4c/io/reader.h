@@ -25,6 +25,7 @@
 #ifndef K4C_IO_READER_H
 #define K4C_IO_READER_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "k4c/buffer/cursor.h"
@@ -33,25 +34,33 @@
 typedef struct k4c_reader k4c_reader;
 typedef struct k4c_reader_vtable k4c_reader_vtable;
 
-typedef k4c_status (*k4c_reader_take_byte_fn)(void *context, uint8_t *out);
-typedef k4c_status (*k4c_reader_take_delimiter_fn)(
+typedef k4c_status (*k4c_reader_read_fn)(
     void *context,
-    uint8_t delimiter,
-    k4c_buf_cursor *out
+    uint8_t *data,
+    size_t capacity,
+    size_t *out_len
 );
 
 struct k4c_reader {
     void *ctx;
     const k4c_reader_vtable *vtable;
+    uint8_t *data;
+    size_t pos;
+    size_t len;
+    size_t capacity;
 };
 
 struct k4c_reader_vtable {
-    k4c_reader_take_byte_fn take_byte;
-    k4c_reader_take_delimiter_fn take_delimiter;
+    k4c_reader_read_fn read;
 };
 
-/* Create a non-owning reader over ctx using vtable for operations. */
-k4c_reader k4c_reader_create(void *ctx, const k4c_reader_vtable *vtable);
+/* Create a non-owning buffered reader over ctx using vtable for source reads. */
+k4c_reader k4c_reader_create(
+    void *ctx,
+    const k4c_reader_vtable *vtable,
+    uint8_t *data,
+    size_t capacity
+);
 
 /* Take and return the next byte from reader. */
 k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out);

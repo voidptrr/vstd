@@ -101,16 +101,19 @@ K4C_TEST(create_initializes_reader) {
     if (k4c_test_equal_ptr(reader.data, data) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
-    if (k4c_test_equal(reader.len, 0) != 0) {
-        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
-    }
     if (k4c_test_equal(reader.buffer_capacity, 64) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
-    if (k4c_test_equal(reader.buffer_pos, 0) != 0) {
+    if (k4c_test_equal_ptr(generic.data, data) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
-    if (k4c_test_equal(reader.buffer_len, 0) != 0) {
+    if (k4c_test_equal(generic.pos, 0) != 0) {
+        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
+    }
+    if (k4c_test_equal(generic.len, 0) != 0) {
+        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
+    }
+    if (k4c_test_equal(generic.capacity, 64) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
 
@@ -133,16 +136,7 @@ K4C_TEST(create_rejects_null_file) {
     if (k4c_test_equal(reader.data == NULL, true) != 0) {
         return 1;
     }
-    if (k4c_test_equal(reader.len, 0) != 0) {
-        return 1;
-    }
     if (k4c_test_equal(reader.buffer_capacity, 0) != 0) {
-        return 1;
-    }
-    if (k4c_test_equal(reader.buffer_pos, 0) != 0) {
-        return 1;
-    }
-    if (k4c_test_equal(reader.buffer_len, 0) != 0) {
         return 1;
     }
     return 0;
@@ -195,16 +189,7 @@ K4C_TEST(close_resets_reader_without_closing_stream) {
     if (k4c_test_equal(reader.data == NULL, true) != 0) {
         return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
-    if (k4c_test_equal(reader.len, 0) != 0) {
-        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
-    }
     if (k4c_test_equal(reader.buffer_capacity, 0) != 0) {
-        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
-    }
-    if (k4c_test_equal(reader.buffer_pos, 0) != 0) {
-        return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
-    }
-    if (k4c_test_equal(reader.buffer_len, 0) != 0) {
         return k4c_io_test_cleanup_stream_file_dir_and_return(file, file_path, dir, 1);
     }
     if (k4c_test_status_ok(k4c_file_reader_close(&reader)) != 0) {
@@ -349,7 +334,10 @@ K4C_TEST(create_reader_rejects_delimiters_over_buffer_capacity) {
         != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
-    if (k4c_test_equal(reader.len, 4) != 0) {
+    if (k4c_test_equal(generic.len, 4) != 0) {
+        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
+    }
+    if (k4c_test_equal(generic.pos, 0) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
 
@@ -386,7 +374,10 @@ K4C_TEST(create_reader_rejects_final_delimited_chunk_at_buffer_capacity) {
         != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
-    if (k4c_test_equal(reader.len, 4) != 0) {
+    if (k4c_test_equal(generic.len, 4) != 0) {
+        return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
+    }
+    if (k4c_test_equal(generic.pos, 0) != 0) {
         return cleanup_reader_stream_file_dir_and_return(&reader, file, file_path, dir, 1);
     }
 
