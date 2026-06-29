@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-#include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -30,31 +29,18 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "io/common.h"
 #include "k4c/assert.h"
 #include "k4c/error.h"
 #include "k4c/io/file.h"
 #include "k4c/memory/allocator.h"
-
-static bool k4c_file_errno_is_not_found(void) {
-    return errno == ENOENT || errno == ENOTDIR;
-}
-
-static k4c_status k4c_file_close(FILE *file) {
-    K4C_ASSERT(file != NULL, "fatal: k4c_file_close invalid arguments");
-
-    return fclose(file) == 0 ? K4C_STATUS_OK : K4C_STATUS_IO;
-}
-
-static k4c_status k4c_file_preserve_status(k4c_status status, k4c_status cleanup_status) {
-    return status != K4C_STATUS_OK ? status : cleanup_status;
-}
 
 static k4c_status k4c_file_stat(const char *path, struct stat *out) {
     K4C_ASSERT(path != NULL, "fatal: k4c_file_stat invalid arguments");
     K4C_ASSERT(out != NULL, "fatal: k4c_file_stat invalid arguments");
 
     if (stat(path, out) != 0) {
-        if (k4c_file_errno_is_not_found()) {
+        if (k4c_io_errno_is_not_found()) {
             return K4C_STATUS_NOT_FOUND;
         }
         return K4C_STATUS_IO;
@@ -115,7 +101,7 @@ k4c_status k4c_file_read_all(
 
     FILE *file = fopen(path, "rb");
     if (file == NULL) {
-        if (k4c_file_errno_is_not_found()) {
+        if (k4c_io_errno_is_not_found()) {
             return K4C_STATUS_NOT_FOUND;
         }
         return K4C_STATUS_IO;
@@ -126,17 +112,17 @@ k4c_status k4c_file_read_all(
     uint8_t *data = NULL;
     k4c_status st = k4c_alloc(k4c_allocator, alloc_len, (void **)&data);
     if (st != K4C_STATUS_OK) {
-        return k4c_file_preserve_status(st, k4c_file_close(file));
+        return k4c_io_preserve_status(st, k4c_io_file_close(file));
     }
     memset(data, 0, alloc_len);
 
     size_t read_len = fread(data, 1, len, file);
     if (read_len != len || ferror(file)) {
         k4c_dealloc(k4c_allocator, data);
-        return k4c_file_preserve_status(K4C_STATUS_IO, k4c_file_close(file));
+        return k4c_io_preserve_status(K4C_STATUS_IO, k4c_io_file_close(file));
     }
 
-    if (k4c_file_close(file) != K4C_STATUS_OK) {
+    if (k4c_io_file_close(file) != K4C_STATUS_OK) {
         k4c_dealloc(k4c_allocator, data);
         return K4C_STATUS_IO;
     }
@@ -156,8 +142,8 @@ k4c_status k4c_file_write_all(const char *path, const void *data, size_t len) {
     }
 
     if (len > 0 && fwrite(data, 1, len, file) != len) {
-        return k4c_file_preserve_status(K4C_STATUS_IO, k4c_file_close(file));
+        return k4c_io_preserve_status(K4C_STATUS_IO, k4c_io_file_close(file));
     }
 
-    return k4c_file_close(file);
+    return k4c_io_file_close(file);
 }

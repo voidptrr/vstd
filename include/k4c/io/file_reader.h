@@ -31,7 +31,6 @@
 
 #include "k4c/buffer/cursor.h"
 #include "k4c/error.h"
-#include "k4c/memory/allocator.h"
 
 typedef enum k4c_file_reader_mode {
     K4C_FILE_READER_MODE_BYTES,
@@ -44,31 +43,33 @@ typedef struct k4c_file_reader {
     FILE *file;
     uint8_t *data;
     size_t len;
-    size_t capacity;
+    /* Maximum bytes held in data for one read result. */
+    size_t buffer_capacity;
 } k4c_file_reader;
 
-/* Open path and allocate reader storage for chunks up to capacity bytes. */
-k4c_status k4c_file_reader_open(
-    k4c_file_reader *reader,
-    const char *path,
-    k4c_allocator *k4c_allocator,
-    k4c_file_reader_mode mode,
-    size_t capacity
-);
-
-/* Initialize reader from an existing FILE pointer and caller-provided storage. */
+/*
+ * Initialize reader from an existing FILE pointer and caller-provided storage.
+ * The caller owns file and data. data must point to buffer_capacity bytes and
+ * outlive the reader.
+ * buffer_capacity is both the maximum chunk size and the maximum accepted line
+ * length in line mode.
+ */
 k4c_status k4c_file_reader_init(
     k4c_file_reader *reader,
     FILE *file,
     k4c_file_reader_mode mode,
     uint8_t *data,
-    size_t capacity
+    size_t buffer_capacity
 );
 
-/* Read the next chunk according to reader mode into reader-owned storage. */
+/*
+ * Read the next chunk according to reader mode into reader-owned storage.
+ * Line chunks include the terminating newline when present. LIMIT mode is not
+ * implemented yet and returns K4C_STATUS_UNSUPPORTED.
+ */
 k4c_status k4c_file_reader_next(k4c_file_reader *reader, k4c_buf_cursor *out);
 
-/* Close the reader and release storage owned by k4c_file_reader_open. */
+/* Reset the reader. Caller-owned file and data are not released. */
 k4c_status k4c_file_reader_close(k4c_file_reader *reader);
 
 #endif
