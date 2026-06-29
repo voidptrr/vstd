@@ -33,8 +33,7 @@
 #include "k4c/io/file_reader.h"
 
 static bool k4c_file_reader_mode_is_valid(k4c_file_reader_mode mode) {
-    return mode == K4C_FILE_READER_MODE_BYTES || mode == K4C_FILE_READER_MODE_LINE
-           || mode == K4C_FILE_READER_MODE_LIMIT;
+    return mode == K4C_FILE_READER_MODE_BYTES || mode == K4C_FILE_READER_MODE_LINE;
 }
 
 static void k4c_file_reader_reset(k4c_file_reader *reader) {
@@ -121,8 +120,6 @@ k4c_status k4c_file_reader_next(k4c_file_reader *reader, k4c_buf_cursor *out) {
             return k4c_file_reader_next_bytes(reader, out);
         case K4C_FILE_READER_MODE_LINE:
             return k4c_file_reader_next_line(reader, out);
-        case K4C_FILE_READER_MODE_LIMIT:
-            return K4C_STATUS_UNSUPPORTED;
     }
     return K4C_STATUS_INVALID_ARGUMENT;
 }

@@ -35,7 +35,6 @@
 typedef enum k4c_file_reader_mode {
     K4C_FILE_READER_MODE_BYTES,
     K4C_FILE_READER_MODE_LINE,
-    K4C_FILE_READER_MODE_LIMIT,
 } k4c_file_reader_mode;
 
 typedef struct k4c_file_reader {
@@ -64,8 +63,7 @@ k4c_status k4c_file_reader_init(
 
 /*
  * Read the next chunk according to reader mode into reader-owned storage.
- * Line chunks include the terminating newline when present. LIMIT mode is not
- * implemented yet and returns K4C_STATUS_UNSUPPORTED.
+ * Line chunks include the terminating newline when present.
  */
 k4c_status k4c_file_reader_next(k4c_file_reader *reader, k4c_buf_cursor *out);
 
