@@ -28,7 +28,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "allocators/size.h"
+#include "mem/size.h"
 #include "k4c/allocators/allocator.h"
 #include "k4c/assert.h"
 #include "k4c/datastruct/linked_list.h"

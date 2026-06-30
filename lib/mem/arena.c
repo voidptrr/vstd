@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "allocators/size.h"
+#include "mem/size.h"
 #include "k4c/allocators/allocator.h"
 #include "k4c/allocators/arena.h"
 #include "k4c/allocators/utils.h"

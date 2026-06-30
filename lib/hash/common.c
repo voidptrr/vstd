@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "allocators/size.h"
+#include "mem/size.h"
 #include "hash/common.h"
 #include "k4c/allocators/allocator.h"
 #include "k4c/assert.h"

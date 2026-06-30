@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "allocators/size.h"
+#include "mem/size.h"
 #include "hash/common.h"
 #include "hash/fnv.h"
 #include "k4c/allocators/allocator.h"
