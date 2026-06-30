@@ -30,20 +30,48 @@
 #include "k4c/error.h"
 #include "k4c/io/reader.h"
 
-static k4c_status k4c_reader_fill_more(k4c_reader *reader, size_t max_read_len) {
+/*
+ * Ensure `capacity` bytes can be addressed contiguously from reader->pos.
+ * This mirrors Zig's Reader.rebase: keep unread bytes where they are when the
+ * tail has enough room, and compact only when the requested contiguous window
+ * would otherwise run past the end of reader->data.
+ */
+static k4c_status k4c_reader_rebase(k4c_reader *reader, size_t capacity) {
+    if (capacity > reader->capacity) {
+        return K4C_STATUS_OVERFLOW;
+    }
+    if (reader->capacity - reader->pos >= capacity) {
+        return K4C_STATUS_OK;
+    }
+
     size_t available = reader->len - reader->pos;
-    if (available == reader->capacity) {
+    if (available > capacity) {
         return K4C_STATUS_OVERFLOW;
     }
 
     if (available == 0) {
         reader->pos = 0;
         reader->len = 0;
-    } else if (reader->pos > 0) {
+    } else {
         memmove(reader->data, reader->data + reader->pos, available);
         reader->pos = 0;
         reader->len = available;
     }
+
+    return K4C_STATUS_OK;
+}
+
+/*
+ * Read more bytes into the buffered window.
+ * `required_capacity` is the contiguous window the caller needs from pos,
+ * while `max_read_len` caps how many new bytes are requested from the source.
+ */
+static k4c_status k4c_reader_fill_more(
+    k4c_reader *reader,
+    size_t required_capacity,
+    size_t max_read_len
+) {
+    K4C_RETURN_IF_ERROR(k4c_reader_rebase(reader, required_capacity));
 
     size_t free_capacity = reader->capacity - reader->len;
     size_t read_capacity = max_read_len < free_capacity ? max_read_len : free_capacity;
@@ -96,7 +124,7 @@ k4c_status k4c_reader_take_byte(k4c_reader *reader, uint8_t *out) {
     K4C_ASSERT(out != NULL, "fatal: k4c_reader_take_byte invalid arguments");
 
     if (reader->pos >= reader->len) {
-        k4c_status st = k4c_reader_fill_more(reader, reader->capacity);
+        k4c_status st = k4c_reader_fill_more(reader, 1, reader->capacity);
         if (st != K4C_STATUS_OK) {
             return st;
         }
@@ -121,7 +149,7 @@ k4c_status k4c_reader_take_array(k4c_reader *reader, size_t count, k4c_buf_curso
 
     while (reader->len - reader->pos < count) {
         size_t available = reader->len - reader->pos;
-        k4c_status st = k4c_reader_fill_more(reader, count - available);
+        k4c_status st = k4c_reader_fill_more(reader, count, count - available);
         if (st != K4C_STATUS_OK) {
             return st;
         }
@@ -145,7 +173,7 @@ k4c_status k4c_reader_take_delimiter(k4c_reader *reader, uint8_t delimiter, k4c_
         size_t available = reader->len - reader->pos;
 
         if (available == 0) {
-            k4c_status st = k4c_reader_fill_more(reader, reader->capacity);
+            k4c_status st = k4c_reader_fill_more(reader, 1, reader->capacity);
             if (st != K4C_STATUS_OK) {
                 return st;
             }
@@ -158,7 +186,7 @@ k4c_status k4c_reader_take_delimiter(k4c_reader *reader, uint8_t delimiter, k4c_
         }
 
         if (found == NULL) {
-            k4c_status st = k4c_reader_fill_more(reader, reader->capacity);
+            k4c_status st = k4c_reader_fill_more(reader, available + 1, reader->capacity);
             if (st == K4C_STATUS_EOF) {
                 available = reader->len - reader->pos;
                 if (available == 0) {
