@@ -22,31 +22,18 @@
  * SOFTWARE.
  */
 
-#ifndef K4C_IO_FILE_H
-#define K4C_IO_FILE_H
-
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
-#include "k4c/allocators/allocator.h"
-#include "k4c/error.h"
+#include "k4c/allocators/utils.h"
 
-/* Return whether path exists and is a directory. */
-k4c_status k4c_file_is_dir(const char *path, bool *out);
+void k4c_memswap(void *a, void *b, size_t size) {
+    uint8_t *left = (uint8_t *)a;
+    uint8_t *right = (uint8_t *)b;
 
-/* Return the byte size of a regular file. */
-k4c_status k4c_file_size(const char *path, size_t *out);
-
-/* Read the whole file into allocator-owned memory. */
-k4c_status k4c_file_read_all(
-    const char *path,
-    k4c_allocator *k4c_allocator,
-    uint8_t **out_data,
-    size_t *out_len
-);
-
-/* Write data[0..len) to path, replacing any existing file. */
-k4c_status k4c_file_write_all(const char *path, const void *data, size_t len);
-
-#endif
+    for (size_t i = 0; i < size; i++) {
+        uint8_t tmp = left[i];
+        left[i] = right[i];
+        right[i] = tmp;
+    }
+}

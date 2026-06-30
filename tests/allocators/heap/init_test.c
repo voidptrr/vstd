@@ -22,31 +22,49 @@
  * SOFTWARE.
  */
 
-#ifndef K4C_IO_FILE_H
-#define K4C_IO_FILE_H
-
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
 #include "k4c/allocators/allocator.h"
+#include "k4c/allocators/general_heap.h"
 #include "k4c/error.h"
+#include "k4c/testing.h"
 
-/* Return whether path exists and is a directory. */
-k4c_status k4c_file_is_dir(const char *path, bool *out);
+int main(void) {
+    k4c_heap *k4c_heap = NULL;
+    if (k4c_test_equal(k4c_heap_create(1024, &k4c_heap), K4C_STATUS_OK)) {
+        return 1;
+    }
+    k4c_allocator k4c_allocator = k4c_heap_allocator_view(k4c_heap);
 
-/* Return the byte size of a regular file. */
-k4c_status k4c_file_size(const char *path, size_t *out);
+    if (k4c_test_equal_ptr(k4c_allocator.ctx, k4c_heap) != 0) {
+        return 1;
+    }
+    if (k4c_allocator.vtable == NULL) {
+        return 1;
+    }
+    if (k4c_test_equal(k4c_allocator.vtable->alloc != NULL, true) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(k4c_allocator.vtable->resize != NULL, true) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(k4c_allocator.vtable->dealloc != NULL, true) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(
+            k4c_allocator.features
+                == (K4C_ALLOCATOR_FEATURE_DEALLOC | K4C_ALLOCATOR_FEATURE_REALLOC),
+            true
+        )
+        != 0) {
+        return 1;
+    }
 
-/* Read the whole file into allocator-owned memory. */
-k4c_status k4c_file_read_all(
-    const char *path,
-    k4c_allocator *k4c_allocator,
-    uint8_t **out_data,
-    size_t *out_len
-);
+    if (k4c_test_equal(k4c_heap_capacity(k4c_heap) > 0, true) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(k4c_heap_available(k4c_heap) > 0, true) != 0) {
+        return 1;
+    }
 
-/* Write data[0..len) to path, replacing any existing file. */
-k4c_status k4c_file_write_all(const char *path, const void *data, size_t len);
-
-#endif
+    k4c_heap_destroy(k4c_heap);
+    return 0;
+}

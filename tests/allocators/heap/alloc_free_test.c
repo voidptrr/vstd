@@ -22,31 +22,43 @@
  * SOFTWARE.
  */
 
-#ifndef K4C_IO_FILE_H
-#define K4C_IO_FILE_H
-
-#include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
 
 #include "k4c/allocators/allocator.h"
+#include "k4c/allocators/general_heap.h"
 #include "k4c/error.h"
+#include "k4c/testing.h"
 
-/* Return whether path exists and is a directory. */
-k4c_status k4c_file_is_dir(const char *path, bool *out);
+int main(void) {
+    k4c_heap *k4c_heap = NULL;
+    if (k4c_test_equal(k4c_heap_create(2048, &k4c_heap), K4C_STATUS_OK)) {
+        return 1;
+    }
+    size_t before = k4c_heap_available(k4c_heap);
+    k4c_allocator allocator = k4c_heap_allocator_view(k4c_heap);
 
-/* Return the byte size of a regular file. */
-k4c_status k4c_file_size(const char *path, size_t *out);
+    int *a = NULL;
+    int *b = NULL;
+    if (k4c_test_status_ok(k4c_alloc(&allocator, sizeof(int), (void **)&a)) != 0) {
+        return 1;
+    }
+    if (k4c_test_status_ok(k4c_alloc(&allocator, sizeof(int), (void **)&b)) != 0) {
+        return 1;
+    }
+    if (k4c_test_not_null(a) != 0) {
+        return 1;
+    }
+    if (k4c_test_not_null(b) != 0) {
+        return 1;
+    }
 
-/* Read the whole file into allocator-owned memory. */
-k4c_status k4c_file_read_all(
-    const char *path,
-    k4c_allocator *k4c_allocator,
-    uint8_t **out_data,
-    size_t *out_len
-);
+    size_t after = k4c_heap_available(k4c_heap);
+    if (k4c_test_equal(after < before, true) != 0) {
+        return 1;
+    }
 
-/* Write data[0..len) to path, replacing any existing file. */
-k4c_status k4c_file_write_all(const char *path, const void *data, size_t len);
-
-#endif
+    k4c_dealloc(&allocator, a);
+    k4c_dealloc(&allocator, b);
+    k4c_heap_destroy(k4c_heap);
+    return 0;
+}

@@ -1,0 +1,91 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2026 Tommaso Bruno
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#ifndef K4C_DEQUE_H
+#define K4C_DEQUE_H
+
+#include <stdbool.h>
+#include <stddef.h>
+
+#include "k4c/allocators/allocator.h"
+#include "k4c/datastruct/iterator.h"
+#include "k4c/error.h"
+
+#define k4c_deque_for_each(type, item, k4c_deque) \
+    for (k4c_iterator item##_iter__ = k4c_deque_get_iterator((k4c_deque)); \
+         item##_iter__.next != NULL; \
+         item##_iter__.next = NULL) \
+    k4c_iterator_for_each(type, item, &item##_iter__)
+
+/*
+ * Opaque generic double-ended queue backed by circular storage.
+ *
+ * Logical view:
+ *
+ *              popleft                 popback
+ *                 |                       |
+ *                 v                       v
+ *          +------+------+------+ ... +------+
+ *   front  |  T   |  T   |  T   |     |  T   |  back
+ *          +------+------+------+ ... +------+
+ *                 ^                       ^
+ *                 |                       |
+ *             pushfront                 push
+ *
+ * Storage may wrap internally, but callers observe a normal front-to-back
+ * sequence.
+ */
+typedef struct k4c_deque k4c_deque;
+
+/* Create a k4c_deque with element size elem_size. */
+k4c_status k4c_deque_create(size_t elem_size, k4c_allocator *k4c_allocator, k4c_deque **out);
+
+/* Enqueue one element by copying elem_size bytes from element. */
+k4c_status k4c_deque_push(k4c_deque *k4c_deque, const void *element);
+
+/* Enqueue one element at the front by copying elem_size bytes from element. */
+k4c_status k4c_deque_pushfront(k4c_deque *k4c_deque, const void *element);
+
+/* Dequeue and return the front element pointer, or NULL when empty. */
+void *k4c_deque_popleft(k4c_deque *k4c_deque);
+
+/* Remove and return the back element pointer, or NULL when empty. */
+void *k4c_deque_popback(k4c_deque *k4c_deque);
+
+/* Return the front element pointer without removing it, or NULL when empty. */
+const void *k4c_deque_peekleft(const k4c_deque *k4c_deque);
+
+/* Return the back element pointer without removing it, or NULL when empty. */
+const void *k4c_deque_peekback(const k4c_deque *k4c_deque);
+
+/* Return the number of stored elements. */
+size_t k4c_deque_size(const k4c_deque *k4c_deque);
+
+/* Return an k4c_iterator over k4c_deque from front to back. */
+k4c_iterator k4c_deque_get_iterator(const k4c_deque *k4c_deque);
+
+/* Destroy and release owned storage. */
+void k4c_deque_destroy(k4c_deque *k4c_deque);
+
+#endif

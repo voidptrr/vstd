@@ -22,31 +22,54 @@
  * SOFTWARE.
  */
 
-#ifndef K4C_IO_FILE_H
-#define K4C_IO_FILE_H
-
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "k4c/allocators/allocator.h"
+#include "k4c/allocators/arena.h"
+#include "k4c/allocators/utils.h"
 #include "k4c/error.h"
+#include "k4c/testing.h"
 
-/* Return whether path exists and is a directory. */
-k4c_status k4c_file_is_dir(const char *path, bool *out);
+int main(void) {
+    k4c_arena *k4c_arena = NULL;
+    if (k4c_test_equal(k4c_arena_create(256, &k4c_arena), K4C_STATUS_OK)) {
+        return 1;
+    }
+    k4c_allocator allocator = k4c_arena_allocator_view(k4c_arena);
+    size_t grown_size = K4C_MEMORY_ALIGN * 2;
 
-/* Return the byte size of a regular file. */
-k4c_status k4c_file_size(const char *path, size_t *out);
+    uint64_t *value = NULL;
+    if (k4c_test_status_ok(k4c_alloc(&allocator, sizeof(uint64_t), (void **)&value)) != 0) {
+        return 1;
+    }
+    if (k4c_test_not_null(value) != 0) {
+        return 1;
+    }
+    *value = 42;
 
-/* Read the whole file into allocator-owned memory. */
-k4c_status k4c_file_read_all(
-    const char *path,
-    k4c_allocator *k4c_allocator,
-    uint8_t **out_data,
-    size_t *out_len
-);
+    uint64_t *grown = NULL;
+    if (k4c_test_status_ok(k4c_resize(&allocator, value, grown_size, (void **)&grown)) != 0) {
+        return 1;
+    }
+    if (k4c_test_not_null(grown) != 0) {
+        return 1;
+    }
+    if (k4c_test_not_equal_ptr(grown, value) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(grown[0], 42) != 0) {
+        return 1;
+    }
 
-/* Write data[0..len) to path, replacing any existing file. */
-k4c_status k4c_file_write_all(const char *path, const void *data, size_t len);
+    uint64_t *same = NULL;
+    if (k4c_test_status_ok(k4c_resize(&allocator, grown, grown_size, (void **)&same)) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal_ptr(same, grown) != 0) {
+        return 1;
+    }
 
-#endif
+    k4c_arena_destroy(k4c_arena);
+    return 0;
+}

@@ -14,7 +14,7 @@ foreach(test_source IN LISTS TEST_SOURCES)
     add_executable("${test_name}" "${test_source}")
     target_include_directories("${test_name}" PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}"
     )
     target_compile_options("${test_name}" PRIVATE
         -Wall

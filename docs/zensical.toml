@@ -42,25 +42,27 @@ nav = [
     { "File reader" = "io/file-reader.md" },
     { "Reader" = "io/reader.md" },
   ] },
-  { "Memory" = [
-    { "Utilities" = "reference/k4c-memory-utils.md" },
+  { "Allocators" = [
+    { "Utilities" = "allocators/utils.md" },
     { "Allocators" = [
-      { "Overview" = "reference/k4c-memory-allocators.md" },
-      { "Arena allocator" = "reference/k4c-memory-arena.md" },
-      { "Free-list allocator" = "reference/k4c-memory-general-heap.md" },
-      { "Test allocator" = "reference/k4c-memory-test-allocator.md" },
+      { "Overview" = "allocators/overview.md" },
+      { "Arena allocator" = "allocators/arena.md" },
+      { "Free-list allocator" = "allocators/general-heap.md" },
+      { "Test allocator" = "allocators/test-allocator.md" },
     ] },
   ] },
+  { "Hash" = [
+    { "Hashmap" = "hash/hashmap.md" },
+    { "Hashset" = "hash/hashset.md" },
+  ] },
   { "Data structures" = [
-    { "Iterators" = "data-structures/iterator.md" },
-    { "Hashmap" = "data-structures/hashmap.md" },
-    { "Hashset" = "data-structures/hashset.md" },
-    { "Binary heap" = "data-structures/binary-heap.md" },
-    { "Vector" = "data-structures/vector.md" },
-    { "Deque" = "data-structures/deque.md" },
-    { "Linked list" = "data-structures/linked-list.md" },
-    { "Doubly linked list" = "data-structures/doubly-linked-list.md" },
-    { "String" = "data-structures/string.md" },
+    { "Iterators" = "datastruct/iterator.md" },
+    { "Binary heap" = "datastruct/binary-heap.md" },
+    { "Vector" = "datastruct/vector.md" },
+    { "Deque" = "datastruct/deque.md" },
+    { "Linked list" = "datastruct/linked-list.md" },
+    { "Doubly linked list" = "datastruct/doubly-linked-list.md" },
+    { "String" = "datastruct/string.md" },
   ] },
 ]
 

@@ -22,31 +22,48 @@
  * SOFTWARE.
  */
 
-#ifndef K4C_IO_FILE_H
-#define K4C_IO_FILE_H
-
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <string.h>
 
 #include "k4c/allocators/allocator.h"
+#include "k4c/allocators/general_heap.h"
 #include "k4c/error.h"
+#include "k4c/testing.h"
 
-/* Return whether path exists and is a directory. */
-k4c_status k4c_file_is_dir(const char *path, bool *out);
+int main(void) {
+    k4c_heap *k4c_heap = NULL;
+    if (k4c_test_equal(k4c_heap_create(4096, &k4c_heap), K4C_STATUS_OK)) {
+        return 1;
+    }
+    k4c_allocator allocator = k4c_heap_allocator_view(k4c_heap);
+    char *ptr = NULL;
+    if (k4c_test_status_ok(k4c_resize(&allocator, NULL, 32, (void **)&ptr)) != 0) {
+        return 1;
+    }
+    if (k4c_test_not_null(ptr) != 0) {
+        return 1;
+    }
 
-/* Return the byte size of a regular file. */
-k4c_status k4c_file_size(const char *path, size_t *out);
+    memcpy(ptr, "hello", 6);
+    char *grown = NULL;
+    if (k4c_test_status_ok(k4c_resize(&allocator, ptr, 128, (void **)&grown)) != 0) {
+        return 1;
+    }
+    ptr = grown;
+    if (k4c_test_not_null(ptr) != 0) {
+        return 1;
+    }
+    if (k4c_test_equal(memcmp(ptr, "hello", 6), 0) != 0) {
+        return 1;
+    }
 
-/* Read the whole file into allocator-owned memory. */
-k4c_status k4c_file_read_all(
-    const char *path,
-    k4c_allocator *k4c_allocator,
-    uint8_t **out_data,
-    size_t *out_len
-);
+    char *cleared = ptr;
+    if (k4c_test_status_ok(k4c_resize(&allocator, ptr, 0, (void **)&cleared)) != 0) {
+        return 1;
+    }
+    if (k4c_test_null(cleared) != 0) {
+        return 1;
+    }
 
-/* Write data[0..len) to path, replacing any existing file. */
-k4c_status k4c_file_write_all(const char *path, const void *data, size_t len);
-
-#endif
+    k4c_heap_destroy(k4c_heap);
+    return 0;
+}

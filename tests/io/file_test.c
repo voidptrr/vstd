@@ -28,10 +28,10 @@
 #include <string.h>
 
 #include "common.h"
+#include "k4c/allocators/allocator.h"
+#include "k4c/allocators/test_allocator.h"
 #include "k4c/error.h"
 #include "k4c/io/file.h"
-#include "k4c/memory/allocator.h"
-#include "k4c/memory/test_allocator.h"
 #include "k4c/testing.h"
 
 K4C_TEST(is_dir_reports_directories_and_files) {

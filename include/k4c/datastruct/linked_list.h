@@ -1,0 +1,106 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2026 Tommaso Bruno
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#ifndef K4C_LINKED_LIST_H
+#define K4C_LINKED_LIST_H
+
+#include <stdbool.h>
+#include <stddef.h>
+
+#include "k4c/allocators/allocator.h"
+#include "k4c/allocators/utils.h"
+#include "k4c/datastruct/iterator.h"
+#include "k4c/error.h"
+
+#define k4c_linked_list_for_each_node(item, list) \
+    for (k4c_iterator item##_iter__ = k4c_linked_list_get_iterator((list)); \
+         ((item) = K4C_ITER_NEXT_AS(k4c_linked_list_node, &item##_iter__)) != NULL;)
+
+#define k4c_linked_list_for_each_entry(type, member, item, list) \
+    for (k4c_iterator item##_iter__ = k4c_linked_list_get_iterator((list)); \
+         item##_iter__.next != NULL; \
+         item##_iter__.next = NULL) \
+        for (const k4c_linked_list_node *item##_node__ = k4c_iterator_next(&item##_iter__); \
+             item##_node__ != NULL \
+             && ((item) = K4C_CONTAINER_OF(item##_node__, type, member)) != NULL; \
+             item##_node__ = k4c_iterator_next(&item##_iter__))
+
+/*
+ * Opaque intrusive singly linked list.
+ *
+ * Logical view:
+ *
+ *   head                                      tail
+ *    |                                         |
+ *    v                                         v
+ *  +------+    +------+    +------+        +------+
+ *  | node | -> | node | -> | node |  ...   | node | -> NULL
+ *  +------+    +------+    +------+        +------+
+ *     ^           ^           ^               ^
+ *     |           |           |               |
+ *  user object embeds k4c_linked_list_node
+ *
+ * - push appends at tail
+ * - pushfront prepends at head
+ * - popleft removes from head
+ * - linked list nodes and owning objects are caller-owned
+ */
+
+typedef struct k4c_linked_list_node {
+    struct k4c_linked_list_node *next;
+} k4c_linked_list_node;
+
+typedef struct k4c_linked_list k4c_linked_list;
+
+/* Create an intrusive linked list. */
+k4c_status k4c_linked_list_create(k4c_allocator *k4c_allocator, k4c_linked_list **out);
+
+/* Append node at the tail. */
+void k4c_linked_list_push(k4c_linked_list *list, k4c_linked_list_node *node);
+
+/* Prepend node at the head. */
+void k4c_linked_list_pushfront(k4c_linked_list *list, k4c_linked_list_node *node);
+
+/* Remove and return the head node, or NULL when empty. */
+k4c_linked_list_node *k4c_linked_list_popleft(k4c_linked_list *list);
+
+/* Remove and return the node after prev, or the head node when prev is NULL. */
+k4c_linked_list_node *k4c_linked_list_remove_after(
+    k4c_linked_list *list,
+    k4c_linked_list_node *prev
+);
+
+/* Return the number of stored elements. */
+size_t k4c_linked_list_size(const k4c_linked_list *list);
+
+/* Return the head node, or NULL when empty. */
+k4c_linked_list_node *k4c_linked_list_head(const k4c_linked_list *list);
+
+/* Return an k4c_iterator over list nodes from head to tail. */
+k4c_iterator k4c_linked_list_get_iterator(const k4c_linked_list *list);
+
+/* Release the linked-list handle. Nodes remain caller-owned. */
+void k4c_linked_list_destroy(k4c_linked_list *list);
+
+#endif

@@ -6,7 +6,7 @@ The testing module provides small helpers for C tests that return `0` on success
 and non-zero on failure.
 
 Function-style test assertions live in this header. The malloc-backed tracking
-k4c_allocator lives in `k4c/memory/k4c_test_allocator.h`.
+k4c_allocator lives in `k4c/allocators/test_allocator.h`.
 
 ## ASSERTIONS
 

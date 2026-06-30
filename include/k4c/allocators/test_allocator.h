@@ -22,31 +22,32 @@
  * SOFTWARE.
  */
 
-#ifndef K4C_IO_FILE_H
-#define K4C_IO_FILE_H
+#ifndef K4C_TEST_ALLOCATOR_H
+#define K4C_TEST_ALLOCATOR_H
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
 
 #include "k4c/allocators/allocator.h"
-#include "k4c/error.h"
 
-/* Return whether path exists and is a directory. */
-k4c_status k4c_file_is_dir(const char *path, bool *out);
+#define K4C_TEST_ALLOCATOR_NO_FAILURE ((size_t)-1)
 
-/* Return the byte size of a regular file. */
-k4c_status k4c_file_size(const char *path, size_t *out);
+typedef struct k4c_test_allocator {
+    size_t alloc_count;
+    size_t realloc_count;
+    size_t dealloc_count;
+    size_t outstanding_allocations;
+    size_t failed_allocations;
+    size_t fail_after;
+} k4c_test_allocator;
 
-/* Read the whole file into allocator-owned memory. */
-k4c_status k4c_file_read_all(
-    const char *path,
-    k4c_allocator *k4c_allocator,
-    uint8_t **out_data,
-    size_t *out_len
-);
+/* Initialize a malloc-backed tracking k4c_allocator and return its generic view. */
+k4c_allocator k4c_test_allocator_init(k4c_test_allocator *k4c_test_allocator);
 
-/* Write data[0..len) to path, replacing any existing file. */
-k4c_status k4c_file_write_all(const char *path, const void *data, size_t len);
+/* Reset event counters while keeping outstanding allocation state and fail_after. */
+void k4c_test_allocator_reset_counts(k4c_test_allocator *k4c_test_allocator);
+
+/* Return whether every tracked allocation has been released. */
+bool k4c_test_allocator_is_clean(const k4c_test_allocator *k4c_test_allocator);
 
 #endif
